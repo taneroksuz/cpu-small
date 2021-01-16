@@ -12,6 +12,7 @@ RISCV_LINK_OPTS ?= -static -nostartfiles -lm -lc -lgcc -T $(src_dir)/common/test
 RISCV_OBJDUMP ?= $(RISCV)/riscv64-unknown-elf-objdump -S -Mnumeric,no-aliases --disassemble-all --disassemble-zeroes
 RISCV_OBJCOPY ?= $(RISCV)/riscv64-unknown-elf-objcopy -O binary
 RISCV_INCL ?= -I$(src_dir)/env -I$(src_dir)/dhrystone -I$(src_dir)/common
+RISCV_NM ?= $(RISCV)/riscv64-unknown-elf-nm -A
 
 dhrystone.elf: $(objs)
 	$(RISCV_GCC) $(RISCV_INCL) $(RISCV_GCC_OPTS) $^ -o $(bld_dir)/$@ $(RISCV_LINK_OPTS)
@@ -23,6 +24,9 @@ dhrystone.elf: $(objs)
 %.o: %.S
 	$(RISCV_GCC) $(RISCV_INCL) $(RISCV_GCC_OPTS) -c $< -o $@
 
+dhrystone.host: $(bld_dir)/dhrystone.elf
+	$(RISCV_NM) $< | grep -sw 'tohost' | sed -e 's/.*:\(.*\) D.*/\1/' > $(bld_dir)/$@
+
 dhrystone.dump: $(bld_dir)/dhrystone.elf
 	$(RISCV_OBJDUMP) $< > $(bld_dir)/$@
 
@@ -31,4 +35,4 @@ dhrystone.bin: $(bld_dir)/dhrystone.elf
 
 # Default
 
-all: dhrystone.elf dhrystone.dump dhrystone.bin
+all: dhrystone.elf dhrystone.host dhrystone.dump dhrystone.bin

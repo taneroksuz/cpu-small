@@ -13,6 +13,8 @@ PYTHON ?= /usr/bin/python2
 BASEDIR ?= $(shell dirname $(realpath $(firstword $(MAKEFILE_LIST))))
 OFFSET ?= 0x20000 # Number of dwords in blockram (address range is OFFSET * 8)
 TEST ?= dhrystone
+AAPG ?= aapg
+CONFIG ?= integer
 CYCLES ?= 10000000000
 WAVE ?= "" # "wave" for saving dump file
 
@@ -36,6 +38,9 @@ generate_uart:
 
 generate_timer:
 	soft/timer.sh ${RISCV} ${MARCH} ${MABI} ${ITER} ${PYTHON} ${OFFSET} ${BASEDIR}
+
+generate_aapg:
+	soft/aapg.sh ${RISCV} ${MARCH} ${MABI} ${ITER} ${PYTHON} ${OFFSET} ${BASEDIR} ${AAPG} ${CONFIG}
 
 simulate:
 	sim/run.sh ${BASEDIR} ${VERILATOR} ${SYSTEMC} ${TEST} ${CYCLES} ${WAVE}

@@ -17,6 +17,8 @@ module bram
 
   logic [31 : 0] bram_block[0:2**bram_depth-1];
 
+  logic [31 : 0] host[0:0];
+
   logic [31 : 0] rdata;
   logic [0  : 0] ready;
 
@@ -25,10 +27,11 @@ module bram
     input logic [31 : 0] bram_addr;
     input logic [31 : 0] bram_wdata;
     input logic [3  : 0] bram_wstrb;
+    input logic [31 : 0] host;
     logic [0 : 0] ok;
     begin
       ok = 0;
-      if (|bram_block[1024] == 0 & bram_addr[(bram_depth+1):2] == 1024  & |bram_wstrb == 1) begin
+      if (|bram_block[host[bram_depth+1:2]] == 0 & bram_addr[(bram_depth+1):2] == host[bram_depth+1:2]  & |bram_wstrb == 1) begin
         ok = 1;
       end
       if (ok == 1) begin
@@ -45,13 +48,14 @@ module bram
 
   initial begin
     $readmemh("bram.dat", bram_block);
+    $readmemh("host.dat", host);
   end
 
   always_ff @(posedge clk) begin
 
     if (bram_valid == 1) begin
 
-      check(bram_block,bram_addr,bram_wdata,bram_wstrb);
+      check(bram_block,bram_addr,bram_wdata,bram_wstrb,host[0]);
 
       if (bram_addr == uart_base_addr) begin
         if (bram_wstrb[0] == 1) begin

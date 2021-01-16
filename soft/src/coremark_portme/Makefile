@@ -12,6 +12,7 @@ RISCV_LINK_OPTS ?= -static -nostdlib -nostartfiles -lm -lc -lgcc -T $(src_dir)/c
 RISCV_OBJDUMP ?= $(RISCV)/riscv64-unknown-elf-objdump -S -Mnumeric,no-aliases --disassemble-all --disassemble-zeroes
 RISCV_OBJCOPY ?= $(RISCV)/riscv64-unknown-elf-objcopy -O binary
 RISCV_INCL ?= -I$(src_dir)/env -I$(src_dir)/coremark -I$(src_dir)/coremark_portme -I$(src_dir)/common
+RISCV_NM ?= $(RISCV)/riscv64-unknown-elf-nm -A
 
 FLAGS_STR = "$(RISCV_GCC_OPTS) $(RISCV_LINK_OPTS)"
 
@@ -25,6 +26,9 @@ coremark.elf: $(objs)
 %.o: %.S
 	$(RISCV_GCC) $(RISCV_INCL) $(RISCV_GCC_OPTS) -c $< -o $@
 
+coremark.host: $(bld_dir)/coremark.elf
+	$(RISCV_NM) $< | grep -sw 'tohost' | sed -e 's/.*:\(.*\) D.*/\1/' > $(bld_dir)/$@
+
 coremark.dump: $(bld_dir)/coremark.elf
 	$(RISCV_OBJDUMP) $< > $(bld_dir)/$@
 
@@ -33,4 +37,4 @@ coremark.bin: $(bld_dir)/coremark.elf
 
 # Default
 
-all: coremark.elf coremark.dump coremark.bin
+all: coremark.elf coremark.host coremark.dump coremark.bin

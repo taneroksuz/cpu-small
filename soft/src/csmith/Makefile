@@ -14,6 +14,7 @@ RISCV_LINK_OPTS ?= -static -nostdlib -nostartfiles -lm -lc -lgcc -T $(src_dir)/c
 RISCV_OBJDUMP ?= $(RISCV)/riscv64-unknown-elf-objdump -S -Mnumeric,no-aliases --disassemble-all --disassemble-zeroes
 RISCV_OBJCOPY ?= $(RISCV)/riscv64-unknown-elf-objcopy -O binary
 RISCV_INCL ?= -I$(src_dir)/env -I$(csmith_incl) -I$(src_dir)/common
+RISCV_NM ?= $(RISCV)/riscv64-unknown-elf-nm -A
 
 csmith.ref:
 	${GCC} -I$(csmith_incl) -o $(src_dir)/csmith/csmith.o $(src_dir)/csmith/csmith.c
@@ -28,6 +29,9 @@ csmith.elf: $(objs)
 %.o: %.S
 	$(RISCV_GCC) $(RISCV_INCL) $(RISCV_GCC_OPTS) -c $< -o $@
 
+csmith.host: $(bld_dir)/csmith.elf
+	$(RISCV_NM) $< | grep -sw 'tohost' | sed -e 's/.*:\(.*\) D.*/\1/' > $(bld_dir)/$@
+
 csmith.dump: $(bld_dir)/csmith.elf
 	$(RISCV_OBJDUMP) $< > $(bld_dir)/$@
 
@@ -36,4 +40,4 @@ csmith.bin: $(bld_dir)/csmith.elf
 
 # Default
 
-all: csmith.elf csmith.dump csmith.bin csmith.ref
+all: csmith.elf csmith.host csmith.dump csmith.bin csmith.ref

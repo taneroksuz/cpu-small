@@ -12,6 +12,7 @@ RISCV_LINK_OPTS ?= -static -nostdlib -nostartfiles -lm -lgcc -T $(src_dir)/uart/
 RISCV_OBJDUMP ?= $(RISCV)/riscv64-unknown-elf-objdump -S -Mnumeric,no-aliases --disassemble-all --disassemble-zeroes
 RISCV_OBJCOPY ?= $(RISCV)/riscv64-unknown-elf-objcopy -O binary
 RISCV_INCL ?= -I$(src_dir)/env -I$(src_dir)/uart -I$(src_dir)/common
+RISCV_NM ?= $(RISCV)/riscv64-unknown-elf-nm -A
 
 uart.elf: $(objs)
 	$(RISCV_GCC) $(RISCV_INCL) $(RISCV_GCC_OPTS) $^ -o $(bld_dir)/$@ $(RISCV_LINK_OPTS)
@@ -23,6 +24,9 @@ uart.elf: $(objs)
 %.o: %.S
 	$(RISCV_GCC) $(RISCV_INCL) $(RISCV_GCC_OPTS) -c $< -o $@
 
+uart.host: $(bld_dir)/uart.elf
+	$(RISCV_NM) $< | grep -sw 'tohost' | sed -e 's/.*:\(.*\) D.*/\1/' > $(bld_dir)/$@
+
 uart.dump: $(bld_dir)/uart.elf
 	$(RISCV_OBJDUMP) $< > $(bld_dir)/$@
 
@@ -31,4 +35,4 @@ uart.bin: $(bld_dir)/uart.elf
 
 # Default
 
-all: uart.elf uart.dump uart.bin
+all: uart.elf uart.host uart.dump uart.bin
