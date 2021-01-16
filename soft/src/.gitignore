@@ -1,0 +1,7 @@
+coremark
+!common
+!coremark_portme
+!dhrystone
+!env
+!isa
+!.gitignore

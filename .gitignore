@@ -1,0 +1,8 @@
+build
+!sim/
+!soft/
+!tools/
+!verilog/
+!Makefile
+!README.md
+!.gitignore
