@@ -40,7 +40,7 @@ module fetch_stage
 
     v.stall = prefetch_out.stall | d.e.stall | d.e.clear;
     v.clear = csr_out.exception | csr_out.mret | d.e.clear;
-    v.spec = csr_out.exception | csr_out.mret | d.f.jump | d.e.clear;
+    v.spec = d.e.clear;
 
     v.instr = prefetch_out.instr;
 
@@ -161,10 +161,13 @@ module fetch_stage
 
     if (csr_out.exception == 1) begin
       v.pc = csr_out.mtvec;
+      v.spec = 1;
     end else if (csr_out.mret == 1) begin
       v.pc = csr_out.mepc;
-    end else if (d.f.jump == 1) begin
-      v.pc = d.f.address;
+      v.spec = 1;
+    end else if (v.jump == 1) begin
+      v.pc = v.address;
+      v.spec = 1;
     end else if (v.stall == 0) begin
       v.pc = v.pc + ((v.instr[1:0] == 2'b11) ? 4 : 2);
     end
