@@ -19,7 +19,9 @@ module execute_stage
   input csr_out_type csr_out,
   output csr_in_type csr_in,
   input mem_out_type dmem_out,
+  input execute_in_type a,
   input execute_in_type d,
+  output execute_out_type y,
   output execute_out_type q
 );
   timeunit 1ns;
@@ -227,6 +229,9 @@ module execute_stage
     csr_in.cdata = v.cdata;
 
     rin = v;
+
+    y.stall = v.stall;
+    y.clear = v.clear;
 
     q.stall = r.stall;
     q.clear = r.clear;

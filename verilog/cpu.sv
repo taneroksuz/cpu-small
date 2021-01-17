@@ -42,10 +42,14 @@ module cpu
   csr_out_type csr_out;
   register_in_type register_in;
   register_out_type register_out;
-  fetch_in_type fetch_in;
-  execute_in_type execute_in;
-  fetch_out_type fetch_out;
-  execute_out_type execute_out;
+  fetch_in_type fetch_in_a;
+  execute_in_type execute_in_a;
+  fetch_out_type fetch_out_y;
+  execute_out_type execute_out_y;
+  fetch_in_type fetch_in_d;
+  execute_in_type execute_in_d;
+  fetch_out_type fetch_out_q;
+  execute_out_type execute_out_q;
   prefetch_in_type prefetch_in;
   prefetch_out_type prefetch_out;
   mem_in_type imem_in;
@@ -53,10 +57,15 @@ module cpu
   mem_in_type dmem_in;
   mem_out_type dmem_out;
 
-  assign fetch_in.f = fetch_out;
-  assign fetch_in.e = execute_out;
-  assign execute_in.f = fetch_out;
-  assign execute_in.e = execute_out;
+  assign fetch_in_a.f = fetch_out_y;
+  assign fetch_in_a.e = execute_out_y;
+  assign execute_in_a.f = fetch_out_y;
+  assign execute_in_a.e = execute_out_y;
+
+  assign fetch_in_d.f = fetch_out_q;
+  assign fetch_in_d.e = execute_out_q;
+  assign execute_in_d.f = fetch_out_q;
+  assign execute_in_d.e = execute_out_q;
 
   agu agu_comp
   (
@@ -186,8 +195,10 @@ module cpu
     .imem_out (imem_out),
     .imem_in (imem_in),
     .dmem_in (dmem_in),
-    .d (fetch_in),
-    .q (fetch_out)
+    .a (fetch_in_a),
+    .d (fetch_in_d),
+    .y (fetch_out_y),
+    .q (fetch_out_q)
   );
 
   execute_stage execute_stage_comp
@@ -209,8 +220,10 @@ module cpu
     .csr_out (csr_out),
     .csr_in (csr_in),
     .dmem_out (dmem_out),
-    .d (execute_in),
-    .q (execute_out)
+    .a (execute_in_a),
+    .d (execute_in_d),
+    .y (execute_out_y),
+    .q (execute_out_q)
   );
 
 endmodule

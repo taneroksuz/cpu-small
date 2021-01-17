@@ -23,7 +23,9 @@ module fetch_stage
   input mem_out_type imem_out,
   output mem_in_type imem_in,
   output mem_in_type dmem_in,
+  input fetch_in_type a,
   input fetch_in_type d,
+  output fetch_out_type y,
   output fetch_out_type q
 );
   timeunit 1ns;
@@ -38,7 +40,7 @@ module fetch_stage
 
     v.vpc = r.pc;
 
-    v.stall = prefetch_out.stall | d.e.stall | d.e.clear;
+    v.stall = prefetch_out.stall | a.e.stall | d.e.clear;
     v.clear = csr_out.exception | csr_out.mret | d.e.clear;
     v.spec = d.e.clear;
 
@@ -195,6 +197,36 @@ module fetch_stage
     dmem_in.mem_wstrb = (v.load == 1) ? 0 : v.byteenable;
 
     rin = v;
+
+    y.pc = v.vpc;
+    y.imm = v.imm;
+    y.instr = v.instr;
+    y.rdata1 = v.rdata1;
+    y.rdata2 = v.rdata2;
+    y.wren = v.wren;
+    y.rden1 = v.rden1;
+    y.rden2 = v.rden2;
+    y.waddr = v.waddr;
+    y.caddr = v.caddr;
+    y.lui = v.lui;
+    y.auipc = v.auipc;
+    y.jal = v.jal;
+    y.jalr = v.jalr;
+    y.branch = v.branch;
+    y.load = v.load;
+    y.store = v.store;
+    y.fence = v.fence;
+    y.ebreak = v.ebreak;
+    y.valid = v.valid;
+    y.jump = v.jump;
+    y.address = v.address;
+    y.byteenable = v.byteenable;
+    y.alu_op = v.alu_op;
+    y.bcu_op = v.bcu_op;
+    y.lsu_op = v.lsu_op;
+    y.exception = v.exception;
+    y.ecause = v.ecause;
+    y.etval = v.etval;
 
     q.pc = r.vpc;
     q.imm = r.imm;
