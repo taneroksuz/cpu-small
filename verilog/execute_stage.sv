@@ -64,7 +64,6 @@ module execute_stage
     v.crden = 0;
     v.csr = 0;
     v.muldiv = 0;
-    v.fence = 0;
     v.ecall = 0;
     v.mret = 0;
     v.wfi = 0;
@@ -94,7 +93,6 @@ module execute_stage
       v.alu_op = postdecoder_out.alu_op;
       v.csr_op = postdecoder_out.csr_op;
       v.muldiv_op = postdecoder_out.muldiv_op;
-      v.fence = postdecoder_out.fence;
       v.ecall = postdecoder_out.ecall;
       v.ebreak = postdecoder_out.ebreak;
       v.mret = postdecoder_out.mret;
@@ -196,7 +194,6 @@ module execute_stage
       v.jalr = 0;
       v.branch = 0;
       v.csr = 0;
-      v.fence = 0;
       v.ecall = 0;
       v.ebreak = 0;
       v.mret = 0;
@@ -231,7 +228,6 @@ module execute_stage
 
     rin = v;
 
-    q.fence = r.fence;
     q.stall = r.stall;
     q.clear = r.clear;
 

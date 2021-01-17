@@ -35,6 +35,7 @@ module predecoder
   logic [0  : 0] branch;
   logic [0  : 0] load;
   logic [0  : 0] store;
+  logic [0  : 0] fence;
   logic [0  : 0] valid;
 
   bcu_op_type bcu_op;
@@ -78,6 +79,7 @@ module predecoder
     branch = 0;
     load = 0;
     store = 0;
+    fence = 0;
     valid = 1;
 
     bcu_op = init_bcu_op;
@@ -149,6 +151,11 @@ module predecoder
           default : valid = 0;
         endcase;
       end
+      opcode_fence : begin
+        if (funct3 == 1) begin
+          fence = 1;
+        end
+      end
       default : valid = 0;
     endcase;
 
@@ -164,6 +171,7 @@ module predecoder
     predecoder_out.store = store;
     predecoder_out.bcu_op = bcu_op;
     predecoder_out.lsu_op = lsu_op;
+    predecoder_out.fence = fence;
     predecoder_out.valid = valid;
 
   end

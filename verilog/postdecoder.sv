@@ -33,7 +33,6 @@ module postdecoder
   logic [0  : 0] lui;
   logic [0  : 0] csr;
   logic [0  : 0] muldiv;
-  logic [0  : 0] fence;
   logic [0  : 0] ecall;
   logic [0  : 0] ebreak;
   logic [0  : 0] mret;
@@ -79,7 +78,6 @@ module postdecoder
     lui = 0;
     csr = 0;
     muldiv = 0;
-    fence = 0;
     ecall = 0;
     ebreak = 0;
     mret = 0;
@@ -164,11 +162,6 @@ module postdecoder
           endcase;
         end
       end
-      opcode_fence : begin
-        if (funct3 == 1) begin
-          fence = 1;
-        end
-      end
       opcode_system : begin
         imm = imm_c;
         if (funct3 == 0) begin
@@ -239,7 +232,6 @@ module postdecoder
     postdecoder_out.alu_op = alu_op;
     postdecoder_out.csr_op = csr_op;
     postdecoder_out.muldiv_op = muldiv_op;
-    postdecoder_out.fence = fence;
     postdecoder_out.ecall = ecall;
     postdecoder_out.ebreak = ebreak;
     postdecoder_out.mret = mret;

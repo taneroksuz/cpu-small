@@ -32,7 +32,7 @@ isa-instruction-distribution:
   rel_rv32i.ctrl: 1
   rel_rv32i.compute: 10
   rel_rv32i.data: 10
-  rel_rv32i.fence: 1
+  rel_rv32i.fence: 0
   rel_rv64i.compute: 0
   rel_rv64i.data: 0
   rel_rv32m: 10

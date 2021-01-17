@@ -234,6 +234,7 @@ package wires;
     logic [0  : 0] branch;
     logic [0  : 0] load;
     logic [0  : 0] store;
+    logic [0  : 0] fence;
     bcu_op_type bcu_op;
     lsu_op_type lsu_op;
     logic [0  : 0] valid;
@@ -256,7 +257,6 @@ package wires;
     alu_op_type alu_op;
     csr_op_type csr_op;
     muldiv_op_type muldiv_op;
-    logic [0  : 0] fence;
     logic [0  : 0] ecall;
     logic [0  : 0] ebreak;
     logic [0  : 0] mret;
@@ -319,6 +319,7 @@ package wires;
     logic [0  : 0] branch;
     logic [0  : 0] load;
     logic [0  : 0] store;
+    logic [0  : 0] fence;
     logic [0  : 0] ebreak;
     logic [0  : 0] valid;
     logic [0  : 0] jump;
@@ -355,6 +356,7 @@ package wires;
     logic [0  : 0] branch;
     logic [0  : 0] load;
     logic [0  : 0] store;
+    logic [0  : 0] fence;
     logic [0  : 0] ebreak;
     logic [0  : 0] valid;
     logic [0  : 0] jump;
@@ -392,6 +394,7 @@ package wires;
     branch : 0,
     load : 0,
     store : 0,
+    fence : 0,
     ebreak : 0,
     valid : 0,
     jump : 0,
@@ -409,7 +412,6 @@ package wires;
   };
 
   typedef struct packed{
-    logic [0  : 0] fence;
     logic [0  : 0] stall;
     logic [0  : 0] clear;
   } execute_out_type;
@@ -437,7 +439,6 @@ package wires;
     logic [0  : 0] store;
     logic [0  : 0] csr;
     logic [0  : 0] muldiv;
-    logic [0  : 0] fence;
     logic [0  : 0] ecall;
     logic [0  : 0] ebreak;
     logic [0  : 0] mret;
@@ -485,7 +486,6 @@ package wires;
     store : 0,
     csr : 0,
     muldiv : 0,
-    fence : 0,
     ecall : 0,
     ebreak : 0,
     mret : 0,
@@ -748,6 +748,7 @@ package wires;
 
   typedef struct packed{
     logic [31:0] pc;
+    logic [31:0] vpc;
     logic [31:0] npc;
     logic [0:0] jump;
     logic [0:0] fence;

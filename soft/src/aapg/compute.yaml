@@ -14,7 +14,7 @@
 #                           reading/writing in the random generated instructions
 # ---------------------------------------------------------------------------------
 general:
-  total_instructions: 5000
+  total_instructions: 1000
   regs_not_use: x1,x2
   user_trap_handler: false
   code_start_address: 0x0
@@ -31,11 +31,11 @@ isa-instruction-distribution:
   rel_sys.csr: 0
   rel_rv32i.ctrl: 1
   rel_rv32i.compute: 10
-  rel_rv32i.data: 10
-  rel_rv32i.fence: 1
+  rel_rv32i.data: 0
+  rel_rv32i.fence: 0
   rel_rv64i.compute: 0
   rel_rv64i.data: 0
-  rel_rv32m: 10
+  rel_rv32m: 0
   rel_rv64m: 0
   rel_rv32a: 0
   rel_rv64a: 0
@@ -69,7 +69,7 @@ branch-control:
 #       recursion_depth:    Number of times the recursive function is called
 # ---------------------------------------------------------------------------------
 recursion-options:
-  recursion-enable: true
+  recursion-enable: false
   recursion-depth: 10
   recursion-calls: 5
 

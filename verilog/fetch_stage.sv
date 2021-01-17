@@ -64,6 +64,7 @@ module fetch_stage
     v.branch = 0;
     v.load = 0;
     v.store = 0;
+    v.fence = 0;
     v.alu_op = 0;
     v.bcu_op = 0;
     v.lsu_op = 0;
@@ -83,6 +84,7 @@ module fetch_stage
       v.branch = predecoder_out.branch;
       v.load = predecoder_out.load;
       v.store = predecoder_out.store;
+      v.fence = predecoder_out.fence;
       v.bcu_op = predecoder_out.bcu_op;
       v.lsu_op = predecoder_out.lsu_op;
       v.valid = predecoder_out.valid;
@@ -173,9 +175,10 @@ module fetch_stage
     end
 
     prefetch_in.pc = r.pc;
+    prefetch_in.vpc = r.vpc;
     prefetch_in.npc = v.pc;
     prefetch_in.jump = v.spec;
-    prefetch_in.fence = d.e.fence;
+    prefetch_in.fence = d.f.fence;
     prefetch_in.rdata = imem_out.mem_rdata;
     prefetch_in.ready = imem_out.mem_ready;
 
@@ -210,6 +213,7 @@ module fetch_stage
     q.branch = r.branch;
     q.load = r.load;
     q.store = r.store;
+    q.fence = r.fence;
     q.ebreak = r.ebreak;
     q.valid = r.valid;
     q.jump = r.jump;
