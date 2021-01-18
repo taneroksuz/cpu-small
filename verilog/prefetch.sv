@@ -63,7 +63,7 @@ module prefetch
     v.npc = prefetch_in.npc;
 
     if (prefetch_in.fence == 1) begin
-      v.fpc = {v.pc[31:2],2'b00};
+      v.fpc = {prefetch_in.vpc[31:2],2'b00};
     end
 
     v.wid = v.fpc[prefetch_depth:1];

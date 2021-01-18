@@ -46,7 +46,7 @@ module fetch_stage
 
     v.instr = prefetch_out.instr;
 
-    if (v.clear == 1) begin
+    if (v.clear == 1 | d.f.fence == 1) begin
       v.instr = nop;
     end
 
@@ -172,7 +172,7 @@ module fetch_stage
     end else if (v.jump == 1) begin
       v.pc = v.address;
       v.spec = 1;
-    end else if (v.stall == 0) begin
+    end else if (v.stall == 0 & d.f.fence == 0) begin
       v.pc = v.pc + ((v.instr[1:0] == 2'b11) ? 4 : 2);
     end
 
