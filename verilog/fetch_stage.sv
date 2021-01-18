@@ -40,11 +40,15 @@ module fetch_stage
 
     v.vpc = r.pc;
 
+    v.instr = prefetch_out.instr;
+
+    if (d.e.stall == 1) begin
+      v = r;
+    end
+
     v.stall = prefetch_out.stall | a.e.stall | d.e.clear;
     v.clear = csr_out.exception | csr_out.mret | d.e.clear;
     v.spec = d.e.clear;
-
-    v.instr = prefetch_out.instr;
 
     if (v.clear == 1 | d.f.fence == 1) begin
       v.instr = nop;
@@ -148,6 +152,19 @@ module fetch_stage
     v.exception = agu_out.exception;
     v.ecause = agu_out.ecause;
     v.etval = agu_out.etval;
+
+    if (v.stall == 1) begin
+      v.wren = 0;
+      v.jal = 0;
+      v.jalr = 0;
+      v.branch = 0;
+      v.load = 0;
+      v.store = 0;
+      v.fence = 0;
+      v.ebreak = 0;
+      v.jump = 0;
+      v.valid = 0;
+    end
 
     if (v.exception == 1) begin
       if (v.load == 1) begin
