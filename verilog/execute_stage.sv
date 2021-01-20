@@ -12,8 +12,10 @@ module execute_stage
   output lsu_in_type lsu_in,
   input csr_alu_out_type csr_alu_out,
   output csr_alu_in_type csr_alu_in,
-  input muldiv_out_type muldiv_out,
-  output muldiv_in_type muldiv_in,
+  input div_out_type div_out,
+  output div_in_type div_in,
+  input mul_out_type mul_out,
+  output mul_in_type mul_in,
   output register_in_type register_in,
   output forwarding_in_type forwarding_in,
   input csr_out_type csr_out,
@@ -65,12 +67,14 @@ module execute_stage
     v.cwren = 0;
     v.crden = 0;
     v.csr = 0;
-    v.muldiv = 0;
+    v.div = 0;
+    v.mul = 0;
     v.ecall = 0;
     v.mret = 0;
     v.wfi = 0;
 
-    v.muldiv_op = init_muldiv_op;
+    v.div_op = init_div_op;
+    v.mul_op = init_mul_op;
 
     if (d.e.stall == 1) begin
       v = r;
@@ -91,10 +95,12 @@ module execute_stage
       v.crden = postdecoder_out.crden;
       v.lui = postdecoder_out.lui;
       v.csr = postdecoder_out.csr;
-      v.muldiv = postdecoder_out.muldiv;
+      v.div = postdecoder_out.div;
+      v.mul = postdecoder_out.mul;
       v.alu_op = postdecoder_out.alu_op;
       v.csr_op = postdecoder_out.csr_op;
-      v.muldiv_op = postdecoder_out.muldiv_op;
+      v.div_op = postdecoder_out.div_op;
+      v.mul_op = postdecoder_out.mul_op;
       v.ecall = postdecoder_out.ecall;
       v.ebreak = postdecoder_out.ebreak;
       v.mret = postdecoder_out.mret;
@@ -158,10 +164,15 @@ module execute_stage
 
     v.cdata = csr_alu_out.cdata;
 
-    muldiv_in.rdata1 = v.rdata1;
-    muldiv_in.rdata2 = v.rdata2;
-    muldiv_in.enable = v.muldiv & ~(d.e.clear | d.e.stall);
-    muldiv_in.muldiv_op = v.muldiv_op;
+    div_in.rdata1 = v.rdata1;
+    div_in.rdata2 = v.rdata2;
+    div_in.enable = v.div & ~(d.e.clear | d.e.stall);
+    div_in.op = v.div_op;
+
+    mul_in.rdata1 = v.rdata1;
+    mul_in.rdata2 = v.rdata2;
+    mul_in.enable = v.mul & ~(d.e.clear | d.e.stall);
+    mul_in.op = v.mul_op;
 
     lsu_in.ldata = dmem_out.mem_rdata;
     lsu_in.byteenable = v.byteenable;
@@ -169,12 +180,19 @@ module execute_stage
 
     v.ldata = lsu_out.res;
 
-    if (v.muldiv == 1) begin
-      if (muldiv_out.ready == 0) begin
+    if (v.div == 1) begin
+      if (div_out.ready == 0) begin
         v.stall = 1;
-      end else if (muldiv_out.ready == 1) begin
+      end else if (div_out.ready == 1) begin
         v.wren = |v.waddr;
-        v.wdata = muldiv_out.result;
+        v.wdata = div_out.result;
+      end
+    end else if (v.mul == 1) begin
+      if (mul_out.ready == 0) begin
+        v.stall = 1;
+      end else if (mul_out.ready == 1) begin
+        v.wren = |v.waddr;
+        v.wdata = mul_out.result;
       end
     end
 

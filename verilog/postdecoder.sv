@@ -32,7 +32,8 @@ module postdecoder
 
   logic [0  : 0] lui;
   logic [0  : 0] csr;
-  logic [0  : 0] muldiv;
+  logic [0  : 0] div;
+  logic [0  : 0] mul;
   logic [0  : 0] ecall;
   logic [0  : 0] ebreak;
   logic [0  : 0] mret;
@@ -42,7 +43,8 @@ module postdecoder
   alu_op_type alu_op;
   csr_op_type csr_op;
 
-  muldiv_op_type muldiv_op;
+  div_op_type div_op;
+  mul_op_type mul_op;
 
   logic [0  : 0] nonzero_waddr;
   logic [0  : 0] nonzero_raddr1;
@@ -77,7 +79,8 @@ module postdecoder
 
     lui = 0;
     csr = 0;
-    muldiv = 0;
+    div = 0;
+    mul = 0;
     ecall = 0;
     ebreak = 0;
     mret = 0;
@@ -87,7 +90,8 @@ module postdecoder
     alu_op = init_alu_op;
     csr_op = init_csr_op;
 
-    muldiv_op = init_muldiv_op;
+    div_op = init_div_op;
+    mul_op = init_mul_op;
 
     nonzero_waddr = |waddr;
     nonzero_raddr1 = |raddr1;
@@ -148,16 +152,39 @@ module postdecoder
             default : valid = 0;
           endcase;
         end else if (instr[25] == 1) begin
-          muldiv = 1;
           case (funct3)
-            funct_mul : muldiv_op.muldiv_mul = 1;
-            funct_mulh : muldiv_op.muldiv_mulh = 1;
-            funct_mulhsu : muldiv_op.muldiv_mulhsu = 1;
-            funct_mulhu : muldiv_op.muldiv_mulhu = 1;
-            funct_div : muldiv_op.muldiv_div = 1;
-            funct_divu : muldiv_op.muldiv_divu = 1;
-            funct_rem : muldiv_op.muldiv_rem = 1;
-            funct_remu : muldiv_op.muldiv_remu = 1;
+            funct_mul : begin
+              mul = 1;
+              mul_op.mul = 1;
+            end
+            funct_mulh :  begin
+              mul = 1;
+              mul_op.mulh = 1;
+            end
+            funct_mulhsu :  begin
+              mul = 1;
+              mul_op.mulhsu = 1;
+            end
+            funct_mulhu :  begin
+              mul = 1;
+              mul_op.mulhu = 1;
+            end
+            funct_div :  begin
+              div = 1;
+              div_op.div = 1;
+            end
+            funct_divu :  begin
+              div = 1;
+              div_op.divu = 1;
+            end
+            funct_rem :  begin
+              div = 1;
+              div_op.rem = 1;
+            end
+            funct_remu :  begin
+              div = 1;
+              div_op.remu = 1;
+            end
             default : valid = 0;
           endcase;
         end
@@ -228,10 +255,12 @@ module postdecoder
     postdecoder_out.crden = crden;
     postdecoder_out.lui = lui;
     postdecoder_out.csr = csr;
-    postdecoder_out.muldiv = muldiv;
+    postdecoder_out.div = div;
+    postdecoder_out.mul = mul;
     postdecoder_out.alu_op = alu_op;
     postdecoder_out.csr_op = csr_op;
-    postdecoder_out.muldiv_op = muldiv_op;
+    postdecoder_out.div_op = div_op;
+    postdecoder_out.mul_op = mul_op;
     postdecoder_out.ecall = ecall;
     postdecoder_out.ebreak = ebreak;
     postdecoder_out.mret = mret;
