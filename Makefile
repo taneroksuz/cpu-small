@@ -45,4 +45,4 @@ generate_aapg:
 simulate:
 	sim/run.sh ${BASEDIR} ${VERILATOR} ${SYSTEMC} ${TEST} ${CYCLES} ${WAVE}
 
-all: generate_isa generate_dhrystone generate_coremark generate_csmith generate_torture simulate
+all: generate_dhrystone generate_coremark generate_csmith generate_torture simulate
