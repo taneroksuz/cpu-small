@@ -297,6 +297,7 @@ package wires;
     logic [0  : 0] cwren;
     logic [0  : 0] crden;
     logic [0  : 0] lui;
+    logic [0  : 0] nop;
     logic [0  : 0] csr;
     logic [0  : 0] div;
     logic [0  : 0] mul;
@@ -484,6 +485,7 @@ package wires;
     logic [0  : 0] branch;
     logic [0  : 0] load;
     logic [0  : 0] store;
+    logic [0  : 0] nop;
     logic [0  : 0] csr;
     logic [0  : 0] div;
     logic [0  : 0] mul;
@@ -533,6 +535,7 @@ package wires;
     branch : 0,
     load : 0,
     store : 0,
+    nop : 0,
     csr : 0,
     div : 0,
     mul : 0,

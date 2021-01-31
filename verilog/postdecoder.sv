@@ -31,6 +31,7 @@ module postdecoder
   logic [0  : 0] crden;
 
   logic [0  : 0] lui;
+  logic [0  : 0] nop;
   logic [0  : 0] csr;
   logic [0  : 0] div;
   logic [0  : 0] mul;
@@ -78,6 +79,7 @@ module postdecoder
     crden = 0;
 
     lui = 0;
+    nop = 0;
     csr = 0;
     div = 0;
     mul = 0;
@@ -243,8 +245,9 @@ module postdecoder
       default : valid = 0;
     endcase;
 
-    if (instr == nop) begin
+    if (instr == nop_instr) begin
       alu_op.alu_add = 0;
+      nop = 1;
     end
 
     postdecoder_out.imm = imm;
@@ -254,6 +257,7 @@ module postdecoder
     postdecoder_out.cwren = cwren;
     postdecoder_out.crden = crden;
     postdecoder_out.lui = lui;
+    postdecoder_out.nop = nop;
     postdecoder_out.csr = csr;
     postdecoder_out.div = div;
     postdecoder_out.mul = mul;

@@ -54,7 +54,7 @@ module prefetch
 
     v = r;
 
-    v.instr = nop;
+    v.instr = nop_instr;
     v.stall = 0;
     v.wrdis = 0;
     v.wrbuf = 0;

@@ -51,7 +51,7 @@ module fetch_stage
     v.spec = d.e.clear;
 
     if (v.clear == 1 | d.f.fence == 1) begin
-      v.instr = nop;
+      v.instr = nop_instr;
     end
 
     v.waddr = v.instr[11:7];

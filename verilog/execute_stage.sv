@@ -66,6 +66,7 @@ module execute_stage
 
     v.cwren = 0;
     v.crden = 0;
+    v.nop = 0;
     v.csr = 0;
     v.div = 0;
     v.mul = 0;
@@ -94,6 +95,7 @@ module execute_stage
       v.cwren = postdecoder_out.cwren;
       v.crden = postdecoder_out.crden;
       v.lui = postdecoder_out.lui;
+      v.nop = postdecoder_out.nop;
       v.csr = postdecoder_out.csr;
       v.div = postdecoder_out.div;
       v.mul = postdecoder_out.mul;
@@ -210,6 +212,7 @@ module execute_stage
       v.cwren = 0;
       v.auipc = 0;
       v.lui = 0;
+      v.nop = 0;
       v.jal = 0;
       v.jalr = 0;
       v.branch = 0;
@@ -227,6 +230,10 @@ module execute_stage
       v.stall = 0;
     end
 
+    if (v.nop == 1) begin
+      v.valid = 0;
+    end
+
     csr_in.epc = v.pc;
     csr_in.valid = v.valid;
     csr_in.mret = v.mret;
@@ -242,7 +249,6 @@ module execute_stage
     forwarding_in.execute_waddr = v.waddr;
     forwarding_in.execute_wdata = v.wdata;
 
-    csr_in.valid = v.valid;
     csr_in.cwren = v.cwren;
     csr_in.cwaddr = v.caddr;
     csr_in.cdata = v.cdata;

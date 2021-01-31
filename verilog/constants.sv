@@ -2,7 +2,7 @@ package constants;
 	timeunit 1ns;
 	timeprecision 1ps;
 
-	parameter [31 : 0] nop                        = 32'h00000013;
+	parameter [31 : 0] nop_instr                  = 32'h00000013;
 
 	parameter [1  : 0] u_mode                     = 2'b00;
 	parameter [1  : 0] m_mode                     = 2'b11;
