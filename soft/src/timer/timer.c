@@ -40,7 +40,7 @@ void handle_timer_interrupt()
   static unsigned int sec = 0;
   unsigned char min1,min0;
   unsigned char sec1,sec0;
-  
+
   min1 = '0' + min / 10;
   min0 = '0' + min % 10;
   sec1 = '0' + sec / 10;
@@ -76,12 +76,14 @@ void init_timer_interrupt()
 {
   increase_timer_interrupt(TIMER_COUNT);
 
-  uintptr_t address = (uintptr_t) handle_timer_interrupt;
+  uintptr_t address;
+
+  __asm__("la %0,_mtvec" : "=r"(address));
 
   write_csr(mtvec,address);
 
   unsigned int val;
-  
+
   val = 0;
 
   val |= MSTATUS_MIE;

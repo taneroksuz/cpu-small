@@ -1,5 +1,6 @@
   .section .text
   .globl _start
+  .globl _mtvec
 _start:
   li  x1, 0
   li  x2, 0
@@ -38,3 +39,8 @@ _start:
 	jal ra,main
 
   .align 2
+
+_mtvec:
+
+  jal handle_timer_interrupt
+  mret
