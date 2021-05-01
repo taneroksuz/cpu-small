@@ -69,7 +69,6 @@ void handle_timer_interrupt()
   {
     min = 0;
   }
-  __asm__("mret");
 }
 
 void init_timer_interrupt()
