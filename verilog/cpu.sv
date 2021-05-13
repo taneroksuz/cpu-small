@@ -38,11 +38,13 @@ module cpu
   postdecoder_out_type postdecoder_out;
   compress_in_type compress_in;
   compress_out_type compress_out;
-  forwarding_in_type forwarding_in;
+  forwarding_register_in_type forwarding_rin;
+  forwarding_execute_in_type forwarding_ein;
   forwarding_out_type forwarding_out;
   csr_in_type csr_in;
   csr_out_type csr_out;
-  register_in_type register_in;
+  register_read_in_type register_rin;
+  register_write_in_type register_win;
   register_out_type register_out;
   fetch_in_type fetch_in_a;
   execute_in_type execute_in_a;
@@ -117,7 +119,8 @@ module cpu
 
   forwarding forwarding_comp
   (
-    .forwarding_in (forwarding_in),
+    .forwarding_rin (forwarding_rin),
+    .forwarding_ein (forwarding_ein),
     .forwarding_out (forwarding_out)
   );
 
@@ -143,7 +146,8 @@ module cpu
   (
     .rst (rst),
     .clk (clk),
-    .register_in (register_in),
+    .register_rin (register_rin),
+    .register_win (register_win),
     .register_out (register_out)
   );
 
@@ -196,9 +200,9 @@ module cpu
     .bcu_out (bcu_out),
     .bcu_in (bcu_in),
     .register_out (register_out),
-    .register_in (register_in),
+    .register_rin (register_rin),
     .forwarding_out (forwarding_out),
-    .forwarding_in (forwarding_in),
+    .forwarding_rin (forwarding_rin),
     .csr_out (csr_out),
     .prefetch_out (prefetch_out),
     .prefetch_in (prefetch_in),
@@ -227,8 +231,8 @@ module cpu
     .div_in (div_in),
     .mul_out (mul_out),
     .mul_in (mul_in),
-    .register_in (register_in),
-    .forwarding_in (forwarding_in),
+    .register_win (register_win),
+    .forwarding_ein (forwarding_ein),
     .csr_out (csr_out),
     .csr_in (csr_in),
     .dmem_out (dmem_out),

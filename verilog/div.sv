@@ -22,10 +22,10 @@ module div
         v.op1 = div_in.rdata1;
         v.op2 = div_in.rdata2;
         v.op = div_in.op;
-        v.op1_signed = v.op.div | v.op.rem;
-        v.op2_signed = v.op.div | v.op.rem;
+        v.op1_signed = v.op.divs | v.op.rem;
+        v.op2_signed = v.op.divs | v.op.rem;
         v.negativ = 0;
-        v.div = v.op.div | v.op.divu |
+        v.division = v.op.divs | v.op.divu |
                    v.op.rem | v.op.remu;
         v.op1_neg = 0;
         if (v.op1_signed == 1 && v.op1[31] == 1) begin
@@ -42,44 +42,44 @@ module div
           if (v.op1[i] == 1) begin
             break;
           end
-          v.counter = v.counter + 1;
+          v.counter = v.counter + 6'h1;
         end
         v.divisionbyzero = 0;
-        if (v.div == 1 && v.op2 == 0) begin
+        if (v.division == 1 && v.op2 == 0) begin
           v.divisionbyzero = 1;
           v.counter = 32;
         end
         v.overflow = 0;
-        if ((v.op.div == 1 | v.op.rem == 1) &&
+        if ((v.op.divs == 1 | v.op.rem == 1) &&
             v.op1 == 32'h80000000 && v.op2 == 32'hFFFFFFFF) begin
           v.overflow = 1;
           v.counter = 32;
         end
-        if (v.div == 1) begin
+        if (v.division == 1) begin
           v.result = {33'b0,v.op1};
           v.result = v.result << v.counter;
         end
         if (div_in.enable == 0) begin
           v.counter = 0;
         end else if (div_in.enable == 1) begin
-          v.counter = v.counter + 1;
+          v.counter = v.counter + 6'h1;
         end
         div_out.result = 0;
         div_out.ready = 0;
       end
       33 : begin
         if (v.negativ == 1) begin
-          if (v.div == 1) begin
+          if (v.division == 1) begin
             v.result[31:0] = -v.result[31:0];
           end
         end
         if (v.op1_neg == 1) begin
-          if (v.div == 1) begin
+          if (v.division == 1) begin
             v.result[63:32] = -v.result[63:32];
           end
         end
         v.counter = 0;
-        if (v.op.div == 1) begin
+        if (v.op.divs == 1) begin
           if (v.divisionbyzero == 1) begin
             div_out.result = 32'hFFFFFFFF;
           end else if (v.overflow == 1) begin
@@ -113,7 +113,7 @@ module div
         div_out.ready = 1;
       end
       default : begin
-        if (v.div == 1) begin
+        if (v.division == 1) begin
           v.result = {v.result[63:0],1'b0};
           v.result[64:32] = v.result[64:32] - {1'b0,v.op2};
           if (v.result[64] == 0) begin
@@ -122,7 +122,7 @@ module div
             v.result = {r.result[63:0],1'b0};
           end
         end
-        v.counter = v.counter + 1;
+        v.counter = v.counter + 6'h1;
         div_out.result = 0;
         div_out.ready = 0;
       end

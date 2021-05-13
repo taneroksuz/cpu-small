@@ -42,11 +42,11 @@ module arbiter(
       memory_wstrb = (access_type == instr_access) ? imem_in.mem_wstrb : dmem_in.mem_wstrb;
     end
 
-    imem_out.mem_rdata = (release_type == instr_access) ? memory_rdata : 0;
-    imem_out.mem_ready = (release_type == instr_access) ? memory_ready : 0;
+    imem_out.mem_rdata = (release_type == instr_access) ? memory_rdata : 32'h0;
+    imem_out.mem_ready = (release_type == instr_access) ? memory_ready : 1'h0;
 
-    dmem_out.mem_rdata = (release_type == data_access) ? memory_rdata : 0;
-    dmem_out.mem_ready = (release_type == data_access) ? memory_ready : 0;
+    dmem_out.mem_rdata = (release_type == data_access) ? memory_rdata : 32'h0;
+    dmem_out.mem_ready = (release_type == data_access) ? memory_ready : 1'h0;
 
   end
 

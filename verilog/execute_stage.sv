@@ -16,8 +16,8 @@ module execute_stage
   output div_in_type div_in,
   input mul_out_type mul_out,
   output mul_in_type mul_in,
-  output register_in_type register_in,
-  output forwarding_in_type forwarding_in,
+  output register_write_in_type register_win,
+  output forwarding_execute_in_type forwarding_ein,
   input csr_out_type csr_out,
   output csr_in_type csr_in,
   input mem_out_type dmem_out,
@@ -67,9 +67,9 @@ module execute_stage
     v.cwren = 0;
     v.crden = 0;
     v.nop = 0;
-    v.csr = 0;
-    v.div = 0;
-    v.mul = 0;
+    v.csregister = 0;
+    v.division = 0;
+    v.multiplication = 0;
     v.ecall = 0;
     v.mret = 0;
     v.wfi = 0;
@@ -96,9 +96,9 @@ module execute_stage
       v.crden = postdecoder_out.crden;
       v.lui = postdecoder_out.lui;
       v.nop = postdecoder_out.nop;
-      v.csr = postdecoder_out.csr;
-      v.div = postdecoder_out.div;
-      v.mul = postdecoder_out.mul;
+      v.csregister = postdecoder_out.csregister;
+      v.division = postdecoder_out.division;
+      v.multiplication = postdecoder_out.multiplication;
       v.alu_op = postdecoder_out.alu_op;
       v.csr_op = postdecoder_out.csr_op;
       v.div_op = postdecoder_out.div_op;
@@ -168,12 +168,12 @@ module execute_stage
 
     div_in.rdata1 = v.rdata1;
     div_in.rdata2 = v.rdata2;
-    div_in.enable = v.div & ~(d.e.clear | d.e.stall);
+    div_in.enable = v.division & ~(d.e.clear | d.e.stall);
     div_in.op = v.div_op;
 
     mul_in.rdata1 = v.rdata1;
     mul_in.rdata2 = v.rdata2;
-    mul_in.enable = v.mul & ~(d.e.clear | d.e.stall);
+    mul_in.enable = v.multiplication & ~(d.e.clear | d.e.stall);
     mul_in.op = v.mul_op;
 
     lsu_in.ldata = dmem_out.mem_rdata;
@@ -182,14 +182,14 @@ module execute_stage
 
     v.ldata = lsu_out.res;
 
-    if (v.div == 1) begin
+    if (v.division == 1) begin
       if (div_out.ready == 0) begin
         v.stall = 1;
       end else if (div_out.ready == 1) begin
         v.wren = |v.waddr;
         v.wdata = div_out.result;
       end
-    end else if (v.mul == 1) begin
+    end else if (v.multiplication == 1) begin
       if (mul_out.ready == 0) begin
         v.stall = 1;
       end else if (mul_out.ready == 1) begin
@@ -216,7 +216,7 @@ module execute_stage
       v.jal = 0;
       v.jalr = 0;
       v.branch = 0;
-      v.csr = 0;
+      v.csregister = 0;
       v.ecall = 0;
       v.ebreak = 0;
       v.mret = 0;
@@ -241,13 +241,13 @@ module execute_stage
     csr_in.ecause = v.ecause;
     csr_in.etval = v.etval;
 
-    register_in.wren = v.wren;
-    register_in.waddr = v.waddr;
-    register_in.wdata = v.wdata;
+    register_win.wren = v.wren;
+    register_win.waddr = v.waddr;
+    register_win.wdata = v.wdata;
 
-    forwarding_in.execute_wren = v.wren;
-    forwarding_in.execute_waddr = v.waddr;
-    forwarding_in.execute_wdata = v.wdata;
+    forwarding_ein.wren = v.wren;
+    forwarding_ein.waddr = v.waddr;
+    forwarding_ein.wdata = v.wdata;
 
     csr_in.cwren = v.cwren;
     csr_in.cwaddr = v.caddr;

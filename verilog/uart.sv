@@ -82,7 +82,7 @@ module uart
       default : begin
         if (r_tx.counter_tx > clks_per_bit) begin
           v_tx.data_tx = {1'b1,v_tx.data_tx[9:1]};
-          v_tx.state_tx = v_tx.state_tx + 1;
+          v_tx.state_tx = v_tx.state_tx + 4'h1;
           v_tx.counter_tx = 0;
         end
       end
@@ -124,7 +124,7 @@ module uart
       default : begin
         if (r_rx.counter_rx > clks_per_bit) begin
           v_rx.data_rx = {uart_rx,v_rx.data_rx[8:1]};
-          v_rx.state_rx = v_rx.state_rx + 1;
+          v_rx.state_rx = v_rx.state_rx + 4'h1;
           v_rx.counter_rx = 0;
         end
       end
@@ -133,14 +133,14 @@ module uart
     if (r_rx.state_re == 1 && r_rx.ready_rx == 1) begin
       v_rx.state_re = 0;
       v_rx.ready_re = 1;
-      v_rx.data_re = r_rx.data_rx;
+      v_rx.data_re = r_rx.data_rx[7:0];
     end
 
     rin_rx = v_rx;
 
   end
 
-  assign uart_rdata = {56'b0,r_rx.data_re};
+  assign uart_rdata = {24'b0,r_rx.data_re};
   assign uart_ready = r_tx.ready_tx | r_rx.ready_re;
 
   always_ff @ (posedge clk) begin

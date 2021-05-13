@@ -38,7 +38,6 @@ module compress
   logic [0  : 0] rden1;
   logic [0  : 0] rden2;
 
-  logic [0  : 0] auipc;
   logic [0  : 0] lui;
   logic [0  : 0] jal;
   logic [0  : 0] jalr;

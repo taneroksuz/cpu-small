@@ -14,9 +14,9 @@ module fetch_stage
   input bcu_out_type bcu_out,
   output bcu_in_type bcu_in,
   input register_out_type register_out,
-  output register_in_type register_in,
+  output register_read_in_type register_rin,
   input forwarding_out_type forwarding_out,
-  output forwarding_in_type forwarding_in,
+  output forwarding_register_in_type forwarding_rin,
   input csr_out_type csr_out,
   input prefetch_out_type prefetch_out,
   output prefetch_in_type prefetch_in,
@@ -119,13 +119,13 @@ module fetch_stage
       v.valid = compress_out.valid;
     end
 
-    register_in.raddr1 = v.raddr1;
-    register_in.raddr2 = v.raddr2;
+    register_rin.raddr1 = v.raddr1;
+    register_rin.raddr2 = v.raddr2;
 
-    forwarding_in.register_raddr1 = v.raddr1;
-    forwarding_in.register_raddr2 = v.raddr2;
-    forwarding_in.register_rdata1 = register_out.rdata1;
-    forwarding_in.register_rdata2 = register_out.rdata2;
+    forwarding_rin.raddr1 = v.raddr1;
+    forwarding_rin.raddr2 = v.raddr2;
+    forwarding_rin.rdata1 = register_out.rdata1;
+    forwarding_rin.rdata2 = register_out.rdata2;
 
     v.rdata1 = forwarding_out.data1;
     v.rdata2 = forwarding_out.data2;
@@ -211,7 +211,7 @@ module fetch_stage
     dmem_in.mem_instr = 0;
     dmem_in.mem_addr = v.address;
     dmem_in.mem_wdata = store_data(v.rdata2,v.lsu_op.lsu_sb,v.lsu_op.lsu_sh,v.lsu_op.lsu_sw);
-    dmem_in.mem_wstrb = (v.load == 1) ? 0 : v.byteenable;
+    dmem_in.mem_wstrb = (v.load == 1) ? 4'h0 : v.byteenable;
 
     rin = v;
 

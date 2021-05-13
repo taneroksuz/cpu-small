@@ -38,11 +38,11 @@ module mul
             v.op1 = mul_in.rdata1;
             v.op2 = mul_in.rdata2;
             v.op = mul_in.op;
-            v.op1_signed = v.op.mul | v.op.mulh |
+            v.op1_signed = v.op.muls | v.op.mulh |
                            v.op.mulhsu;
-            v.op2_signed = v.op.mul | v.op.mulh;
+            v.op2_signed = v.op.muls | v.op.mulh;
             v.negativ = 0;
-            v.mul = v.op.mul | v.op.mulh |
+            v.multiplication = v.op.muls | v.op.mulh |
                    v.op.mulhsu | v.op.mulhu;
             v.op1_neg = 0;
             if (v.op1_signed == 1 && v.op1[31] == 1) begin
@@ -61,7 +61,7 @@ module mul
               end
               v.counter = v.counter + 1;
             end
-            if (v.mul == 1) begin
+            if (v.multiplication == 1) begin
               v.result = 0;
             end
             if (mul_in.enable == 0) begin
@@ -74,12 +74,12 @@ module mul
           end
           33 : begin
             if (v.negativ == 1) begin
-              if (v.mul == 1) begin
+              if (v.multiplication == 1) begin
                 v.result = -v.result;
               end
             end
             v.counter = 0;
-            if (v.op.mul == 1) begin
+            if (v.op.muls == 1) begin
               mul_out.result = v.result[31:0];
             end else if (v.op.mulh == 1 |
                          v.op.mulhsu == 1 |
@@ -89,7 +89,7 @@ module mul
             mul_out.ready = 1;
           end
           default : begin
-            if (v.mul == 1) begin
+            if (v.multiplication == 1) begin
               v.result = {v.result[63:0],1'b0};
               if (v.op1[32-v.counter] == 1) begin
                 v.result = v.result + {33'b0,v.op2};
@@ -123,9 +123,9 @@ module mul
         op1 = {1'b0,mul_in.rdata1};
         op2 = {1'b0,mul_in.rdata2};
         op = mul_in.op;
-        op1_signed = op.mul | op.mulh |
+        op1_signed = op.muls | op.mulh |
                      op.mulhsu;
-        op2_signed = op.mul | op.mulh;
+        op2_signed = op.muls | op.mulh;
         if (op1_signed == 1) begin
           op1[32] = op1[31];
         end
@@ -133,7 +133,7 @@ module mul
           op2[32] = op2[31];
         end
         result = op1*op2;
-        if (op.mul == 1) begin
+        if (op.muls == 1) begin
           mul_out.result = result[31:0];
         end else begin
           mul_out.result = result[63:32];
