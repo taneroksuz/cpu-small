@@ -221,7 +221,7 @@ module execute_stage
       v.ebreak = 0;
       v.mret = 0;
       v.wfi = 0;
-      v.valid = 0;
+      // v.valid = 0;
       v.exception = 0;
       v.clear = 0;
     end

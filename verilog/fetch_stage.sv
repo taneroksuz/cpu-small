@@ -163,7 +163,7 @@ module fetch_stage
       v.fence = 0;
       v.ebreak = 0;
       v.jump = 0;
-      v.valid = 0;
+      // v.valid = 0;
     end
 
     if (v.exception == 1) begin
