@@ -113,7 +113,6 @@ module top_cpu
   pll pll_comp
   (
     .refclk (clk),
-    .rst (rst_not),
     .outclk_0 (clk_pll),
     .outclk_1 (rtc)
   );
