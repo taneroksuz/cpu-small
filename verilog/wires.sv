@@ -372,6 +372,7 @@ package wires;
     logic [0  : 0] fence;
     logic [0  : 0] ebreak;
     logic [0  : 0] valid;
+    logic [0  : 0] invalid;
     logic [0  : 0] jump;
     logic [31 : 0] rdata1;
     logic [31 : 0] rdata2;
@@ -409,6 +410,7 @@ package wires;
     logic [0  : 0] fence;
     logic [0  : 0] ebreak;
     logic [0  : 0] valid;
+    logic [0  : 0] invalid;
     logic [0  : 0] jump;
     logic [31 : 0] rdata1;
     logic [31 : 0] rdata2;
@@ -447,6 +449,7 @@ package wires;
     fence : 0,
     ebreak : 0,
     valid : 0,
+    invalid : 1,
     jump : 0,
     rdata1 : 0,
     rdata2 : 0,
@@ -496,6 +499,7 @@ package wires;
     logic [0  : 0] mret;
     logic [0  : 0] wfi;
     logic [0  : 0] valid;
+    logic [0  : 0] invalid;
     logic [31 : 0] rdata1;
     logic [31 : 0] rdata2;
     logic [31 : 0] cdata;
@@ -546,6 +550,7 @@ package wires;
     mret : 0,
     wfi : 0,
     valid : 0,
+    invalid : 1,
     rdata1 : 0,
     rdata2 : 0,
     cdata : 0,

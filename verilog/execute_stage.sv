@@ -55,6 +55,7 @@ module execute_stage
     v.store = d.f.store;
     v.ebreak = d.f.ebreak;
     v.valid = d.f.valid;
+    v.invalid = d.f.invalid;
     v.address = d.f.address;
     v.byteenable = d.f.byteenable;
     v.alu_op = d.f.alu_op;
@@ -108,6 +109,7 @@ module execute_stage
       v.mret = postdecoder_out.mret;
       v.wfi = postdecoder_out.wfi;
       v.valid = postdecoder_out.valid;
+      v.invalid = 0;
     end
 
     if (v.rden1 == 0) begin
@@ -221,7 +223,7 @@ module execute_stage
       v.ebreak = 0;
       v.mret = 0;
       v.wfi = 0;
-      // v.valid = 0;
+      v.invalid = 1;
       v.exception = 0;
       v.clear = 0;
     end
@@ -231,11 +233,11 @@ module execute_stage
     end
 
     if (v.nop == 1) begin
-      v.valid = 0;
+      v.invalid = 1;
     end
 
     csr_in.epc = v.pc;
-    csr_in.valid = v.valid;
+    csr_in.valid = ~v.invalid;
     csr_in.mret = v.mret;
     csr_in.exception = v.exception;
     csr_in.ecause = v.ecause;

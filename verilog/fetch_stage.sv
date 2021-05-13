@@ -76,6 +76,7 @@ module fetch_stage
     v.lsu_op = 0;
     v.ebreak = 0;
     v.valid = 0;
+    v.invalid = 1;
 
     predecoder_in.instr = v.instr;
 
@@ -94,6 +95,7 @@ module fetch_stage
       v.bcu_op = predecoder_out.bcu_op;
       v.lsu_op = predecoder_out.lsu_op;
       v.valid = predecoder_out.valid;
+      v.invalid = 0;
     end
 
     compress_in.instr = v.instr;
@@ -117,6 +119,7 @@ module fetch_stage
       v.lsu_op = compress_out.lsu_op;
       v.ebreak = compress_out.ebreak;
       v.valid = compress_out.valid;
+      v.invalid = 0;
     end
 
     register_rin.raddr1 = v.raddr1;
@@ -163,7 +166,7 @@ module fetch_stage
       v.fence = 0;
       v.ebreak = 0;
       v.jump = 0;
-      // v.valid = 0;
+      v.invalid = 1;
     end
 
     if (v.exception == 1) begin
@@ -235,6 +238,7 @@ module fetch_stage
     y.fence = v.fence;
     y.ebreak = v.ebreak;
     y.valid = v.valid;
+    y.invalid = v.invalid;
     y.jump = v.jump;
     y.address = v.address;
     y.byteenable = v.byteenable;
@@ -265,6 +269,7 @@ module fetch_stage
     q.fence = r.fence;
     q.ebreak = r.ebreak;
     q.valid = r.valid;
+    q.invalid = r.invalid;
     q.jump = r.jump;
     q.address = r.address;
     q.byteenable = r.byteenable;
