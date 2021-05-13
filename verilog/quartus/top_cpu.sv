@@ -10,6 +10,7 @@ module top_cpu
   timeunit 1ns;
   timeprecision 1ps;
 
+  logic rst_not;
   logic rtc;
   logic clk_pll;
 
@@ -107,10 +108,12 @@ module top_cpu
 
   end
 
+  assign rst_not = ~rst;
+
   pll pll_comp
   (
     .refclk (clk),
-    .rst (rst),
+    .rst (rst_not),
     .outclk_0 (clk_pll),
     .outclk_1 (rtc)
   );

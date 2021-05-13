@@ -14,7 +14,7 @@ package configure;
 	parameter bram_depth = 10;
 
 	parameter clk_freq = 50000000; // 50MHz
-	parameter clk_pll = 25000000; // 50MHz
+	parameter clk_pll = 25000000; // 25MHz
 	parameter rtc_freq = 32768; // 32768Hz
 	parameter baudrate = 115200;
 
