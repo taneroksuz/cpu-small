@@ -10,9 +10,10 @@ module top_cpu
   timeunit 1ns;
   timeprecision 1ps;
 
-  logic rst_not;
   logic rtc;
+  logic rst_pll;
   logic clk_pll;
+  logic locked;
 
   logic [0  : 0] memory_valid;
   logic [0  : 0] memory_instr;
@@ -108,18 +109,20 @@ module top_cpu
 
   end
 
-  assign rst_not = ~rst;
+  assign rst_pll = ~rst;
 
   pll pll_comp
   (
     .refclk (clk),
+    .rst (rst_pll),
     .outclk_0 (clk_pll),
-    .outclk_1 (rtc)
+    .outclk_1 (rtc),
+    .locked (locked)
   );
 
   cpu cpu_comp
   (
-    .rst (rst),
+    .rst (locked),
     .clk (clk_pll),
     .memory_valid (memory_valid),
     .memory_instr (memory_instr),
@@ -146,7 +149,7 @@ module top_cpu
 
   uart uart_comp
   (
-    .rst (rst),
+    .rst (locked),
     .clk (clk_pll),
     .uart_valid (uart_valid),
     .uart_instr (uart_instr),
@@ -161,7 +164,7 @@ module top_cpu
 
   timer timer_comp
   (
-    .rst (rst),
+    .rst (locked),
     .clk (clk_pll),
     .rtc (rtc),
     .timer_valid (timer_valid),
