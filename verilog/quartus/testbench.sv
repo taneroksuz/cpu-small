@@ -1,5 +1,3 @@
-import configure::*;
-
 module testbench;
 
   timeunit 1ns;
