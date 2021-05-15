@@ -14,7 +14,7 @@ module testbench;
   end
 
   always begin
-    #5;
+    #10;
     clk = !clk;
   end
 
