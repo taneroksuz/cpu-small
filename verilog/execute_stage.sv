@@ -1,3 +1,4 @@
+import constants::*;
 import wires::*;
 
 module execute_stage

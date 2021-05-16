@@ -1,4 +1,5 @@
 import constants::*;
+import functions::*;
 import wires::*;
 
 module fetch_stage
