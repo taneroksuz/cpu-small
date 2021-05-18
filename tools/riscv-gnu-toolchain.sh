@@ -1,4 +1,4 @@
-#!/bin/bash
+riscv-isa-simriscv-isa-sim#!/bin/bash
 
 RISCV_PATH=/opt/riscv
 FLAG="rv32i-ilp32--;rv32im-ilp32--;rv32imc-ilp32--;rv64imfd-lp64d--;rv64imfdc-lp64d--"
@@ -30,7 +30,7 @@ make -j$(nproc)
 
 git clone --recursive https://github.com/riscv/riscv-isa-sim.git
 
-cd riscv-spike
+cd riscv-isa-sim
 
 mkdir build
 cd build
