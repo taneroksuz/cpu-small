@@ -12,8 +12,8 @@ module bram
   output logic [31 : 0] bram_rdata,
   output logic [0  : 0] bram_ready
 );
-	timeunit 1ns;
-	timeprecision 1ps;
+  timeunit 1ns;
+  timeprecision 1ps;
 
   logic [31 : 0] bram_block[0:2**bram_depth-1];
 
@@ -21,6 +21,8 @@ module bram
 
   logic [31 : 0] rdata;
   logic [0  : 0] ready;
+
+  logic [31 : 0] latency = 0;
 
   task check;
     input logic [31 : 0] bram_block[0:2**bram_depth-1];
@@ -53,33 +55,44 @@ module bram
 
   always_ff @(posedge clk) begin
 
-    if (bram_valid == 1) begin
+    if (latency == bram_latency) begin
 
-      check(bram_block,bram_addr,bram_wdata,bram_wstrb,host[0]);
+      latency <= 0;
 
-      if (bram_addr == uart_base_addr) begin
-        if (bram_wstrb[0] == 1) begin
-          $write("%c",bram_wdata[7:0]);
+      if (bram_valid == 1) begin
+
+        check(bram_block,bram_addr,bram_wdata,bram_wstrb,host[0]);
+
+        if (bram_addr == uart_base_addr) begin
+          if (bram_wstrb[0] == 1) begin
+            $write("%c",bram_wdata[7:0]);
+          end
+        end else if (bram_addr[31:2] >= 2**bram_depth) begin
+          $display("ADDRESS EXCEEDS MEMORY");
+          $finish;
+        end else begin
+          if (bram_wstrb[0] == 1)
+            bram_block[bram_addr[(bram_depth+1):2]][7:0] <= bram_wdata[7:0];
+          if (bram_wstrb[1] == 1)
+            bram_block[bram_addr[(bram_depth+1):2]][15:8] <= bram_wdata[15:8];
+          if (bram_wstrb[2] == 1)
+            bram_block[bram_addr[(bram_depth+1):2]][23:16] <= bram_wdata[23:16];
+          if (bram_wstrb[3] == 1)
+            bram_block[bram_addr[(bram_depth+1):2]][31:24] <= bram_wdata[31:24];
         end
-      end else if (bram_addr[31:2] >= 2**bram_depth) begin
-        $display("ADDRESS EXCEEDS MEMORY");
-        $finish;
-      end else begin
-        if (bram_wstrb[0] == 1)
-          bram_block[bram_addr[(bram_depth+1):2]][7:0] <= bram_wdata[7:0];
-        if (bram_wstrb[1] == 1)
-          bram_block[bram_addr[(bram_depth+1):2]][15:8] <= bram_wdata[15:8];
-        if (bram_wstrb[2] == 1)
-          bram_block[bram_addr[(bram_depth+1):2]][23:16] <= bram_wdata[23:16];
-        if (bram_wstrb[3] == 1)
-          bram_block[bram_addr[(bram_depth+1):2]][31:24] <= bram_wdata[31:24];
-      end
 
-      rdata <= bram_block[bram_addr[(bram_depth+1):2]];
-      ready <= 1;
+        rdata <= bram_block[bram_addr[(bram_depth+1):2]];
+        ready <= 1;
+
+      end else begin
+
+        ready <= 0;
+
+      end
 
     end else begin
 
+      latency <= latency + 1;
       ready <= 0;
 
     end

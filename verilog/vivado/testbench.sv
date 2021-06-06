@@ -24,7 +24,7 @@ module testbench;
     rst = 1;
   end
 
-  top_cpu top_cpu_comp
+  soc soc_comp
   (
     .rst (rst),
     .clk (clk),

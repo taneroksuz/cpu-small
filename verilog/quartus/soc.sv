@@ -1,6 +1,6 @@
 import configure::*;
 
-module top_cpu
+module soc
 (
   input logic rst,
   input logic clk,
