@@ -200,7 +200,8 @@ module fetch_stage
     prefetch_in.pc = r.pc;
     prefetch_in.vpc = r.vpc;
     prefetch_in.npc = v.pc;
-    prefetch_in.jump = v.spec;
+    prefetch_in.spec = v.spec;
+    prefetch_in.valid = ~(a.e.stall | d.e.clear);
     prefetch_in.fence = d.f.fence;
     prefetch_in.rdata = imem_out.mem_rdata;
     prefetch_in.ready = imem_out.mem_ready;
