@@ -43,7 +43,7 @@ module fetch_stage
 
     v.instr = prefetch_out.instr;
 
-    if (d.e.stall == 1) begin
+    if (a.e.stall == 1) begin
       v = r;
     end
 
