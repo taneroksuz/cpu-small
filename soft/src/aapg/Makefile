@@ -2,7 +2,8 @@ default: all
 
 src_dir = $(BASEDIR)/soft/src
 bld_dir = $(BASEDIR)/build/aapg/elf
-srcs = $(wildcard $(src_dir)/aapg/setup/common/crt.S) $(wildcard $(src_dir)/aapg/setup/asm/*.S)
+srcs0 = $(wildcard $(src_dir)/aapg/setup/work/common/crt.S) $(wildcard $(src_dir)/aapg/setup/work/asm/*.S)
+srcs = $(filter-out $(wildcard $(src_dir)/aapg/setup/work/asm/*template.S), $(srcs0))
 objs0 = $(srcs:.c=.o)
 objs = $(objs0:.S=.o)
 
