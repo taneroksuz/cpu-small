@@ -14,7 +14,7 @@ cd -
 RISCV_GCC=$RISCV/riscv32-unknown-elf-gcc
 RISCV_GCC_OPTS="-march=$MARCH -mabi=$MABI -DPREALLOCATE=1 -mcmodel=medany -static -std=gnu99 -O2 -ffast-math -fno-common -fno-builtin-printf"
 RISCV_LINK_OPTS="-static -nostdlib -nostartfiles -lm -lgcc -T $BASEDIR/tools/riscv-torture/env/p/link.ld"
-RISCV_OBJDUMP="$RISCV/riscv32-unknown-elf-objdump -Mnumeric,no-aliases --disassemble-all --disassemble-zeroes"
+RISCV_OBJDUMP="$RISCV/riscv32-unknown-elf-objdump -Mnumeric,no-aliases --disassemble --disassemble-zeroes"
 RISCV_OBJCOPY="$RISCV/riscv32-unknown-elf-objcopy -O binary"
 RISCV_INCL="-I $BASEDIR/soft/src/common -I $BASEDIR/soft/src/env"
 RISCV_SRC="$BASEDIR/tools/riscv-torture/output/test.S"

@@ -13,7 +13,7 @@ RISCV_GCC ?= $(RISCV)/riscv64-unknown-elf-gcc
 RISCV_GCC_OPTS ?= -static -mcmodel=medany -fvisibility=hidden -nostdlib -nostartfiles
 RISCV_INCL ?= -I $(src_dir)/env
 RISCV_LINK_OPTS ?= -T $(src_dir)/env/link.ld
-RISCV_OBJDUMP ?= $(RISCV)/riscv64-unknown-elf-objdump -Mnumeric,no-aliases --disassemble-all --disassemble-zeroes
+RISCV_OBJDUMP ?= $(RISCV)/riscv64-unknown-elf-objdump -Mnumeric,no-aliases --disassemble --disassemble-zeroes
 RISCV_OBJCOPY ?= $(RISCV)/riscv64-unknown-elf-objcopy -O binary
 RISCV_NM ?= $(RISCV)/riscv64-unknown-elf-nm -A
 
