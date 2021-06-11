@@ -43,10 +43,6 @@ module fetch_stage
 
     v.instr = prefetch_out.instr;
 
-    if (a.e.stall == 1) begin
-      v = r;
-    end
-
     v.stall = prefetch_out.stall | a.e.stall | d.e.clear;
     v.clear = csr_out.exception | csr_out.mret | d.e.clear;
     v.spec = d.e.clear;
