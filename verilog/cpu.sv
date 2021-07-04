@@ -1,3 +1,4 @@
+import configure::*;
 import wires::*;
 
 module cpu
@@ -109,7 +110,7 @@ module cpu
     .div_out (div_out)
   );
 
-  mul mul_comp
+  mul #(mul_performance) mul_comp
   (
     .rst (rst),
     .clk (clk),

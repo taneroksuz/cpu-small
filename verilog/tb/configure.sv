@@ -12,6 +12,8 @@ package configure;
   parameter timer_base_address = 32'h200000;
   parameter timer_top_address = 32'h200010;
 
+  parameter mul_performance = 1;
+
   parameter prefetch_depth = 4;
   parameter bram_depth = 16;
 
