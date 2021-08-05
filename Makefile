@@ -3,6 +3,7 @@ default: none
 VERILATOR ?= /opt/verilator/bin/verilator
 SYSTEMC ?= /opt/systemc
 RISCV ?= /opt/riscv/bin
+SV2V ?= /opt/sv2v/bin/sv2v
 MARCH ?= rv32imc
 MABI ?= ilp32
 ITER ?= 10
@@ -16,6 +17,7 @@ TEST ?= dhrystone
 AAPG ?= aapg
 CONFIG ?= integer
 CYCLES ?= 10000000000
+FPGA ?= quartus # tb vivado quartus
 WAVE ?= "" # "wave" for saving dump file
 
 generate_compliance:
@@ -44,5 +46,8 @@ generate_aapg:
 
 simulate:
 	sim/run.sh ${BASEDIR} ${VERILATOR} ${SYSTEMC} ${TEST} ${CYCLES} ${WAVE}
+
+synthesis:
+	synth/generate.sh ${BASEDIR} ${SV2V} ${FPGA}
 
 all: generate_dhrystone generate_coremark generate_csmith generate_torture simulate
