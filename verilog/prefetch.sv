@@ -193,7 +193,7 @@ module prefetch
           v.oflow = 1;
           v.waddr = 0;
         end else begin
-          v.waddr = v.waddr + 1;
+          v.waddr = v.waddr + {prefetch_depth'(1'b1)};
         end
         v.fpc = v.fpc + 4;
       end
@@ -205,12 +205,12 @@ module prefetch
           v.oflow = 0;
           v.raddr1 = 0;
         end else begin
-          v.raddr1 = v.raddr1 + 1;
+          v.raddr1 = v.raddr1 + {prefetch_depth'(1'b1)};
         end
         if (v.raddr2 == 2**prefetch_depth-1) begin
           v.raddr2 = 0;
         end else begin
-          v.raddr2 = v.raddr2 + 1;
+          v.raddr2 = v.raddr2 + {prefetch_depth'(1'b1)};
         end
       end
     end

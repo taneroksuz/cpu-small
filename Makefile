@@ -48,6 +48,6 @@ simulate:
 	sim/run.sh ${BASEDIR} ${VERILATOR} ${SYSTEMC} ${TEST} ${CYCLES} ${WAVE}
 
 synthesis:
-	synth/generate.sh ${BASEDIR} ${SV2V} ${FPGA}
+	synth/generate.sh ${BASEDIR} ${SV2V} ${FPGA} ${TEST}
 
 all: generate_dhrystone generate_coremark generate_csmith generate_torture simulate
