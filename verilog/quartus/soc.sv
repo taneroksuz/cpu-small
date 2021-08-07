@@ -140,8 +140,8 @@ module soc
   (
     .clk (clk_pll),
     .bram_wen (bram_wen),
-    .bram_waddr (bram_addr),
-    .bram_raddr (bram_addr),
+    .bram_waddr (bram_addr[bram_depth+1:2]),
+    .bram_raddr (bram_addr[bram_depth+1:2]),
     .bram_wdata (bram_wdata),
     .bram_wstrb (bram_wstrb),
     .bram_rdata (bram_rdata)
