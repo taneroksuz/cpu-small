@@ -45,8 +45,8 @@ set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to tx
 #set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to ARDUINO_IO[14]
 #set_location_assignment PIN_AG11 -to ARDUINO_IO[15]
 #set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to ARDUINO_IO[15]
-#set_location_assignment PIN_AH7 -to ARDUINO_RE#set_N
-#set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to ARDUINO_RE#set_N
+#set_location_assignment PIN_AH7 -to ARDUINO_RESET_N
+#set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to ARDUINO_RESET_N
 
 #============================================================
 # CLOCK
@@ -131,7 +131,7 @@ set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to clk
 #set_instance_assignment -name IO_STANDARD "DIFFERENTIAL 1.5-V SSTL CLASS I" -to HPS_DDR3_DQS_P[3]
 #set_instance_assignment -name IO_STANDARD "SSTL-15 CLASS I" -to HPS_DDR3_ODT
 #set_instance_assignment -name IO_STANDARD "SSTL-15 CLASS I" -to HPS_DDR3_RAS_N
-#set_instance_assignment -name IO_STANDARD "SSTL-15 CLASS I" -to HPS_DDR3_RE#set_N
+#set_instance_assignment -name IO_STANDARD "SSTL-15 CLASS I" -to HPS_DDR3_RESET_N
 #set_instance_assignment -name IO_STANDARD "1.5 V" -to HPS_DDR3_RZQ
 #set_instance_assignment -name IO_STANDARD "SSTL-15 CLASS I" -to HPS_DDR3_WE_N
 #set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to HPS_ENET_GTX_CLK
