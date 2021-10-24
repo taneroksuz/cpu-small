@@ -23,24 +23,29 @@ module soc
   logic [31 : 0] bram_rdata;
   logic [0  : 0] bram_ready;
 
-  logic [0  : 0] timer_valid;
-  logic [0  : 0] timer_instr;
-  logic [31 : 0] timer_addr;
-  logic [31 : 0] timer_wdata;
-  logic [3  : 0] timer_wstrb;
-  logic [31 : 0] timer_rdata;
-  logic [0  : 0] timer_ready;
-  logic [0  : 0] timer_irpt;
+  logic [0  : 0] clint_valid;
+  logic [0  : 0] clint_instr;
+  logic [31 : 0] clint_addr;
+  logic [31 : 0] clint_wdata;
+  logic [3  : 0] clint_wstrb;
+  logic [31 : 0] clint_rdata;
+  logic [0  : 0] clint_ready;
+
+  logic [2**plic_contexts-1 : 0] meip;
+  logic [2**clint_contexts-1 : 0] msip;
+  logic [2**clint_contexts-1 : 0] mtip;
+
+  logic [63 : 0] mtime;
 
   always_comb begin
 
-    if (memory_addr >= timer_base_address &&
-      memory_addr < timer_top_address) begin
+    if (memory_addr >= clint_base_address &&
+      memory_addr < clint_top_address) begin
       bram_valid = 0;
-      timer_valid = memory_valid;
+      clint_valid = memory_valid;
     end else begin
       bram_valid = memory_valid;
-      timer_valid = 0;
+      clint_valid = 0;
     end
 
     bram_instr = memory_instr;
@@ -48,17 +53,17 @@ module soc
     bram_wdata = memory_wdata;
     bram_wstrb = memory_wstrb;
 
-    timer_instr = memory_instr;
-    timer_addr = memory_addr ^ timer_base_address;
-    timer_wdata = memory_wdata;
-    timer_wstrb = memory_wstrb;
+    clint_instr = memory_instr;
+    clint_addr = memory_addr ^ clint_base_address;
+    clint_wdata = memory_wdata;
+    clint_wstrb = memory_wstrb;
 
     if (bram_ready == 1) begin
       memory_rdata = bram_rdata;
       memory_ready = bram_ready;
-    end else if  (timer_ready == 1) begin
-      memory_rdata = timer_rdata;
-      memory_ready = timer_ready;
+    end else if  (clint_ready == 1) begin
+      memory_rdata = clint_rdata;
+      memory_ready = clint_ready;
     end else begin
       memory_rdata = 0;
       memory_ready = 0;
@@ -77,9 +82,10 @@ module soc
     .memory_wstrb (memory_wstrb),
     .memory_rdata (memory_rdata),
     .memory_ready (memory_ready),
-    .extern_irpt (1'b0),
-    .timer_irpt (timer_irpt),
-    .soft_irpt (1'b0)
+    .meip (meip[0]),
+    .msip (msip[0]),
+    .mtip (mtip[0]),
+    .mtime (mtime)
   );
 
   bram bram_comp
@@ -95,19 +101,21 @@ module soc
     .bram_ready (bram_ready)
   );
 
-  timer timer_comp
+  clint clint_comp
   (
     .rst (rst),
     .clk (clk),
     .rtc (rtc),
-    .timer_valid (timer_valid),
-    .timer_instr (timer_instr),
-    .timer_addr (timer_addr),
-    .timer_wdata (timer_wdata),
-    .timer_wstrb (timer_wstrb),
-    .timer_rdata (timer_rdata),
-    .timer_ready (timer_ready),
-    .timer_irpt (timer_irpt)
+    .clint_valid (clint_valid),
+    .clint_instr (clint_instr),
+    .clint_addr (clint_addr),
+    .clint_wdata (clint_wdata),
+    .clint_wstrb (clint_wstrb),
+    .clint_rdata (clint_rdata),
+    .clint_ready (clint_ready),
+    .clint_msip (msip),
+    .clint_mtip (mtip),
+    .clint_mtime (mtime)
   );
 
 endmodule

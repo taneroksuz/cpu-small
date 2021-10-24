@@ -2,18 +2,22 @@ package configure;
   timeunit 1ns;
   timeprecision 1ps;
 
-  parameter start_base_addr = 32'h0;
-
-  parameter uart_base_addr = 32'h100000;
-  parameter uart_top_addr = 32'h100004;
-
-  parameter timer_base_address = 32'h200000;
-  parameter timer_top_address = 32'h200010;
-
   parameter mul_performance = 1;
 
   parameter prefetch_depth = 4;
+
   parameter bram_depth = 12;
+
+  parameter start_base_addr = 32'h0;
+
+  parameter uart_base_addr = 32'h100000;
+  parameter uart_top_addr  = 32'h100004;
+
+  parameter clint_base_address = 32'h2000000;
+  parameter clint_top_address  = 32'h200C000;
+
+  parameter plic_base_addr = 32'h0C000000;
+  parameter plic_top_addr  = 32'h10000000;
 
   parameter clk_freq = 100000000; // 100MHz
   parameter clk_pll = 50000000; // 50MHz

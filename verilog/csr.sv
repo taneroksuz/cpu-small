@@ -7,9 +7,10 @@ module csr
   input logic clk,
   input csr_in_type csr_in,
   output csr_out_type csr_out,
-  input logic [0:0] extern_irpt,
-  input logic [0:0] timer_irpt,
-  input logic [0:0] soft_irpt
+  input logic [0:0] meip,
+  input logic [0:0] msip,
+  input logic [0:0] mtip,
+  input logic [63:0] mtime
 );
   timeunit 1ns;
   timeprecision 1ps;
@@ -214,19 +215,19 @@ module csr
         csr_machine_reg.minstret <= csr_machine_reg.minstret + 1;
       end
 
-      if (extern_irpt == 1) begin
+      if (meip == 1) begin
         csr_machine_reg.mip.meip <= 1;
       end else begin
         csr_machine_reg.mip.meip <= 0;
       end
 
-      if (timer_irpt == 1) begin
+      if (mtip == 1) begin
         csr_machine_reg.mip.mtip <= 1;
       end else begin
         csr_machine_reg.mip.mtip <= 0;
       end
 
-      if (soft_irpt == 1) begin
+      if (msip == 1) begin
         csr_machine_reg.mip.msip <= 1;
       end else begin
         csr_machine_reg.mip.msip <= 0;
