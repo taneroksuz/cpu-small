@@ -73,6 +73,7 @@ module clic
           end else begin
             clic_int_trig[clint_addr[clic_trigger+2:2]] <= clic_wdata;
           end
+          ready <= 1;
         end else if (clic_addr >= clic_int_start && clic_addr < clic_int_end) begin
           if (|clic_wstrb == 0) begin
             rdata[7:0] <= clic_int_ip[clint_addr[clic_sources+2:2]];
@@ -93,6 +94,7 @@ module clic
               clic_int_ctl[clint_addr[clic_sources+2:2]] <= clic_wdata[23:16];
             end
           end
+          ready <= 1;
         end
       end
     end
