@@ -39,6 +39,7 @@ ${SV2V} ${DIR}/verilog/${FPGA}/configure.sv \
 				${DIR}/verilog/execute_stage.sv \
 				${DIR}/verilog/arbiter.sv \
 				${DIR}/verilog/clint.sv \
+				${DIR}/verilog/clic.sv \
 				${DIR}/verilog/uart.sv \
 				${DIR}/verilog/cpu.sv \
 				> cpu.v
