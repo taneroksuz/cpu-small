@@ -44,8 +44,8 @@ module fetch_stage
     v.instr = prefetch_out.instr;
 
     v.stall = prefetch_out.stall | a.e.stall | d.e.clear;
-    v.clear = csr_out.exception | csr_out.mret | d.e.clear;
-    v.spec = d.e.clear;
+    v.clear = d.e.clear;
+    v.spec = csr_out.exception | csr_out.mret | d.e.clear;
 
     if (v.clear == 1 | d.f.fence == 1) begin
       v.instr = nop_instr;
