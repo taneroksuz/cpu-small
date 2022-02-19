@@ -1,4 +1,5 @@
 #!/bin/bash
+set -e
 
 export RISCV=$1
 export MARCH=$2

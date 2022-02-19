@@ -1,4 +1,5 @@
 #!/bin/bash
+set -e
 
 export RISCV=$1
 export MARCH=$2
@@ -32,7 +33,6 @@ fi
 
 git clone https://github.com/riscv/riscv-compliance.git ${BASEDIR}/soft/src/riscv-compliance
 
-cp ${BASEDIR}/soft/src/riscv-compliance/riscv-target/spike/model_test.h ${BASEDIR}/soft/src/compliance/env/
 cp -r ${BASEDIR}/soft/src/riscv-compliance/riscv-test-suite/env/* ${BASEDIR}/soft/src/compliance/env/
 cp -r ${BASEDIR}/soft/src/riscv-compliance/riscv-test-suite/rv32i_m/C/src/* ${BASEDIR}/soft/src/compliance/rv32c/
 cp -r ${BASEDIR}/soft/src/riscv-compliance/riscv-test-suite/rv32i_m/I/src/* ${BASEDIR}/soft/src/compliance/rv32i/

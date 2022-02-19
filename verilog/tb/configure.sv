@@ -8,7 +8,7 @@ package configure;
 
   parameter prefetch_depth = 4;
 
-  parameter bram_depth = 16;
+  parameter bram_depth = 17;
 
   parameter clint_contexts = 0;
 
