@@ -139,6 +139,8 @@ package wires;
   } div_out_type;
 
   typedef struct packed{
+    logic [31 : 0] data1;
+    logic [31 : 0] data2;
     logic [31 : 0] op1;
     logic [31 : 0] op2;
     logic [0  : 0] op1_signed;
@@ -155,6 +157,8 @@ package wires;
   } div_reg_type;
 
   parameter div_reg_type init_div_reg = '{
+    data1 : 0,
+    data2 : 0,
     op1 : 0,
     op2 : 0,
     op1_signed : 0,

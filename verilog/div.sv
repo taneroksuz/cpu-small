@@ -19,23 +19,27 @@ module div
 
     case (r.counter)
       0 : begin
-        v.op1 = div_in.rdata1;
-        v.op2 = div_in.rdata2;
+        v.data1 = div_in.rdata1;
+        v.data2 = div_in.rdata2;
         v.op = div_in.op;
+        v.division = v.op.divs | v.op.rem |
+                v.op.divu | v.op.remu;
         v.op1_signed = v.op.divs | v.op.rem;
         v.op2_signed = v.op.divs | v.op.rem;
         v.negativ = 0;
-        v.division = v.op.divs | v.op.divu |
-                   v.op.rem | v.op.remu;
         v.op1_neg = 0;
-        if (v.op1_signed == 1 && v.op1[31] == 1) begin
+        if (v.op1_signed == 1 && v.data1[31] == 1) begin
           v.negativ = ~v.negativ;
-          v.op1 = -v.op1;
+          v.op1 = -v.data1;
           v.op1_neg = 1;
+        end else begin
+          v.op1 = v.data1;
         end
-        if (v.op2_signed == 1 && v.op2[31] == 1) begin
+        if (v.op2_signed == 1 && v.data2[31] == 1) begin
           v.negativ = ~v.negativ;
-          v.op2 = -v.op2;
+          v.op2 = -v.data2;
+        end else begin
+          v.op2 = v.data2;
         end
         v.counter = 0;
         for (int i=31; i>=0; i--) begin
@@ -95,7 +99,7 @@ module div
           end
         end else if (v.op.rem == 1) begin
           if (v.divisionbyzero == 1) begin
-            div_out.result = v.op1;
+            div_out.result = v.data1;
           end else if (v.overflow == 1) begin
             div_out.result = 0;
           end else begin
@@ -103,7 +107,7 @@ module div
           end
         end else if (v.op.remu == 1) begin
           if (v.divisionbyzero == 1) begin
-            div_out.result = v.op1;
+            div_out.result = v.data1;
           end else begin
             div_out.result = v.result[63:32];
           end
