@@ -25,6 +25,7 @@ module soc
   logic [0  : 0] memory_ready;
 
   logic [0  : 0] bram_valid;
+  logic [0  : 0] bram_wen;
   logic [0  : 0] bram_instr;
   logic [31 : 0] bram_addr;
   logic [31 : 0] bram_wdata;
@@ -76,8 +77,8 @@ module soc
       bram_valid = 0;
       clint_valid = 0;
       uart_valid = memory_valid;
-    end else if (memory_addr >= clint_base_address &&
-          memory_addr < clint_top_address) begin
+    end else if (memory_addr >= clint_base_addr &&
+          memory_addr < clint_top_addr) begin
       bram_valid = 0;
       clint_valid = memory_valid;
       uart_valid = 0;
@@ -87,13 +88,14 @@ module soc
       uart_valid = 0;
     end
 
+    bram_wen = bram_valid & (|memory_wstrb);
     bram_instr = memory_instr;
     bram_addr = memory_addr;
     bram_wdata = memory_wdata;
     bram_wstrb = memory_wstrb;
 
     clint_instr = memory_instr;
-    clint_addr = memory_addr ^ clint_base_address;
+    clint_addr = memory_addr ^ clint_base_addr;
     clint_wdata = memory_wdata;
     clint_wstrb = memory_wstrb;
 
@@ -118,6 +120,16 @@ module soc
 
   end
 
+  always_ff @(posedge clk_pll) begin
+
+    if (bram_valid == 1) begin
+      bram_ready <= 1;
+    end else begin
+      bram_ready <= 0;
+    end
+
+  end
+
   cpu cpu_comp
   (
     .rst (rst),
@@ -137,15 +149,13 @@ module soc
 
   bram bram_comp
   (
-    .rst (rst),
     .clk (clk_pll),
-    .bram_valid (bram_valid),
-    .bram_instr (bram_instr),
-    .bram_addr (bram_addr),
+    .bram_wen (bram_wen),
+    .bram_waddr (bram_addr[bram_depth+1:2]),
+    .bram_raddr (bram_addr[bram_depth+1:2]),
     .bram_wdata (bram_wdata),
     .bram_wstrb (bram_wstrb),
-    .bram_rdata (bram_rdata),
-    .bram_ready (bram_ready)
+    .bram_rdata (bram_rdata)
   );
 
   uart uart_comp

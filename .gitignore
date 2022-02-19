@@ -1,4 +1,5 @@
 build
+!fpga/
 !sim/
 !synth/
 !soft/

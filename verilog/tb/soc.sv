@@ -39,8 +39,8 @@ module soc
 
   always_comb begin
 
-    if (memory_addr >= clint_base_address &&
-      memory_addr < clint_top_address) begin
+    if (memory_addr >= clint_base_addr &&
+      memory_addr < clint_top_addr) begin
       bram_valid = 0;
       clint_valid = memory_valid;
     end else begin
@@ -54,7 +54,7 @@ module soc
     bram_wstrb = memory_wstrb;
 
     clint_instr = memory_instr;
-    clint_addr = memory_addr ^ clint_base_address;
+    clint_addr = memory_addr ^ clint_base_addr;
     clint_wdata = memory_wdata;
     clint_wstrb = memory_wstrb;
 

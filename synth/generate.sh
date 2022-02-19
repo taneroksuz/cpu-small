@@ -17,7 +17,7 @@ if [ -f "${DIR}/build/${TEST}/dat/${TEST}.dat" ]; then
 	cp ${DIR}/build/${TEST}/dat/${TEST}.dat bram.dat
 fi
 
-${SV2V} ${DIR}/verilog/${FPGA}/configure.sv \
+${SV2V} ${DIR}/fpga/${FPGA}/configure.sv \
 				${DIR}/verilog/constants.sv \
 				${DIR}/verilog/functions.sv \
 				${DIR}/verilog/wires.sv \
@@ -44,6 +44,6 @@ ${SV2V} ${DIR}/verilog/${FPGA}/configure.sv \
 				${DIR}/verilog/cpu.sv \
 				> cpu.v
 
-cp ${DIR}/verilog/${FPGA}/configure.sv configure.sv
-cp ${DIR}/verilog/${FPGA}/bram.sv bram.sv
-cp ${DIR}/verilog/${FPGA}/soc.sv soc.sv
+cp ${DIR}/fpga/${FPGA}/configure.sv configure.sv
+cp ${DIR}/fpga/${FPGA}/bram.sv bram.sv
+cp ${DIR}/fpga/${FPGA}/soc.sv soc.sv
