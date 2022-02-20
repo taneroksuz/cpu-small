@@ -26,7 +26,7 @@ fi
 cd ${DIR}/sim/work
 
 start=`date +%s`
-if [ "$6" = 'wave' ]
+if [ "$6" = 'on' ]
 then
 	${VERILATOR} --sc -Wno-UNOPTFLAT --trace -trace-max-array 128 --trace-structs -f ${DIR}/sim/files.f --top-module soc --exe ${DIR}/verilog/tb/soc.cpp
 	make -s -j -C obj_dir/ -f Vsoc.mk Vsoc

@@ -18,7 +18,7 @@ AAPG ?= aapg
 CONFIG ?= integer
 CYCLES ?= 10000000000
 FPGA ?= quartus # tb vivado quartus
-WAVE ?= "" # "wave" for saving dump file
+WAVE ?= "" # "on" for saving dump file
 
 generate:
 	@if [ ${TEST} = "compliance" ]; \
