@@ -23,4 +23,5 @@
 ../../verilog/clic.sv
 ../../verilog/cpu.sv
 ../../verilog/tb/bram.sv
+../../verilog/tb/print.sv
 ../../verilog/tb/soc.sv

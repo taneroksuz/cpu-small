@@ -49,7 +49,7 @@ void unimplemented_syscall()
 {
 	const char *p = "Unimplemented system call called!\n";
 	while (*p)
-		*(volatile int*)0x100000 = *(p++);
+		*(volatile int*)0x1000000 = *(p++);
 	asm volatile ("ebreak");
 	__builtin_unreachable();
 }
@@ -63,7 +63,7 @@ ssize_t _write(int file, const void *ptr, size_t len)
 {
 	const void *eptr = ptr + len;
 	while (ptr != eptr)
-		*(volatile int*)0x100000 = *(char*)(ptr++);
+		*(volatile int*)0x1000000 = *(char*)(ptr++);
 	return len;
 }
 

@@ -24,6 +24,9 @@ generate:
 	@if [ ${TEST} = "compliance" ]; \
 	then \
 		soft/compliance.sh ${RISCV} ${MARCH} ${MABI} ${XLEN} ${PYTHON} ${OFFSET} ${BASEDIR}; \
+	elif [ ${TEST} = "ovp" ]; \
+	then \
+		soft/ovp.sh ${RISCV} ${MARCH} ${MABI} ${XLEN} ${PYTHON} ${OFFSET} ${BASEDIR} ${OVP}; \
 	elif [ ${TEST} = "dhrystone" ]; \
 	then \
 		soft/dhrystone.sh ${RISCV} ${MARCH} ${MABI} ${ITER} ${PYTHON} ${OFFSET} ${BASEDIR}; \
@@ -53,4 +56,4 @@ simulate:
 synthesis:
 	synth/generate.sh ${BASEDIR} ${SV2V} ${FPGA} ${TEST}
 
-all: generate_dhrystone generate_coremark generate_csmith generate_torture simulate
+all: generate simulate synthesis

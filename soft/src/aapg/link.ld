@@ -13,6 +13,12 @@
 OUTPUT_ARCH( "riscv" )
 ENTRY(_start)
 
+MEMORY
+{
+  iram : ORIGIN = 0x00000, LENGTH = 128K
+  dram : ORIGIN = 0x20000, LENGTH = 128K
+}
+
 /*----------------------------------------------------------------------*/
 /* Sections                                                             */
 /*----------------------------------------------------------------------*/
@@ -21,19 +27,25 @@ SECTIONS
 {
 
   /* text: test code section */
-  . = 0;
-  .text.init : { *(.text.init) }
-  .text : { *(.text) }
+  .text.init : {
+    . = 0x0;
+    *(.text.init)
+  } > iram
+
+
+  .tohost : {
+    . = ALIGN(0x1000);
+    *(.tohost)
+  } > iram
+
+  .text : { *(.text) } > iram
 
   /* data segment */
-  . = 0x18000;
-  .data : { *(begin_signature*) }
+  .data : { *(.data) } > dram
 
-
-  . = ALIGN(0x20000);
-  .tohost : { *(.tohost) }
-  .rodata : { *(rodata) }
+  /* data segment */
+  .rodata : { *(.rodata) } > dram
 
   /* End of uninitalized data segement */
-  _end = .;
+  .end : { _end = .;  } > dram
 }

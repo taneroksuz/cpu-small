@@ -11,7 +11,7 @@ RISCV_GCC_OPTS ?= -g -march=$(MARCH) -mabi=$(MABI) -DPREALLOCATE=1 -mcmodel=meda
 RISCV_LINK_OPTS ?= -static -nostdlib -nostartfiles -lm -lc -lgcc -T $(src_dir)/common/test.ld
 RISCV_OBJDUMP ?= $(RISCV)/riscv64-unknown-elf-objdump -S -Mnumeric,no-aliases --disassemble --disassemble-zeroes
 RISCV_OBJCOPY ?= $(RISCV)/riscv64-unknown-elf-objcopy -O binary
-RISCV_INCL ?= -I$(src_dir)/env -I$(src_dir)/coremark -I$(src_dir)/coremark_portme -I$(src_dir)/common
+RISCV_INCL ?= -I$(src_dir)/env -I$(src_dir)/coremark -I$(src_dir)/coremark_portme -I$(src_dir)/common -I$(src_dir)/common/env
 RISCV_NM ?= $(RISCV)/riscv64-unknown-elf-nm -A
 
 FLAGS_STR = "$(RISCV_GCC_OPTS) $(RISCV_LINK_OPTS)"
