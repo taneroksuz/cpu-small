@@ -40,6 +40,31 @@ module fetch_stage
     v.valid = ~(a.e.stall | d.e.clear);
     v.stall = v.stall | a.e.stall | d.e.clear;
 
+    if (csr_out.exception == 1) begin
+      v.pc = csr_out.mtvec;
+    end else if (csr_out.mret == 1) begin
+      v.pc = csr_out.mepc;
+    end else if (d.f.jump == 1) begin
+      v.pc = v.address;
+    end else if (v.stall == 0 & d.f.fence == 0) begin
+      v.pc = v.pc + ((v.instr[1:0] == 2'b11) ? 4 : 2);
+    end
+
+    prefetch_in.mem_valid = v.valid;
+    prefetch_in.mem_fence = d.f.fence;
+    prefetch_in.mem_instr = 1;
+    prefetch_in.mem_addr = v.pc;
+    prefetch_in.mem_wdata = 0;
+    prefetch_in.mem_wstrb = 0;
+
+    if (prefetch_out.mem_ready == 1) begin
+      v.instr = prefetch_out.mem_rdata;
+      v.stall = 0;
+    end else begin
+      v.instr = nop_instr;
+      v.stall = 1;
+    end
+
     v.waddr = v.instr[11:7];
     v.raddr1 = v.instr[19:15];
     v.raddr2 = v.instr[24:20];
@@ -167,31 +192,6 @@ module fetch_stage
       end else begin
         v.exception = 0;
       end
-    end
-
-    if (csr_out.exception == 1) begin
-      v.pc = csr_out.mtvec;
-    end else if (csr_out.mret == 1) begin
-      v.pc = csr_out.mepc;
-    end else if (v.jump == 1) begin
-      v.pc = v.address;
-    end else if (v.stall == 0 & d.f.fence == 0) begin
-      v.pc = v.pc + ((v.instr[1:0] == 2'b11) ? 4 : 2);
-    end
-
-    prefetch_in.mem_valid = v.valid;
-    prefetch_in.mem_fence = v.fence;
-    prefetch_in.mem_instr = 1;
-    prefetch_in.mem_addr = v.pc;
-    prefetch_in.mem_wdata = 0;
-    prefetch_in.mem_wstrb = 0;
-
-    if (prefetch_out.mem_ready == 1) begin
-      v.instr = prefetch_out.mem_rdata;
-      v.stall = 0;
-    end else begin
-      v.instr = nop_instr;
-      v.stall = 1;
     end
 
     dmem_in.mem_valid = v.load | v.store;
