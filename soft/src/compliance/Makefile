@@ -6,7 +6,6 @@ ref_dir = $(BASEDIR)/build/compliance/ref
 
 include $(src_dir)/asm/rv32c/Makefrag
 include $(src_dir)/asm/rv32i/Makefrag
-include $(src_dir)/asm/rv32b/Makefrag
 include $(src_dir)/asm/rv32m/Makefrag
 include $(src_dir)/asm/rv32p/Makefrag
 include $(src_dir)/asm/rv32z/Makefrag
@@ -36,7 +35,6 @@ endef
 
 $(eval $(call compile_template,rv32c,$(src_dir),$(bld_dir),-march=rv32ic -mabi=ilp32 -DXLEN=32))
 $(eval $(call compile_template,rv32i,$(src_dir),$(bld_dir),-march=rv32i -mabi=ilp32 -DXLEN=32))
-$(eval $(call compile_template,rv32b,$(src_dir),$(bld_dir),-march=rv32i_zba_zbb_zbc -mabi=ilp32 -DXLEN=32))
 $(eval $(call compile_template,rv32m,$(src_dir),$(bld_dir),-march=rv32im -mabi=ilp32 -DXLEN=32))
 $(eval $(call compile_template,rv32p,$(src_dir),$(bld_dir),-march=rv32i -mabi=ilp32 -DXLEN=32 -Drvtest_mtrap_routine=True))
 $(eval $(call compile_template,rv32z,$(src_dir),$(bld_dir),-march=rv32i -mabi=ilp32 -DXLEN=32))

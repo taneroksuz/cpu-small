@@ -38,14 +38,12 @@ cp -r ${BASEDIR}/soft/src/riscv-compliance/riscv-test-suite/env/*.h ${BASEDIR}/s
 
 cp -r ${BASEDIR}/soft/src/riscv-compliance/riscv-test-suite/rv32i_m/C/src/* ${BASEDIR}/soft/src/compliance/asm/rv32c/
 cp -r ${BASEDIR}/soft/src/riscv-compliance/riscv-test-suite/rv32i_m/I/src/* ${BASEDIR}/soft/src/compliance/asm/rv32i/
-cp -r ${BASEDIR}/soft/src/riscv-compliance/riscv-test-suite/rv64i_m/K_unratified/src/* ${BASEDIR}/soft/src/compliance/asm/rv32b/
 cp -r ${BASEDIR}/soft/src/riscv-compliance/riscv-test-suite/rv32i_m/M/src/* ${BASEDIR}/soft/src/compliance/asm/rv32m/
 cp -r ${BASEDIR}/soft/src/riscv-compliance/riscv-test-suite/rv32i_m/Zifencei/src/* ${BASEDIR}/soft/src/compliance/asm/rv32z/
 cp -r ${BASEDIR}/soft/src/riscv-compliance/riscv-test-suite/rv32i_m/privilege/src/* ${BASEDIR}/soft/src/compliance/asm/rv32p/
 
 cp -r ${BASEDIR}/soft/src/riscv-compliance/riscv-test-suite/rv32i_m/C/references/* ${BASEDIR}/soft/src/compliance/ref/rv32c/
 cp -r ${BASEDIR}/soft/src/riscv-compliance/riscv-test-suite/rv32i_m/I/references/* ${BASEDIR}/soft/src/compliance/ref/rv32i/
-cp -r ${BASEDIR}/soft/src/riscv-compliance/riscv-test-suite/rv64i_m/K_unratified/references/* ${BASEDIR}/soft/src/compliance/ref/rv32b/
 cp -r ${BASEDIR}/soft/src/riscv-compliance/riscv-test-suite/rv32i_m/M/references/* ${BASEDIR}/soft/src/compliance/ref/rv32m/
 cp -r ${BASEDIR}/soft/src/riscv-compliance/riscv-test-suite/rv32i_m/Zifencei/references/* ${BASEDIR}/soft/src/compliance/ref/rv32z/
 cp -r ${BASEDIR}/soft/src/riscv-compliance/riscv-test-suite/rv32i_m/privilege/references/* ${BASEDIR}/soft/src/compliance/ref/rv32p/
