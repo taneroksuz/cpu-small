@@ -47,18 +47,24 @@ module soc
 
   always_comb begin
 
-    if (memory_addr >= clint_base_addr &&
-      memory_addr < clint_top_addr) begin
-      bram_valid = 0;
-      print_valid = 0;
-      clint_valid = memory_valid;
-    end else if (memory_addr >= print_base_addr &&
-      memory_addr < print_top_addr) begin
-      bram_valid = 0;
-      print_valid = memory_valid;
-      clint_valid = 0;
+    if (memory_valid == 1) begin
+      if (memory_addr >= clint_base_addr &&
+        memory_addr < clint_top_addr) begin
+        bram_valid = 0;
+        print_valid = 0;
+        clint_valid = memory_valid;
+      end else if (memory_addr >= print_base_addr &&
+        memory_addr < print_top_addr) begin
+        bram_valid = 0;
+        print_valid = memory_valid;
+        clint_valid = 0;
+      end else begin
+        bram_valid = memory_valid;
+        print_valid = 0;
+        clint_valid = 0;
+      end
     end else begin
-      bram_valid = memory_valid;
+      bram_valid = 0;
       print_valid = 0;
       clint_valid = 0;
     end

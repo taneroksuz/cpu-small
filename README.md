@@ -10,6 +10,6 @@ RISCV Z0 CPU supports currently only riscv32-imc instruction set architecture an
 ## Coremark Benchmark ##
 | Cycles | Iteration/s/MHz |
 | ------ | --------------- |
-| 339829 |            2.94 |
+| 339861 |            2.94 |
 
 Documentation will be expanded in the future.
