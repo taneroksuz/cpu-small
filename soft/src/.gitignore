@@ -7,4 +7,6 @@ riscv-tests
 !dhrystone
 !env
 !isa
+!timer
+!uart
 !.gitignore
