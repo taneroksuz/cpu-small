@@ -2,9 +2,6 @@ import configure::*;
 import wires::*;
 
 module clint
-#(
-  parameter clint_contexts = 0
-)
 (
   input logic rst,
   input logic clk,
@@ -17,27 +14,27 @@ module clint
   output logic [31 : 0] clint_rdata,
   output logic [0  : 0] clint_ready,
   output logic [63 : 0] clint_mtime,
-  output logic [2**clint_contexts-1:0] clint_msip,
-  output logic [2**clint_contexts-1:0] clint_mtip
+  output logic clint_msip,
+  output logic clint_mtip
 );
   timeunit 1ns;
   timeprecision 1ps;
 
   localparam  clint_msip_start     = 0;
-  localparam  clint_msip_end       = clint_msip_start + 2**clint_contexts*4;
+  localparam  clint_msip_end       = clint_msip_start + 4;
   localparam  clint_mtimecmp_start = 16384;
-  localparam  clint_mtimecmp_end   = clint_mtimecmp_start + 2**clint_contexts*8;
+  localparam  clint_mtimecmp_end   = clint_mtimecmp_start + 8;
   localparam  clint_mtime_start    = 49144;
   localparam  clint_mtime_end      = clint_mtime_start + 8;
 
-  logic [63 : 0] mtimecmp [0:2**clint_contexts-1] = '{default:0};
+  logic [63 : 0] mtimecmp = 0;
   logic [63 : 0] mtime = 0;
 
   logic [31 : 0] rdata = 0;
   logic [0  : 0] ready = 0;
 
-  logic [2**clint_contexts-1:0] mtip = 0;
-  logic [2**clint_contexts-1:0] msip = 0;
+  logic [0:0] mtip = 0;
+  logic [0:0] msip = 0;
 
   logic [0:0] state = 0;
   logic [0:0] incr  = 0;
@@ -60,25 +57,25 @@ module clint
       if (clint_valid == 1) begin
         if (clint_addr < clint_msip_end) begin
           if (|clint_wstrb == 0) begin
-            rdata[0] <= msip[clint_addr[clint_contexts+2:2]];
+            rdata[0] <= msip;
             ready <= 1;
           end else begin
-            msip[clint_addr[clint_contexts+2:2]] <= clint_wdata[0];
+            msip <= clint_wdata[0];
             ready <= 1;
           end
         end else if (clint_addr >= clint_mtimecmp_start && clint_addr < clint_mtimecmp_end) begin
           if (|clint_wstrb == 0) begin
             if (clint_addr[2] == 0) begin
-              rdata <= mtimecmp[clint_addr[clint_contexts+2:2]][31:0];
+              rdata <= mtimecmp[31:0];
             end else begin
-              rdata <= mtimecmp[clint_addr[clint_contexts+2:2]][63:32];
+              rdata <= mtimecmp[63:32];
             end
             ready <= 1;
           end else begin
             if (clint_addr[2] == 0) begin
-              mtimecmp[clint_addr[clint_contexts+2:2]][31:0] <= clint_wdata;
+              mtimecmp[31:0] <= clint_wdata;
             end else begin
-              mtimecmp[clint_addr[clint_contexts+2:2]][63:32] <= clint_wdata;
+              mtimecmp[63:32] <= clint_wdata;
             end
             ready <= 1;
           end
@@ -107,12 +104,10 @@ module clint
     if (rst == 0) begin
       mtip <= 0;
     end else begin
-      for (i = 0; i < 2**clint_contexts; i = i + 1) begin
-        if (mtime >= mtimecmp[i]) begin
-          mtip[i] <= 1;
-        end else begin
-          mtip[i] <= 0;
-        end
+      if (mtime >= mtimecmp) begin
+        mtip[i] <= 1;
+      end else begin
+        mtip[i] <= 0;
       end
     end
   end
