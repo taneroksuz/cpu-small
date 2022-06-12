@@ -49,9 +49,9 @@ module soc
   logic [31 : 0] clint_rdata;
   logic [0  : 0] clint_ready;
 
-  logic [2**plic_contexts-1 : 0] meip;
-  logic [2**clint_contexts-1 : 0] msip;
-  logic [2**clint_contexts-1 : 0] mtip;
+  logic [0  : 0] meip;
+  logic [0  : 0] msip;
+  logic [0  : 0] mtip;
 
   logic [63 : 0] mtime;
 
@@ -141,9 +141,9 @@ module soc
     .memory_wstrb (memory_wstrb),
     .memory_rdata (memory_rdata),
     .memory_ready (memory_ready),
-    .meip (meip[0]),
-    .msip (msip[0]),
-    .mtip (mtip[0]),
+    .meip (meip),
+    .msip (msip),
+    .mtip (mtip),
     .mtime (mtime)
   );
 
