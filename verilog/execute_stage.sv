@@ -244,7 +244,7 @@ module execute_stage
     csr_in.ecause = v.ecause;
     csr_in.etval = v.etval;
 
-    register_win.wren = v.wren;
+    register_win.wren = v.wren & |(v.waddr);
     register_win.waddr = v.waddr;
     register_win.wdata = v.wdata;
 

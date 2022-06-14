@@ -11,20 +11,14 @@ module register
   timeunit 1ns;
   timeprecision 1ps;
 
-  logic [31:0] reg_file[0:31];
+  logic [31:0] reg_file[0:31] = '{default:'0};
 
-  always_comb begin
-    register_out.rdata1 = reg_file[register_rin.raddr1];
-    register_out.rdata2 = reg_file[register_rin.raddr2];
-  end
+  assign register_out.rdata1 = reg_file[register_rin.raddr1]; 
+  assign register_out.rdata2 = reg_file[register_rin.raddr2];
 
   always_ff @(posedge clk) begin
-    if (rst == 0) begin
-      reg_file <= '{default:'0};
-    end else begin
-      if (register_win.wren == 1 && register_win.waddr != 0) begin
-        reg_file[register_win.waddr] <= register_win.wdata;
-      end
+    if (register_win.wren == 1) begin
+      reg_file[register_win.waddr] <= register_win.wdata;
     end
   end
 

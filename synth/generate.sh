@@ -30,7 +30,7 @@ ${SV2V} ${DIR}/fpga/${FPGA}/configure.sv \
 				${DIR}/verilog/mul.sv \
 				${DIR}/verilog/predecoder.sv \
 				${DIR}/verilog/postdecoder.sv \
-				${DIR}/verilog/register_ff.sv \
+				${DIR}/verilog/register.sv \
 				${DIR}/verilog/csr.sv \
 				${DIR}/verilog/compress.sv \
 				${DIR}/verilog/prefetch.sv \
