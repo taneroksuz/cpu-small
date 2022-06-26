@@ -19,8 +19,8 @@ module fetch_stage
   input forwarding_out_type forwarding_out,
   output forwarding_register_in_type forwarding_rin,
   input csr_out_type csr_out,
-  input mem_out_type prefetch_out,
-  output mem_in_type prefetch_in,
+  input mem_out_type fetchbuffer_out,
+  output mem_in_type fetchbuffer_in,
   output mem_in_type dmem_in,
   input fetch_in_type a,
   input fetch_in_type d,
@@ -50,15 +50,15 @@ module fetch_stage
       v.pc = v.pc + ((v.instr[1:0] == 2'b11) ? 4 : 2);
     end
 
-    prefetch_in.mem_valid = v.valid;
-    prefetch_in.mem_fence = d.f.fence;
-    prefetch_in.mem_instr = 1;
-    prefetch_in.mem_addr = v.pc;
-    prefetch_in.mem_wdata = 0;
-    prefetch_in.mem_wstrb = 0;
+    fetchbuffer_in.mem_valid = v.valid;
+    fetchbuffer_in.mem_fence = d.f.fence;
+    fetchbuffer_in.mem_instr = 1;
+    fetchbuffer_in.mem_addr = v.pc;
+    fetchbuffer_in.mem_wdata = 0;
+    fetchbuffer_in.mem_wstrb = 0;
 
-    if (prefetch_out.mem_ready == 1) begin
-      v.instr = prefetch_out.mem_rdata;
+    if (fetchbuffer_out.mem_ready == 1) begin
+      v.instr = fetchbuffer_out.mem_rdata;
       v.stall = 0;
     end else begin
       v.instr = nop_instr;

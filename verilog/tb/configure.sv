@@ -4,7 +4,7 @@ package configure;
 
   parameter mul_performance = 1;
 
-  parameter prefetch_depth = 4;
+  parameter fetchbuffer_depth = 4;
 
   parameter bram_depth = 18;
 
