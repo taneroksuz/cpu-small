@@ -756,8 +756,8 @@ package wires;
     logic [31 : 0] cdata;
     logic [0  : 0] mret;
     logic [0  : 0] exception;
-    logic [3  : 0] ecause;
     logic [31 : 0] epc;
+    logic [3  : 0] ecause;
     logic [31 : 0] etval;
   } csr_in_type;
 

@@ -237,13 +237,6 @@ module execute_stage
       v.invalid = 1;
     end
 
-    csr_in.epc = v.pc;
-    csr_in.valid = ~v.invalid;
-    csr_in.mret = v.mret;
-    csr_in.exception = v.exception;
-    csr_in.ecause = v.ecause;
-    csr_in.etval = v.etval;
-
     register_win.wren = v.wren & |(v.waddr);
     register_win.waddr = v.waddr;
     register_win.wdata = v.wdata;
@@ -252,9 +245,16 @@ module execute_stage
     forwarding_ein.waddr = v.waddr;
     forwarding_ein.wdata = v.wdata;
 
+    csr_in.valid = ~v.invalid;
     csr_in.cwren = v.cwren;
     csr_in.cwaddr = v.caddr;
     csr_in.cdata = v.cdata;
+
+    csr_in.mret = v.mret;
+    csr_in.exception = v.exception;
+    csr_in.epc = v.pc;
+    csr_in.ecause = v.ecause;
+    csr_in.etval = v.etval;
 
     rin = v;
 
