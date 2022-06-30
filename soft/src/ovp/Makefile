@@ -31,9 +31,9 @@ tests += $$($(1)_tests)
 
 endef
 
-$(eval $(call compile_template,rv32i,$(src_dir),$(bld_dir),-march=rv32i -mabi=ilp32 -DXLEN=32))
-$(eval $(call compile_template,rv32c,$(src_dir),$(bld_dir),-march=rv32ic -mabi=ilp32 -DXLEN=32))
-$(eval $(call compile_template,rv32m,$(src_dir),$(bld_dir),-march=rv32im -mabi=ilp32 -DXLEN=32))
+$(eval $(call compile_template,rv32i,$(src_dir),$(bld_dir),-march=rv32i_zicsr_zifencei -mabi=ilp32 -DXLEN=32))
+$(eval $(call compile_template,rv32c,$(src_dir),$(bld_dir),-march=rv32ic_zicsr_zifencei -mabi=ilp32 -DXLEN=32))
+$(eval $(call compile_template,rv32m,$(src_dir),$(bld_dir),-march=rv32im_zicsr_zifencei -mabi=ilp32 -DXLEN=32))
 
 all: $(tests)
 
