@@ -152,7 +152,9 @@ module predecoder
         endcase;
       end
       opcode_fence : begin
-        if (funct3 == 1) begin
+        if (funct3 == 0) begin
+          fence = 1;
+        end else if (funct3 == 1) begin
           fence = 1;
         end
       end

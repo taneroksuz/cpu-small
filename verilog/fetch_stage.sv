@@ -46,7 +46,7 @@ module fetch_stage
       v.pc = csr_out.mepc;
     end else if (d.f.jump == 1) begin
       v.pc = v.address;
-    end else if (v.stall == 0 & d.f.fence == 0) begin
+    end else if (v.stall == 0) begin
       v.pc = v.pc + ((v.instr[1:0] == 2'b11) ? 4 : 2);
     end
 
