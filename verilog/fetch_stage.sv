@@ -37,7 +37,7 @@ module fetch_stage
 
     v = r;
 
-    v.valid = ~(a.e.stall | d.e.clear);
+    v.valid = ~(a.e.stall | d.e.clear) | d.f.fence;
     v.stall = v.stall | a.e.stall | d.e.clear;
 
     if (csr_out.exception == 1) begin
