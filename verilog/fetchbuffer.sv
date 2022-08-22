@@ -60,8 +60,11 @@ module fetchbuffer_ctrl
   timeunit 1ns;
   timeprecision 1ps;
 
+  localparam max_count = 2**(fetchbuffer_depth+1)-4;
+
   typedef struct packed{
-    logic [fetchbuffer_depth-1:0] count;
+    logic [fetchbuffer_depth+1:0] incr;
+    logic [fetchbuffer_depth+1:0] step;
     logic [fetchbuffer_depth-1:0] wid;
     logic [fetchbuffer_depth-1:0] rid1;
     logic [fetchbuffer_depth-1:0] rid2;
@@ -86,7 +89,8 @@ module fetchbuffer_ctrl
   } reg_type;
 
   parameter reg_type init_reg = '{
-    count : 0,
+    incr : 0,
+    step : 0,
     wid : 0,
     rid1 : 0,
     rid2 : 0,
@@ -160,8 +164,8 @@ module fetchbuffer_ctrl
     end
 
     if (v.wren == 1) begin
-      if (v.count < 2**(fetchbuffer_depth-1)) begin
-        v.count = v.count + 1;
+      if (v.incr < max_count) begin
+        v.incr = v.incr + 2;
         v.addr = v.addr + 4;
       end else begin
         v.valid = 0;
@@ -252,19 +256,25 @@ module fetchbuffer_ctrl
       if (v.ready == 0 && v.wren == 1) begin
         if (v.rden1 == 0) begin
           v.addr = {v.paddr[31:2],2'b0};
-          v.count = 0;
+          v.incr = 0;
         end else if (v.rden2 == 0) begin
           v.addr = {(v.paddr[31:2]+30'b1),2'b0};
-          v.count = 0;
+          v.incr = 0;
         end
       end
     end
 
+    if (v.ready == 0) begin
+      v.step = 0;
+    end else if (v.rdata[1:0] < 3) begin
+      v.step = 1;
+    end else begin
+      v.step = 2;
+    end
+
     if (v.pvalid == 1) begin
-      if (v.ready == 1) begin
-        if (v.count > 0) begin
-          v.count = v.count - 1;
-        end
+      if (v.step <= v.incr) begin
+        v.incr = v.incr - v.step;
       end
     end
 
