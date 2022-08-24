@@ -38,7 +38,7 @@ module fetch_stage
     v = r;
 
     v.valid = ~(a.e.stall | d.e.clear) | d.f.fence;
-    v.stall = v.stall | a.e.stall | d.e.clear;
+    v.stall = v.stall | d.e.stall | d.e.clear;
 
     if (csr_out.exception == 1) begin
       v.pc = csr_out.mtvec;
