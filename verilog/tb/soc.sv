@@ -1,8 +1,7 @@
 module soc
 (
   input logic rst,
-  input logic clk,
-  input logic rtc
+  input logic clk
 );
   timeunit 1ns;
   timeprecision 1ps;
@@ -45,42 +44,70 @@ module soc
 
   logic [63 : 0] mtime;
 
+  logic [31 : 0] mem_addr;
+
+  logic [31 : 0] base_addr;
+
+  logic [31 : 0] host[0:0] = '{default:'0};
+
+  initial begin
+    $readmemh("host.dat", host);
+  end
+
   always_comb begin
+
+    bram_valid = 0;
+    print_valid = 0;
+    clint_valid = 0;
+
+    base_addr = 0;
 
     if (memory_valid == 1) begin
       if (memory_addr >= clint_base_addr &&
         memory_addr < clint_top_addr) begin
-        bram_valid = 0;
-        print_valid = 0;
-        clint_valid = memory_valid;
+          bram_valid = 0;
+          print_valid = 0;
+          clint_valid = memory_valid;
+          base_addr = clint_base_addr;
       end else if (memory_addr >= print_base_addr &&
         memory_addr < print_top_addr) begin
-        bram_valid = 0;
-        print_valid = memory_valid;
-        clint_valid = 0;
+          bram_valid = 0;
+          print_valid = memory_valid;
+          clint_valid = 0;
+          base_addr = print_base_addr;
+      end else if (memory_addr >= bram_base_addr &&
+        memory_addr < bram_top_addr) begin
+          bram_valid = memory_valid;
+          print_valid = 0;
+          clint_valid = 0;
+          base_addr = bram_base_addr;
+      end else if (memory_addr == host[0]) begin
+          bram_valid = memory_valid;
+          print_valid = 0;
+          clint_valid = 0;
+          base_addr = bram_base_addr;
       end else begin
-        bram_valid = memory_valid;
-        print_valid = 0;
-        clint_valid = 0;
+          bram_valid = 0;
+          print_valid = 0;
+          clint_valid = 0;
+          base_addr = 0;
       end
-    end else begin
-      bram_valid = 0;
-      print_valid = 0;
-      clint_valid = 0;
     end
 
+    mem_addr = memory_addr - base_addr;
+
     bram_instr = memory_instr;
-    bram_addr = memory_addr;
+    bram_addr = mem_addr;
     bram_wdata = memory_wdata;
     bram_wstrb = memory_wstrb;
 
     print_instr = memory_instr;
-    print_addr = memory_addr ^ print_base_addr;
+    print_addr = mem_addr;
     print_wdata = memory_wdata;
     print_wstrb = memory_wstrb;
 
     clint_instr = memory_instr;
-    clint_addr = memory_addr ^ clint_base_addr;
+    clint_addr = mem_addr;
     clint_wdata = memory_wdata;
     clint_wstrb = memory_wstrb;
 
@@ -147,7 +174,6 @@ module soc
   (
     .rst (rst),
     .clk (clk),
-    .rtc (rtc),
     .clint_valid (clint_valid),
     .clint_instr (clint_instr),
     .clint_addr (clint_addr),

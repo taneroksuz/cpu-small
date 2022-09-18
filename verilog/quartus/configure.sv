@@ -6,9 +6,10 @@ package configure;
 
   parameter fetchbuffer_depth = 4;
 
-  parameter bram_depth = 10;
+  parameter bram_depth = 8;
 
-  parameter start_base_addr = 32'h0;
+  parameter bram_base_addr = 32'h0;
+  parameter bram_top_addr  = 32'h400;
 
   parameter uart_base_addr = 32'h100000;
   parameter uart_top_addr  = 32'h100004;
@@ -16,13 +17,14 @@ package configure;
   parameter clint_base_addr = 32'h2000000;
   parameter clint_top_addr  = 32'h200C000;
 
-  parameter clk_freq = 50000000; // 50MHz
-  parameter clk_pll = 25000000; // 25MHz
+  parameter avl_base_addr = 32'h80000000;
+  parameter avl_top_addr  = 32'h90000000;
+
+  parameter clk_freq = 25000000; // 25MHz
   parameter rtc_freq = 32768; // 32768Hz
   parameter baudrate = 115200;
 
-  parameter clk_divider_pll = (clk_freq/clk_pll)/2-1;
   parameter clk_divider_rtc = (clk_freq/rtc_freq)/2-1;
-  parameter clks_per_bit = clk_pll/baudrate-1;
+  parameter clks_per_bit = clk_freq/baudrate-1;
 
 endpackage
