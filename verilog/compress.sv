@@ -24,6 +24,8 @@ module compress
 
   logic [31 : 0] imm;
 
+  logic [4  : 0] shamt;
+
   logic [1  : 0] opcode;
   logic [2  : 0] funct3;
   logic [0  : 0] funct4;
@@ -59,6 +61,8 @@ module compress
   logic [0  : 0] nonzero_imm_u;
   logic [0  : 0] nonzero_imm_p;
 
+  logic [0  : 0] nonzero_shamt;
+
   always_comb begin
 
     instr = compress_in.instr;
@@ -75,6 +79,8 @@ module compress
     imm_p = {{22{instr[12]}},instr[12],instr[4:3],instr[5],instr[2],instr[6],4'b0};
 
     imm = 0;
+
+    shamt = instr[6:2];
 
     opcode = instr[1:0];
     funct3 = instr[15:13];
@@ -111,6 +117,8 @@ module compress
     nonzero_imm_u = |imm_u;
     nonzero_imm_p = |imm_p;
 
+    nonzero_shamt = |shamt;
+
     case(opcode)
       opcode_c0 : begin
         case(funct3)
@@ -118,9 +126,9 @@ module compress
             imm = imm_w;
             waddr = {2'b01,instr[4:2]};
             raddr1 = 2;
-            wren = 1;
-            rden1 = 1;
-            alu_op.alu_add = 1;
+            wren = nonzero_imm_w;
+            rden1 = nonzero_imm_w;
+            alu_op.alu_add = nonzero_imm_w;
             valid = nonzero_imm_w;
           end
           c0_lw : begin
@@ -169,11 +177,13 @@ module compress
               wren = nonzero_imm_p;
               rden1 = nonzero_imm_p;
               alu_op.alu_add = nonzero_imm_p;
+              valid = nonzero_imm_p;
             end else begin
               imm = imm_u;
               wren = nonzero_imm_u;
               rden1 = nonzero_imm_u;
               lui = nonzero_imm_u;
+              valid = nonzero_imm_u;
             end
           end
           c1_alu : begin
@@ -183,14 +193,18 @@ module compress
             raddr2[4:3] = 2'b01;
             case(funct6)
               0 : begin
-                wren = nonzero_imm_i;
-                rden1 = nonzero_imm_i;
-                alu_op.alu_srl = 1;
+                imm = {27'b0,shamt};
+                wren = nonzero_shamt;
+                rden1 = nonzero_shamt;
+                alu_op.alu_srl = nonzero_shamt;
+                valid = nonzero_shamt;
               end
               1 : begin
-                wren = nonzero_imm_i;
-                rden1 = nonzero_imm_i;
-                alu_op.alu_sra = 1;
+                imm = {27'b0,shamt};
+                wren = nonzero_shamt;
+                rden1 = nonzero_shamt;
+                alu_op.alu_sra = nonzero_shamt;
+                valid = nonzero_shamt;
               end
               2 : begin
                 wren = 1;
@@ -258,10 +272,11 @@ module compress
       opcode_c2 : begin
         case(funct3)
           c2_slli : begin
-            imm = imm_i;
-            wren = nonzero_imm_i;
-            rden1 = nonzero_imm_i;
-            alu_op.alu_sll = nonzero_imm_i;
+            imm = {27'b0,shamt};
+            wren = nonzero_shamt;
+            rden1 = nonzero_shamt;
+            alu_op.alu_sll = nonzero_shamt;
+            valid = nonzero_shamt;
           end
           c2_lwsp : begin
             imm = imm_lwsp;
@@ -277,6 +292,7 @@ module compress
                 if (|raddr1 == 1) begin
                   if (|raddr2 == 0) begin
                     rden1 = 1;
+                    waddr = 0;
                     jalr = 1;
                   end else if (|raddr2 == 1) begin
                     wren = 1;

@@ -194,7 +194,7 @@ package wires;
     logic [0  : 0] op1_neg;
     logic [5  : 0] counter;
     logic [64 : 0] result;
-    logic [0  : 0] multiplication;
+    logic [0  : 0] mult;
     logic [0  : 0] negativ;
     logic [0  : 0] ready;
     mul_op_type op;
@@ -208,7 +208,7 @@ package wires;
     op1_neg : 0,
     counter : 0,
     result : 0,
-    multiplication : 0,
+    mult : 0,
     negativ : 0,
     ready : 0,
     op : init_mul_op
@@ -302,9 +302,9 @@ package wires;
     logic [0  : 0] crden;
     logic [0  : 0] lui;
     logic [0  : 0] nop;
-    logic [0  : 0] csregister;
+    logic [0  : 0] csrreg;
     logic [0  : 0] division;
-    logic [0  : 0] multiplication;
+    logic [0  : 0] mult;
     alu_op_type alu_op;
     csr_op_type csr_op;
     div_op_type div_op;
@@ -491,9 +491,9 @@ package wires;
     logic [0  : 0] load;
     logic [0  : 0] store;
     logic [0  : 0] nop;
-    logic [0  : 0] csregister;
+    logic [0  : 0] csrreg;
     logic [0  : 0] division;
-    logic [0  : 0] multiplication;
+    logic [0  : 0] mult;
     logic [0  : 0] ecall;
     logic [0  : 0] ebreak;
     logic [0  : 0] mret;
@@ -542,9 +542,9 @@ package wires;
     load : 0,
     store : 0,
     nop : 0,
-    csregister : 0,
+    csrreg : 0,
     division : 0,
-    multiplication : 0,
+    mult : 0,
     ecall : 0,
     ebreak : 0,
     mret : 0,

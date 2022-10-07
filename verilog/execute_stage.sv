@@ -69,9 +69,9 @@ module execute_stage
     v.cwren = 0;
     v.crden = 0;
     v.nop = 0;
-    v.csregister = 0;
+    v.csrreg = 0;
     v.division = 0;
-    v.multiplication = 0;
+    v.mult = 0;
     v.ecall = 0;
     v.mret = 0;
     v.wfi = 0;
@@ -98,9 +98,9 @@ module execute_stage
       v.crden = postdecoder_out.crden;
       v.lui = postdecoder_out.lui;
       v.nop = postdecoder_out.nop;
-      v.csregister = postdecoder_out.csregister;
+      v.csrreg = postdecoder_out.csrreg;
       v.division = postdecoder_out.division;
-      v.multiplication = postdecoder_out.multiplication;
+      v.mult = postdecoder_out.mult;
       v.alu_op = postdecoder_out.alu_op;
       v.csr_op = postdecoder_out.csr_op;
       v.div_op = postdecoder_out.div_op;
@@ -176,7 +176,7 @@ module execute_stage
 
     mul_in.rdata1 = v.rdata1;
     mul_in.rdata2 = v.rdata2;
-    mul_in.enable = v.multiplication & ~(d.e.clear | d.e.stall);
+    mul_in.enable = v.mult & ~(d.e.clear | d.e.stall);
     mul_in.op = v.mul_op;
 
     lsu_in.ldata = dmem_out.mem_rdata;
@@ -192,7 +192,7 @@ module execute_stage
         v.wren = |v.waddr;
         v.wdata = div_out.result;
       end
-    end else if (v.multiplication == 1) begin
+    end else if (v.mult == 1) begin
       if (mul_out.ready == 0) begin
         v.stall = 1;
       end else if (mul_out.ready == 1) begin
@@ -219,7 +219,7 @@ module execute_stage
       v.jal = 0;
       v.jalr = 0;
       v.branch = 0;
-      v.csregister = 0;
+      v.csrreg = 0;
       v.ecall = 0;
       v.ebreak = 0;
       v.mret = 0;
