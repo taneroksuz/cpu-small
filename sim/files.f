@@ -20,6 +20,7 @@
 ../../verilog/execute_stage.sv
 ../../verilog/arbiter.sv
 ../../verilog/clint.sv
+../../verilog/pmp.sv
 ../../verilog/clic.sv
 ../../verilog/cpu.sv
 ../../verilog/tb/bram.sv

@@ -770,6 +770,25 @@ package wires;
   } csr_out_type;
 
   typedef struct packed{
+    logic [0  : 0] cwren;
+    logic [0  : 0] crden;
+    logic [11 : 0] cwaddr;
+    logic [11 : 0] craddr;
+    logic [31 : 0] cwdata;
+    logic [0  : 0] mem_valid;
+    logic [0  : 0] mem_instr;
+    logic [31 : 0] mem_addr;
+    logic [3  : 0] mem_wstrb;
+  } pmp_in_type;
+
+  typedef struct packed{
+    logic [31 : 0] crdata;
+    logic [0  : 0] exception;
+    logic [31 : 0] etval;
+    logic [3  : 0] ecause;
+  } pmp_out_type;
+
+  typedef struct packed{
     logic [4  : 0] raddr1;
     logic [4  : 0] raddr2;
     logic [31 : 0] rdata1;
