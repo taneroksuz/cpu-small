@@ -35,6 +35,15 @@ module pmp
 
   logic [31 : 0] csr_pmpaddr [0:3];
 
+  logic [0  : 0] execute;
+  logic [0  : 0] write;
+  logic [0  : 0] read;
+
+  logic [0  : 0] pass;
+  logic [0  : 0] ok;
+
+  logic [0  : 0] napot;
+
   logic [0  : 0] exception;
   logic [31 : 0] etval;
   logic [3  : 0] ecause;
@@ -42,8 +51,8 @@ module pmp
   logic [31 : 0] lowaddr;
   logic [31 : 0] highaddr;
 
-  logic [31 : 0] mask;
-  logic [4  : 0] mask_inc;
+  integer i;
+  integer j;
 
   always_ff @(posedge clk) begin
     if (rst == 0) begin
@@ -52,34 +61,50 @@ module pmp
     end else begin
       if (pmp_in.cwren == 1) begin
         if (pmp_in.pmp_in.cwaddr == csr_pmpcfg0) begin
-          csr_pmpcfg[3].L <= pmp_in.cwdata[31];
-          csr_pmpcfg[3].A <= pmp_in.cwdata[28:27];
-          csr_pmpcfg[3].X <= pmp_in.cwdata[26];
-          csr_pmpcfg[3].W <= pmp_in.cwdata[25];
-          csr_pmpcfg[3].R <= pmp_in.cwdata[24];
-          csr_pmpcfg[2].L <= pmp_in.cwdata[23];
-          csr_pmpcfg[2].A <= pmp_in.cwdata[20:19];
-          csr_pmpcfg[2].X <= pmp_in.cwdata[18];
-          csr_pmpcfg[2].W <= pmp_in.cwdata[17];
-          csr_pmpcfg[2].R <= pmp_in.cwdata[16];
-          csr_pmpcfg[1].L <= pmp_in.cwdata[15];
-          csr_pmpcfg[1].A <= pmp_in.cwdata[12:11];
-          csr_pmpcfg[1].X <= pmp_in.cwdata[10];
-          csr_pmpcfg[1].W <= pmp_in.cwdata[9];
-          csr_pmpcfg[1].R <= pmp_in.cwdata[8];
-          csr_pmpcfg[0].L <= pmp_in.cwdata[7];
-          csr_pmpcfg[0].A <= pmp_in.cwdata[4:3];
-          csr_pmpcfg[0].X <= pmp_in.cwdata[2];
-          csr_pmpcfg[0].W <= pmp_in.cwdata[1];
-          csr_pmpcfg[0].R <= pmp_in.cwdata[0];
+          if (csr_pmpcfg[3].L == 0) begin
+            csr_pmpcfg[3].L <= pmp_in.cwdata[31];
+            csr_pmpcfg[3].A <= pmp_in.cwdata[28:27];
+            csr_pmpcfg[3].X <= pmp_in.cwdata[26];
+            csr_pmpcfg[3].W <= pmp_in.cwdata[25];
+            csr_pmpcfg[3].R <= pmp_in.cwdata[24];
+          end
+          if  (csr_pmpcfg[2].L == 0) begin
+            csr_pmpcfg[2].L <= pmp_in.cwdata[23];
+            csr_pmpcfg[2].A <= pmp_in.cwdata[20:19];
+            csr_pmpcfg[2].X <= pmp_in.cwdata[18];
+            csr_pmpcfg[2].W <= pmp_in.cwdata[17];
+            csr_pmpcfg[2].R <= pmp_in.cwdata[16];
+          end
+          if  (csr_pmpcfg[1].L == 0) begin
+            csr_pmpcfg[1].L <= pmp_in.cwdata[15];
+            csr_pmpcfg[1].A <= pmp_in.cwdata[12:11];
+            csr_pmpcfg[1].X <= pmp_in.cwdata[10];
+            csr_pmpcfg[1].W <= pmp_in.cwdata[9];
+            csr_pmpcfg[1].R <= pmp_in.cwdata[8];
+          end
+          if  (csr_pmpcfg[0].L == 0) begin
+            csr_pmpcfg[0].L <= pmp_in.cwdata[7];
+            csr_pmpcfg[0].A <= pmp_in.cwdata[4:3];
+            csr_pmpcfg[0].X <= pmp_in.cwdata[2];
+            csr_pmpcfg[0].W <= pmp_in.cwdata[1];
+            csr_pmpcfg[0].R <= pmp_in.cwdata[0];
+          end
         end else if (pmp_in.cwaddr == csr_pmpaddr0) begin
-          csr_pmpaddr0 <= pmp_in.cwdata;
+          if  (csr_pmpcfg[0].L == 0 && !(csr_pmpcfg[1].L == 1 && csr_pmpcfg[1].A == 1)) begin
+            csr_pmpaddr0 <= pmp_in.cwdata;
+          end
         end else if (pmp_in.cwaddr == csr_pmpaddr1) begin
-          csr_pmpaddr1 <= pmp_in.cwdata;
+          if  (csr_pmpcfg[1].L == 0 && !(csr_pmpcfg[2].L == 1 && csr_pmpcfg[2].A == 1)) begin
+            csr_pmpaddr1 <= pmp_in.cwdata;
+          end
         end else if (pmp_in.cwaddr == csr_pmpaddr2) begin
-          csr_pmpaddr2 <= pmp_in.cwdata;
+          if  (csr_pmpcfg[2].L == 0 && !(csr_pmpcfg[3].L == 1 && csr_pmpcfg[3].A == 1)) begin
+            csr_pmpaddr2 <= pmp_in.cwdata;
+          end
         end else if (pmp_in.cwaddr == csr_pmpaddr3) begin
-          csr_pmpaddr3 <= pmp_in.cwdata;
+          if  (csr_pmpcfg[3].L == 0) begin
+            csr_pmpaddr3 <= pmp_in.cwdata;
+          end
         end
       end
     end
@@ -101,6 +126,91 @@ module pmp
         pmp_out.crdata <= csr_pmpaddr[2];
       end else if (pmp_in.craddr == csr_pmpaddr3) begin
         pmp_out.crdata <= csr_pmpaddr[3];
+      end
+    end
+  end
+
+  always_comb begin
+    exception = 0;
+    etval = 0;
+    ecause = 0;
+    execute = 0;
+    write = 0;
+    read = 0;
+    pass = 0;
+    ok = 0;
+    napot = 0;
+    lowaddr = 0;
+    highaddr = 0;
+    if (pmp_in.mem_valid == 1) begin
+      for (i=0; i<3; i=i+1) begin
+        ok = 0;
+        if (pmp_in.mem_instr == 1) begin
+          execute = 1;
+          if (csr_pmpcfg[i].L == 1 && csr_pmpcfg[i].X == 1) begin
+            ok = 1;
+          end else if (csr_pmpcfg[i].L == 0 && (csr_pmpcfg[i].X == 1 || pmp_in.priv_mode == m_mode)) begin
+            ok = 1;
+          end
+        end else if (pmp_in.mem_instr == 0) begin
+          if (|pmp_in.mem_wstrb == 1) begin
+            write = 1;
+            if (csr_pmpcfg[i].L == 1 && csr_pmpcfg[i].W == 1) begin
+              ok = 1;
+            end else if (csr_pmpcfg[i].L == 0 && (csr_pmpcfg[i].W == 1 || pmp_in.priv_mode == m_mode)) begin
+              ok = 1;
+            end
+          end else if (|pmp_in.mem_wstrb == 0) begin
+            read = 1;
+            if (csr_pmpcfg[i].L == 1 && csr_pmpcfg[i].R == 1) begin
+              ok = 1;
+            end else if (csr_pmpcfg[i].L == 0 && (csr_pmpcfg[i].R == 1 || pmp_in.priv_mode == m_mode)) begin
+              ok = 1;
+            end
+          end
+        end
+        if (ok == 1) begin
+          if (csr_pmpcfg[i].A == 1) begin //TOR
+            if (i==0) begin
+              lowaddr = 0;
+              highaddr = csr_pmpaddr[0];
+            end else begin
+              lowaddr = csr_pmpaddr[i-1];
+              highaddr = csr_pmpaddr[i];
+            end
+            if (lowaddr < highaddr && pmp_in.mem_addr >= lowaddr && pmp_in.mem_addr < highaddr) begin
+              pass = 1;
+              break;
+            end
+          end else if (csr_pmpcfg[i].A == 2) begin //NA4
+            if (|(pmp_in.mem_addr[31:2] ^ csr_pmpaddr[i][29:0]) == 0) begin
+              pass = 1;
+              break;
+            end
+          end else if (csr_pmpcfg[i].A == 3) begin //NAPOT
+            napot = 0;
+            for (j=0; j<32; j=j+1) begin
+              if (csr_pmpaddr[i][j] == 0) begin
+                napot = 1;
+                break;
+              end
+            end
+            if (napot == 1 && |(pmp_in.mem_addr[31:j+3] ^ csr_pmpaddr[i][29:j+1]) == 0) begin
+              pass = 1;
+              break;
+            end else if (napot == 0) begin
+              pass = 1;
+              break;
+            end
+          end
+        end
+      end
+      if (pass == 0) begin
+        exception = 1;
+        etval = pmp_in.mem_addr;
+        ecause = (execute == 1) ? except_instr_access_fault :
+                 (write == 1) ? except_store_access_fault :
+                 (read == 1) ? except_load_access_fault : 0;
       end
     end
   end

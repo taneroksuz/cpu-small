@@ -779,6 +779,7 @@ package wires;
     logic [0  : 0] mem_instr;
     logic [31 : 0] mem_addr;
     logic [3  : 0] mem_wstrb;
+    logic [1  : 0] priv_mode;
   } pmp_in_type;
 
   typedef struct packed{
