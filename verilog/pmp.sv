@@ -184,6 +184,7 @@ module pmp
               lowaddr = csr_pmpaddr[i-1];
               highaddr = csr_pmpaddr[i];
             end
+            highaddr = highaddr - 1;
           end else if (csr_pmpcfg[i].A == NA4) begin
             lowaddr = {csr_pmpaddr[i][29:0],2'h0};
             highaddr = {csr_pmpaddr[i][29:0],2'h3};
@@ -192,7 +193,7 @@ module pmp
             lowaddr = {(csr_pmpaddr[i][29:0] & shifted),2'h0};
             highaddr = {(csr_pmpaddr[i][29:0] | shifted),2'h3};
           end
-          if (lowaddr < highaddr && pmp_in.mem_addr >= lowaddr && pmp_in.mem_addr < highaddr) begin
+          if (lowaddr <= highaddr && pmp_in.mem_addr >= lowaddr && pmp_in.mem_addr <= highaddr) begin
             pass = 1;
             break;
           end
