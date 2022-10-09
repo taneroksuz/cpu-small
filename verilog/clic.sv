@@ -19,7 +19,8 @@ module clic
   input logic [3   : 0] clic_wstrb,
   output logic [31 : 0] clic_rdata,
   output logic [0  : 0] clic_ready,
-  output logic [0  : 0] clic_meip
+  output logic [0  : 0] clic_meip,
+  input logic [0   : 0] clic_irpt [0:clic_interrupt-1]
 );
   timeunit 1ns;
   timeprecision 1ps;
@@ -104,7 +105,13 @@ module clic
   logic [0  : 0] ready_trig = 0;
   logic [0  : 0] ready_irpt = 0;
 
+  logic [0  : 0] irpt [0:clic_interrupt-1];
+  logic [7  : 0] prio [0:clic_interrupt-1];
+  logic [7  : 0] level [0:clic_interrupt-1];
+
   logic [0  : 0] meip = 0;
+
+  integer i;
 
   always_ff @(posedge clk) begin
     if (rst == 0) begin
@@ -178,6 +185,7 @@ module clic
     if (rst == 0) begin
       rdata_irpt <= 0;
       ready_irpt <= 0;
+      irpt <= '{default:'0};
     end else begin
       rdata_irpt <= 0;
       ready_irpt <= 0;
@@ -191,15 +199,55 @@ module clic
             rdata_irpt[23:22] <= clic_int_attr[clint_addr[$clog2(clic_interrupt)+2:2]].mode;
             rdata_irpt[31:24] <= clic_int_ctl[clint_addr[$clog2(clic_interrupt)+2:2]];
           end else begin
-            clic_int_ip[clint_addr[$clog2(clic_interrupt)+2:2]] <= clic_wdata[0:0];
-            clic_int_ie[clint_addr[$clog2(clic_interrupt)+2:2]] <= clic_wdata[8:8];
-            clic_int_attr[clint_addr[$clog2(clic_interrupt)+2:2]].shv <= clic_wdata[16:16];
-            clic_int_attr[clint_addr[$clog2(clic_interrupt)+2:2]].trig <= clic_wdata[18:17];
-            clic_int_attr[clint_addr[$clog2(clic_interrupt)+2:2]].mode <= clic_wdata[23:22];
-            clic_int_ctl[clint_addr[$clog2(clic_interrupt)+2:2]] <= clic_wdata[31:24];
+            if (clic_wstrb[0] == 1 && clic_int_attr[clint_addr[$clog2(clic_interrupt)+2:2]].trig[0] == 1) begin
+              clic_int_ip[clint_addr[$clog2(clic_interrupt)+2:2]] <= clic_wdata[0:0];
+            end
+            if (clic_wstrb[1] == 1) begin
+              clic_int_ie[clint_addr[$clog2(clic_interrupt)+2:2]] <= clic_wdata[8:8];
+            end
+            if (clic_wstrb[2] == 1) begin
+              clic_int_attr[clint_addr[$clog2(clic_interrupt)+2:2]].shv <= clic_wdata[16:16];
+              clic_int_attr[clint_addr[$clog2(clic_interrupt)+2:2]].trig <= clic_wdata[18:17];
+              clic_int_attr[clint_addr[$clog2(clic_interrupt)+2:2]].mode <= clic_wdata[23:22];
+            end
+            if (clic_wstrb[3] == 1) begin
+              clic_int_ctl[clint_addr[$clog2(clic_interrupt)+2:2]] <= clic_wdata[31:24];
+            end
           end
           ready_irpt <= 1;
         end
+      end
+      for (i=0; i<clic_interrupt; i=i+1) begin
+        if (clic_int_attr[i].trig[0] == 0) begin
+          if (clic_irpt[i] == 1) begin
+            clic_int_ip[i][0] <= 1;
+          end else if (clic_irpt[i] == 0) begin
+            clic_int_ip[i][0] <= 0;
+          end
+        end else if (clic_int_attr[i].trig[0] == 1) begin
+          if (clic_int_attr[i].trig[1] == 0) begin
+            if (irpt[i] == 0 && clic_irpt[i] == 1) begin
+              clic_int_ip[i][0] <= 1;
+            end
+          end else if (clic_int_attr[i].trig[1] == 1) begin
+            if (irpt[i] == 1 && clic_irpt[i] == 0) begin
+              clic_int_ip[i][0] <= 1;
+            end
+          end
+        end
+        irpt[i] <= clic_irpt[i];
+      end
+    end
+  end
+
+  always_comb begin
+    for (i=0; i<clic_interrupt; i=i+1) begin
+      if (clic_cfg.nlbits >= clic_info.num_intctlbit) begin
+        level[i] = {clic_int_ctl[i][7:(8-clic_info.num_intctlbit)],{(8-clic_info.num_intctlbit){1'b1}}};
+        prio[i] = 8'hFF;
+      end else if (clic_cfg.nlbits < clic_info.num_intctlbit) begin
+        level[i] = {clic_int_ctl[i][7:(8-clic_cfg.nlbits)],{(8-clic_info.nlbits){1'b1}}};
+        prio[i] = {{(clic_info.nlbits){1'b0}},clic_int_ctl[i][(7-clic_cfg.nlbits):(8-clic_info.num_intctlbit)],{(8-clic_info.num_intctlbit){1'b1}}};
       end
     end
   end
