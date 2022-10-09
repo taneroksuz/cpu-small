@@ -15,6 +15,11 @@ module pmp
   timeunit 1ns;
   timeprecision 1ps;
 
+  localparam [1:0] OFF = 0;
+  localparam [1:0] TOR = 1;
+  localparam [1:0] NA4 = 2;
+  localparam [1:0] NAPOT = 3;
+
   typedef struct packed{
     logic [7 : 7] L;
     logic [4 : 3] A;
@@ -35,6 +40,10 @@ module pmp
 
   logic [31 : 0] csr_pmpaddr [0:3];
 
+  logic [0  : 0] exception;
+  logic [31 : 0] etval;
+  logic [3  : 0] ecause;
+
   logic [0  : 0] execute;
   logic [0  : 0] write;
   logic [0  : 0] read;
@@ -42,12 +51,7 @@ module pmp
   logic [0  : 0] pass;
   logic [0  : 0] ok;
 
-  logic [0  : 0] napot;
-
-  logic [0  : 0] exception;
-  logic [31 : 0] etval;
-  logic [3  : 0] ecause;
-
+  logic [29 : 0] shifted;
   logic [31 : 0] lowaddr;
   logic [31 : 0] highaddr;
 
@@ -139,7 +143,7 @@ module pmp
     read = 0;
     pass = 0;
     ok = 0;
-    napot = 0;
+    shifted = 0;
     lowaddr = 0;
     highaddr = 0;
     if (pmp_in.mem_valid == 1) begin
@@ -170,7 +174,9 @@ module pmp
           end
         end
         if (ok == 1) begin
-          if (csr_pmpcfg[i].A == 1) begin //TOR
+          if (csr_pmpcfg[i].A == OFF) begin
+            continue;
+          end if (csr_pmpcfg[i].A == TOR) begin
             if (i==0) begin
               lowaddr = 0;
               highaddr = csr_pmpaddr[0];
@@ -178,30 +184,17 @@ module pmp
               lowaddr = csr_pmpaddr[i-1];
               highaddr = csr_pmpaddr[i];
             end
-            if (lowaddr < highaddr && pmp_in.mem_addr >= lowaddr && pmp_in.mem_addr < highaddr) begin
-              pass = 1;
-              break;
-            end
-          end else if (csr_pmpcfg[i].A == 2) begin //NA4
-            if (|(pmp_in.mem_addr[31:2] ^ csr_pmpaddr[i][29:0]) == 0) begin
-              pass = 1;
-              break;
-            end
-          end else if (csr_pmpcfg[i].A == 3) begin //NAPOT
-            napot = 0;
-            for (j=0; j<32; j=j+1) begin
-              if (csr_pmpaddr[i][j] == 0) begin
-                napot = 1;
-                break;
-              end
-            end
-            if (napot == 1 && |(pmp_in.mem_addr[31:j+3] ^ csr_pmpaddr[i][29:j+1]) == 0) begin
-              pass = 1;
-              break;
-            end else if (napot == 0) begin
-              pass = 1;
-              break;
-            end
+          end else if (csr_pmpcfg[i].A == NA4) begin
+            lowaddr = {csr_pmpaddr[i][29:0],2'h0};
+            highaddr = {csr_pmpaddr[i][29:0],2'h3};
+          end else if (csr_pmpcfg[i].A == NAPOT) begin
+            shifted = csr_pmpaddr[i][29:0] + 1;
+            lowaddr = {(csr_pmpaddr[i][29:0] & shifted),2'h0};
+            highaddr = {(csr_pmpaddr[i][29:0] | shifted),2'h3};
+          end
+          if (lowaddr < highaddr && pmp_in.mem_addr >= lowaddr && pmp_in.mem_addr < highaddr) begin
+            pass = 1;
+            break;
           end
         end
       end
@@ -213,6 +206,9 @@ module pmp
                  (read == 1) ? except_load_access_fault : 0;
       end
     end
+    pmp_out.exception = exception;
+    pmp_out.etval = etval;
+    pmp_out.ecause = ecause;
   end
 
 endmodule
