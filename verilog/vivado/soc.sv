@@ -75,6 +75,14 @@ module soc
   logic [31 : 0] clint_rdata;
   logic [0  : 0] clint_ready;
 
+  logic [0  : 0] clic_valid;
+  logic [0  : 0] clic_instr;
+  logic [31 : 0] clic_addr;
+  logic [31 : 0] clic_wdata;
+  logic [3  : 0] clic_wstrb;
+  logic [31 : 0] clic_rdata;
+  logic [0  : 0] clic_ready;
+
   logic [0  : 0] axi_valid;
   logic [0  : 0] axi_instr;
   logic [31 : 0] axi_addr;
@@ -87,6 +95,9 @@ module soc
   logic [0  : 0] msip;
   logic [0  : 0] mtip;
 
+  logic [0 : 0] irpt [0:clic_interrupt-1];
+
+  logic [11 : 0] meid;
   logic [63 : 0] mtime;
 
   logic [31 : 0] mem_addr;
@@ -98,6 +109,7 @@ module soc
     bram_valid = 0;
     uart_valid = 0;
     clint_valid = 0;
+    clic_valid = 0;
     axi_valid = 0;
 
     base_addr = 0;
@@ -108,13 +120,23 @@ module soc
           bram_valid = 0;
           uart_valid = 0;
           clint_valid = 0;
+          clic_valid = 0;
           axi_valid = memory_valid;
           base_addr = bram_base_addr;
+      end else if (memory_addr >= clic_base_addr &&
+        memory_addr < clic_top_addr) begin
+          bram_valid = 0;
+          uart_valid = 0;
+          clint_valid = 0;
+          clic_valid = memory_valid;
+          axi_valid = 0;
+          base_addr = clic_base_addr;
       end else if (memory_addr >= clint_base_addr &&
         memory_addr < clint_top_addr) begin
           bram_valid = 0;
           uart_valid = 0;
           clint_valid = memory_valid;
+          clic_valid = 0;
           axi_valid = 0;
           base_addr = clint_base_addr;
       end else if (memory_addr >= uart_base_addr &&
@@ -122,6 +144,7 @@ module soc
           bram_valid = 0;
           uart_valid = memory_valid;
           clint_valid = 0;
+          clic_valid = 0;
           axi_valid = 0;
           base_addr = uart_base_addr;
       end else if (memory_addr >= bram_base_addr &&
@@ -129,12 +152,14 @@ module soc
           bram_valid = memory_valid;
           uart_valid = 0;
           clint_valid = 0;
+          clic_valid = 0;
           axi_valid = 0;
           base_addr = bram_base_addr;
       end else begin
           bram_valid = 0;
           uart_valid = 0;
           clint_valid = 0;
+          clic_valid = 0;
           axi_valid = 0;
           base_addr = 0;
       end
@@ -157,6 +182,11 @@ module soc
     clint_wdata = memory_wdata;
     clint_wstrb = memory_wstrb;
 
+    clic_instr = memory_instr;
+    clic_addr = mem_addr;
+    clic_wdata = memory_wdata;
+    clic_wstrb = memory_wstrb;
+
     axi_instr = memory_instr;
     axi_addr = mem_addr;
     axi_wdata = memory_wdata;
@@ -171,6 +201,9 @@ module soc
     end else if  (clint_ready == 1) begin
       memory_rdata = clint_rdata;
       memory_ready = clint_ready;
+    end else if  (clic_ready == 1) begin
+      memory_rdata = clic_rdata;
+      memory_ready = clic_ready;
     end else if  (axi_ready == 1) begin
       memory_rdata = axi_rdata;
       memory_ready = axi_ready;
@@ -240,6 +273,22 @@ module soc
     .clint_msip (msip),
     .clint_mtip (mtip),
     .clint_mtime (mtime)
+  );
+
+  clic clic_comp
+  (
+    .rst (rst),
+    .clk (clk),
+    .clic_valid (clic_valid),
+    .clic_instr (clic_instr),
+    .clic_addr (clic_addr),
+    .clic_wdata (clic_wdata),
+    .clic_wstrb (clic_wstrb),
+    .clic_rdata (clic_rdata),
+    .clic_ready (clic_ready),
+    .clic_meip (meip),
+    .clic_meid (meid),
+    .clic_irpt (irpt)
   );
 
   axi axi_comp

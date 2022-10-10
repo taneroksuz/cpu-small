@@ -8,6 +8,10 @@ package configure;
 
   parameter bram_depth = 8;
 
+  parameter clic_interrupt = 32;
+  parameter clic_trigger   = 32;
+  parameter clic_intctlbit = 8;
+
   parameter bram_base_addr = 32'h0;
   parameter bram_top_addr  = 32'h400;
 
@@ -16,6 +20,9 @@ package configure;
 
   parameter clint_base_addr = 32'h2000000;
   parameter clint_top_addr  = 32'h200C000;
+
+  parameter clic_base_addr = 32'h3000000;
+  parameter clic_top_addr  = 32'h3005000;
 
   parameter avl_base_addr = 32'h80000000;
   parameter avl_top_addr  = 32'h90000000;

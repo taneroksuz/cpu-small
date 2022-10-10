@@ -8,6 +8,10 @@ package configure;
 
   parameter bram_depth = 10;
 
+  parameter clic_interrupt = 32;
+  parameter clic_trigger   = 32;
+  parameter clic_intctlbit = 8;
+
   parameter bram_base_addr = 32'h0;
   parameter bram_top_addr  = 32'h1000;
 
@@ -19,6 +23,9 @@ package configure;
 
   parameter axi_base_addr = 32'h80000000;
   parameter axi_top_addr  = 32'h90000000;
+
+  parameter clic_base_addr = 32'h3000000;
+  parameter clic_top_addr  = 32'h3005000;
 
   parameter clk_freq = 25000000; // 25MHz
   parameter rtc_freq = 32768; // 32768Hz

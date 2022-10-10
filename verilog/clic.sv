@@ -3,12 +3,6 @@ import constants::*;
 import wires::*;
 
 module clic
-#(
-  parameter clic_interrupt = 128,
-  parameter clic_trigger   = 32,
-  parameter clic_level     = 16,
-  parameter clic_intctlbit = 8
-)
 (
   input logic rst,
   input logic clk,
@@ -20,6 +14,7 @@ module clic
   output logic [31 : 0] clic_rdata,
   output logic [0  : 0] clic_ready,
   output logic [0  : 0] clic_meip,
+  output logic [11 : 0] clic_meid,
   input logic [0   : 0] clic_irpt [0:clic_interrupt-1]
 );
   timeunit 1ns;
@@ -35,8 +30,8 @@ module clic
   localparam  clic_int_end    = clic_int_start + clic_interrupt*4;
 
   typedef struct packed{
-    logic [6 : 5] nmbits;
-    logic [4 : 1] nlbits;
+    logic [1 : 0] nmbits;
+    logic [3 : 0] nlbits;
     logic [0 : 0] nvbits;
   } clic_cfg_type;
 
@@ -47,11 +42,11 @@ module clic
   };
 
   typedef struct packed{
-    logic [30 : 25] num_trigger;
-    logic [24 : 21] num_intctlbit;
-    logic [20 : 17] arch_version;
-    logic [16 : 13] impl_version;
-    logic [12 :  0] num_interrupt;
+    logic [5  : 0] num_trigger;
+    logic [3  : 0] num_intctlbit;
+    logic [3  : 0] arch_version;
+    logic [3  : 0] impl_version;
+    logic [12 : 0] num_interrupt;
   } clic_info_type;
 
   parameter clic_info_type init_clic_info = '{
@@ -63,8 +58,8 @@ module clic
   };
 
   typedef struct packed{
-    logic [31 : 31] enable;
-    logic [12 :  0] num_interrupt;
+    logic [0  : 0] enable;
+    logic [12 : 0] num_interrupt;
   } clic_trig_type;
 
   parameter clic_trig_type init_clic_trig = '{
@@ -73,8 +68,8 @@ module clic
   };
 
   typedef struct packed{
-    logic [7 : 5] mode;
-    logic [2 : 1] trig;
+    logic [1 : 0] mode;
+    logic [1 : 0] trig;
     logic [0 : 0] shv;
   } clic_attr_type;
 
@@ -109,9 +104,22 @@ module clic
   logic [7  : 0] prio [0:clic_interrupt-1];
   logic [7  : 0] level [0:clic_interrupt-1];
 
-  logic [0  : 0] meip = 0;
+  logic [0  : 0] irpt_p [0:clic_interrupt-1];
+  logic [7  : 0] prio_p [0:clic_interrupt-1];
+  logic [7  : 0] level_p [0:clic_interrupt-1];
 
-  integer i;
+  logic [0  : 0] irpt_e [0:clic_interrupt-1];
+  logic [7  : 0] prio_e [0:clic_interrupt-1];
+  logic [7  : 0] level_e [0:clic_interrupt-1];
+
+  logic [0  : 0] meip = 0;
+  logic [11 : 0] meid = 0;
+
+  logic [11 : 0] max_id;
+  logic [7  : 0] max_prio;
+  logic [7  : 0] max_level;
+
+  integer i,j;
 
   always_ff @(posedge clk) begin
     if (rst == 0) begin
@@ -169,11 +177,11 @@ module clic
       if (clic_valid == 1) begin
         if (clic_addr >= clic_trig_start && clic_addr < clic_trig_end) begin
           if (|clic_wstrb == 0) begin
-            rdata_trig[31] <= clic_int_trig[clint_addr[$clog2(clic_trigger)+2:2]].enable;
-            rdata_trig[12:0] <= clic_int_trig[clint_addr[$clog2(clic_trigger)+2:2]].num_interrupt;
+            rdata_trig[31] <= clic_int_trig[clic_addr[$clog2(clic_trigger)+1:2]].enable;
+            rdata_trig[12:0] <= clic_int_trig[clic_addr[$clog2(clic_trigger)+1:2]].num_interrupt;
           end else begin
-            clic_int_trig[clint_addr[$clog2(clic_trigger)+2:2]].enable <= clic_wdata[31];
-            clic_int_trig[clint_addr[$clog2(clic_trigger)+2:2]].num_interrupt <= clic_wdata[12:0];
+            clic_int_trig[clic_addr[$clog2(clic_trigger)+1:2]].enable <= clic_wdata[31];
+            clic_int_trig[clic_addr[$clog2(clic_trigger)+1:2]].num_interrupt <= clic_wdata[12:0];
           end
           ready_trig <= 1;
         end
@@ -192,26 +200,26 @@ module clic
       if (clic_valid == 1) begin
         if (clic_addr >= clic_int_start && clic_addr < clic_int_end) begin
           if (|clic_wstrb == 0) begin
-            rdata_irpt[0:0] <= clic_int_ip[clint_addr[$clog2(clic_interrupt)+2:2]];
-            rdata_irpt[8:8] <= clic_int_ie[clint_addr[$clog2(clic_interrupt)+2:2]];
-            rdata_irpt[16:16] <= clic_int_attr[clint_addr[$clog2(clic_interrupt)+2:2]].shv;
-            rdata_irpt[18:17] <= clic_int_attr[clint_addr[$clog2(clic_interrupt)+2:2]].trig;
-            rdata_irpt[23:22] <= clic_int_attr[clint_addr[$clog2(clic_interrupt)+2:2]].mode;
-            rdata_irpt[31:24] <= clic_int_ctl[clint_addr[$clog2(clic_interrupt)+2:2]];
+            rdata_irpt[0:0] <= clic_int_ip[clic_addr[$clog2(clic_interrupt)+1:2]];
+            rdata_irpt[8:8] <= clic_int_ie[clic_addr[$clog2(clic_interrupt)+1:2]];
+            rdata_irpt[16:16] <= clic_int_attr[clic_addr[$clog2(clic_interrupt)+1:2]].shv;
+            rdata_irpt[18:17] <= clic_int_attr[clic_addr[$clog2(clic_interrupt)+1:2]].trig;
+            rdata_irpt[23:22] <= clic_int_attr[clic_addr[$clog2(clic_interrupt)+1:2]].mode;
+            rdata_irpt[31:24] <= clic_int_ctl[clic_addr[$clog2(clic_interrupt)+1:2]];
           end else begin
-            if (clic_wstrb[0] == 1 && clic_int_attr[clint_addr[$clog2(clic_interrupt)+2:2]].trig[0] == 1) begin
-              clic_int_ip[clint_addr[$clog2(clic_interrupt)+2:2]] <= clic_wdata[0:0];
+            if (clic_wstrb[0] == 1 && clic_int_attr[clic_addr[$clog2(clic_interrupt)+1:2]].trig[0] == 1) begin
+              clic_int_ip[clic_addr[$clog2(clic_interrupt)+1:2]] <= clic_wdata[0:0];
             end
             if (clic_wstrb[1] == 1) begin
-              clic_int_ie[clint_addr[$clog2(clic_interrupt)+2:2]] <= clic_wdata[8:8];
+              clic_int_ie[clic_addr[$clog2(clic_interrupt)+1:2]] <= clic_wdata[8:8];
             end
             if (clic_wstrb[2] == 1) begin
-              clic_int_attr[clint_addr[$clog2(clic_interrupt)+2:2]].shv <= clic_wdata[16:16];
-              clic_int_attr[clint_addr[$clog2(clic_interrupt)+2:2]].trig <= clic_wdata[18:17];
-              clic_int_attr[clint_addr[$clog2(clic_interrupt)+2:2]].mode <= clic_wdata[23:22];
+              clic_int_attr[clic_addr[$clog2(clic_interrupt)+1:2]].shv <= clic_wdata[16:16];
+              clic_int_attr[clic_addr[$clog2(clic_interrupt)+1:2]].trig <= clic_wdata[18:17];
+              clic_int_attr[clic_addr[$clog2(clic_interrupt)+1:2]].mode <= clic_wdata[23:22];
             end
             if (clic_wstrb[3] == 1) begin
-              clic_int_ctl[clint_addr[$clog2(clic_interrupt)+2:2]] <= clic_wdata[31:24];
+              clic_int_ctl[clic_addr[$clog2(clic_interrupt)+1:2]] <= clic_wdata[31:24];
             end
           end
           ready_irpt <= 1;
@@ -241,14 +249,56 @@ module clic
   end
 
   always_comb begin
-    for (i=0; i<clic_interrupt; i=i+1) begin
+    prio[i] = '{default:'0};
+    level[i] = '{default:'0};
+    prio_p[i] = '{default:'0};
+    level_p[i] = '{default:'0};
+    prio_e[i] = '{default:'0};
+    level_e[i] = '{default:'0};
+    max_id = 0;
+    max_prio = 0;
+    max_level = 0;
+    meip = 0;
+    meid = 0;
+    for (i=1; i<clic_interrupt; i=i+1) begin
       if (clic_cfg.nlbits >= clic_info.num_intctlbit) begin
-        level[i] = {clic_int_ctl[i][7:(8-clic_info.num_intctlbit)],{(8-clic_info.num_intctlbit){1'b1}}};
         prio[i] = 8'hFF;
+        for (j=0; j<8; j=j+1) begin
+          if (j<clic_info.num_intctlbit) begin
+            level[i][j] = 1;
+          end else begin
+            level[i][j] = clic_int_ctl[i][j];
+          end
+        end
       end else if (clic_cfg.nlbits < clic_info.num_intctlbit) begin
-        level[i] = {clic_int_ctl[i][7:(8-clic_cfg.nlbits)],{(8-clic_info.nlbits){1'b1}}};
-        prio[i] = {{(clic_info.nlbits){1'b0}},clic_int_ctl[i][(7-clic_cfg.nlbits):(8-clic_info.num_intctlbit)],{(8-clic_info.num_intctlbit){1'b1}}};
+        for (j=0; j<8; j=j+1) begin
+          if (j<clic_info.num_intctlbit) begin
+            prio[i][j] = 1;
+          end else begin
+            prio[i][j] = clic_int_ctl[i][j];
+          end
+        end
+        for (j=0; j<8; j=j+1) begin
+          if (j<clic_cfg.nlbits) begin
+            level[i][j] = 1;
+          end else begin
+            level[i][j] = clic_int_ctl[i][j];
+          end
+        end
       end
+      prio_p[i] = {8{clic_int_ip[i][0]}} & prio[i];
+      prio_e[i] = {8{clic_int_ie[i][0]}} & prio_p[i];
+      level_p[i] = {8{clic_int_ip[i][0]}} & level[i];
+      level_e[i] = {8{clic_int_ie[i][0]}} & level_p[i];
+      if (level_e[i] > max_level || (level_e[i] == max_level && prio_e[i] > max_prio)) begin
+        max_id = i[11:0];
+        max_prio = prio_p[i];
+        max_level = level_p[i];
+      end
+    end
+    if (max_id>0) begin
+      meip = 1;
+      meid = max_id;
     end
   end
 
@@ -259,5 +309,6 @@ module clic
   assign clic_ready = ready_cfg | ready_info | ready_trig | ready_irpt;
 
   assign clic_meip = meip;
+  assign clic_meid = meid;
 
 endmodule
