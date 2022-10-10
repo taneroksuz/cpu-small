@@ -775,15 +775,21 @@ package wires;
     logic [11 : 0] cwaddr;
     logic [11 : 0] craddr;
     logic [31 : 0] cwdata;
+  } pmp_csr_in_type;
+
+  typedef struct packed{
+    logic [31 : 0] crdata;
+  } pmp_csr_out_type;
+
+  typedef struct packed{
     logic [0  : 0] mem_valid;
     logic [0  : 0] mem_instr;
     logic [31 : 0] mem_addr;
     logic [3  : 0] mem_wstrb;
-    logic [1  : 0] priv_mode;
+    logic [1  : 0] mode;
   } pmp_in_type;
 
   typedef struct packed{
-    logic [31 : 0] crdata;
     logic [0  : 0] exception;
     logic [31 : 0] etval;
     logic [3  : 0] ecause;

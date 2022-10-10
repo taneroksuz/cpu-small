@@ -3,12 +3,11 @@ import constants::*;
 import wires::*;
 
 module pmp
-#(
-  parameter pmp_enable = 1
-)
 (
   input logic rst,
   input logic clk,
+  input pmp_csr_in_type pmp_csr_in,
+  output pmp_csr_out_type pmp_csr_out,
   input pmp_in_type pmp_in,
   output pmp_out_type pmp_out
 );
@@ -21,10 +20,10 @@ module pmp
   localparam [1:0] NAPOT = 3;
 
   typedef struct packed{
-    logic [7 : 7] L;
-    logic [4 : 3] A;
-    logic [2 : 2] X;
-    logic [1 : 1] W;
+    logic [0 : 0] L;
+    logic [1 : 0] A;
+    logic [0 : 0] X;
+    logic [0 : 0] W;
     logic [0 : 0] R;
   } csr_pmpcfg_type;
 
@@ -36,9 +35,9 @@ module pmp
     R : 0
   };
 
-  csr_pmpcfg_type csr_pmpcfg [0:3];
+  csr_pmpcfg_type csr_pmpcfg [0:pmp_region-1];
 
-  logic [31 : 0] csr_pmpaddr [0:3];
+  logic [31 : 0] csr_pmpaddr [0:pmp_region-1];
 
   logic [0  : 0] exception;
   logic [31 : 0] etval;
@@ -63,51 +62,26 @@ module pmp
       csr_pmpcfg <= '{default:init_csr_pmpcfg};
       csr_pmpaddr <= '{default:'0};
     end else begin
-      if (pmp_in.cwren == 1) begin
-        if (pmp_in.pmp_in.cwaddr == csr_pmpcfg0) begin
-          if (csr_pmpcfg[3].L == 0) begin
-            csr_pmpcfg[3].L <= pmp_in.cwdata[31];
-            csr_pmpcfg[3].A <= pmp_in.cwdata[28:27];
-            csr_pmpcfg[3].X <= pmp_in.cwdata[26];
-            csr_pmpcfg[3].W <= pmp_in.cwdata[25];
-            csr_pmpcfg[3].R <= pmp_in.cwdata[24];
-          end
-          if  (csr_pmpcfg[2].L == 0) begin
-            csr_pmpcfg[2].L <= pmp_in.cwdata[23];
-            csr_pmpcfg[2].A <= pmp_in.cwdata[20:19];
-            csr_pmpcfg[2].X <= pmp_in.cwdata[18];
-            csr_pmpcfg[2].W <= pmp_in.cwdata[17];
-            csr_pmpcfg[2].R <= pmp_in.cwdata[16];
-          end
-          if  (csr_pmpcfg[1].L == 0) begin
-            csr_pmpcfg[1].L <= pmp_in.cwdata[15];
-            csr_pmpcfg[1].A <= pmp_in.cwdata[12:11];
-            csr_pmpcfg[1].X <= pmp_in.cwdata[10];
-            csr_pmpcfg[1].W <= pmp_in.cwdata[9];
-            csr_pmpcfg[1].R <= pmp_in.cwdata[8];
-          end
-          if  (csr_pmpcfg[0].L == 0) begin
-            csr_pmpcfg[0].L <= pmp_in.cwdata[7];
-            csr_pmpcfg[0].A <= pmp_in.cwdata[4:3];
-            csr_pmpcfg[0].X <= pmp_in.cwdata[2];
-            csr_pmpcfg[0].W <= pmp_in.cwdata[1];
-            csr_pmpcfg[0].R <= pmp_in.cwdata[0];
-          end
-        end else if (pmp_in.cwaddr == csr_pmpaddr0) begin
-          if  (csr_pmpcfg[0].L == 0 && !(csr_pmpcfg[1].L == 1 && csr_pmpcfg[1].A == 1)) begin
-            csr_pmpaddr0 <= pmp_in.cwdata;
-          end
-        end else if (pmp_in.cwaddr == csr_pmpaddr1) begin
-          if  (csr_pmpcfg[1].L == 0 && !(csr_pmpcfg[2].L == 1 && csr_pmpcfg[2].A == 1)) begin
-            csr_pmpaddr1 <= pmp_in.cwdata;
-          end
-        end else if (pmp_in.cwaddr == csr_pmpaddr2) begin
-          if  (csr_pmpcfg[2].L == 0 && !(csr_pmpcfg[3].L == 1 && csr_pmpcfg[3].A == 1)) begin
-            csr_pmpaddr2 <= pmp_in.cwdata;
-          end
-        end else if (pmp_in.cwaddr == csr_pmpaddr3) begin
-          if  (csr_pmpcfg[3].L == 0) begin
-            csr_pmpaddr3 <= pmp_in.cwdata;
+      if (pmp_csr_in.cwren == 1) begin
+        for (i=0; i<pmp_region; i=i+1) begin
+          if (pmp_csr_in.cwaddr == (csr_pmpcfg0 + (i[11:0]%4))) begin
+            if (csr_pmpcfg[i].L == 0) begin
+              csr_pmpcfg[i].L <= pmp_csr_in.cwdata[8*i+7];
+              csr_pmpcfg[i].A <= pmp_csr_in.cwdata[8*i+3 +: 2];
+              csr_pmpcfg[i].X <= pmp_csr_in.cwdata[8*i+2];
+              csr_pmpcfg[i].W <= pmp_csr_in.cwdata[8*i+1];
+              csr_pmpcfg[i].R <= pmp_csr_in.cwdata[8*i];
+            end
+          end else if (pmp_csr_in.cwaddr == (csr_pmpaddr0 + i[11:0])) begin
+            if (i==(pmp_region-1)) begin
+              if  (csr_pmpcfg[i].L == 0) begin
+                csr_pmpaddr[i] <= pmp_csr_in.cwdata;
+              end
+            end else begin
+              if  (csr_pmpcfg[i].L == 0 && !(csr_pmpcfg[i+1].L == 1 && csr_pmpcfg[i+1].A == 1)) begin
+                csr_pmpaddr[i] <= pmp_csr_in.cwdata;
+              end
+            end
           end
         end
       end
@@ -115,21 +89,17 @@ module pmp
   end
 
   always_comb begin
-    pmp_out.crdata = 0;
-    if (pmp_in.crden == 1) begin
-      if (pmp_in.craddr == csr_pmpcfg0) begin
-        pmp_out.crdata[31:24] = {csr_pmpcfg[3].L,2'b0,csr_pmpcfg[3].A,csr_pmpcfg[3].X,csr_pmpcfg[3].W.csr_pmpcfg[3].R};
-        pmp_out.crdata[23:16] = {csr_pmpcfg[2].L,2'b0,csr_pmpcfg[2].A,csr_pmpcfg[2].X,csr_pmpcfg[2].W.csr_pmpcfg[2].R};
-        pmp_out.crdata[15:8] = {csr_pmpcfg[1].L,2'b0,csr_pmpcfg[1].A,csr_pmpcfg[1].X,csr_pmpcfg[1].W.csr_pmpcfg[1].R};
-        pmp_out.crdata[7:0] = {csr_pmpcfg[0].L,2'b0,csr_pmpcfg[0].A,csr_pmpcfg[0].X,csr_pmpcfg[0].W.csr_pmpcfg[0].R};
-      end else if (pmp_in.craddr == csr_pmpaddr0) begin
-        pmp_out.crdata <= csr_pmpaddr[0];
-      end else if (pmp_in.craddr == csr_pmpaddr1) begin
-        pmp_out.crdata <= csr_pmpaddr[1];
-      end else if (pmp_in.craddr == csr_pmpaddr2) begin
-        pmp_out.crdata <= csr_pmpaddr[2];
-      end else if (pmp_in.craddr == csr_pmpaddr3) begin
-        pmp_out.crdata <= csr_pmpaddr[3];
+    pmp_csr_out.crdata = 0;
+    if (pmp_csr_in.crden == 1) begin
+      for (i=0; i<pmp_region; i=i+1) begin
+        if (pmp_csr_in.craddr == (csr_pmpcfg0 + i[11:0]%4)) begin
+          pmp_csr_out.crdata[31:24] = {csr_pmpcfg[i+3].L,2'b0,csr_pmpcfg[i+3].A,csr_pmpcfg[i+3].X,csr_pmpcfg[i+3].W,csr_pmpcfg[i+3].R};
+          pmp_csr_out.crdata[23:16] = {csr_pmpcfg[i+2].L,2'b0,csr_pmpcfg[i+2].A,csr_pmpcfg[i+2].X,csr_pmpcfg[i+2].W,csr_pmpcfg[i+2].R};
+          pmp_csr_out.crdata[15:8] = {csr_pmpcfg[i+1].L,2'b0,csr_pmpcfg[i+1].A,csr_pmpcfg[i+1].X,csr_pmpcfg[i+1].W,csr_pmpcfg[i+1].R};
+          pmp_csr_out.crdata[7:0] = {csr_pmpcfg[i].L,2'b0,csr_pmpcfg[i+0].A,csr_pmpcfg[i].X,csr_pmpcfg[i].W,csr_pmpcfg[i].R};
+        end else if (pmp_csr_in.craddr == (csr_pmpaddr0 + i[11:0])) begin
+          pmp_csr_out.crdata = csr_pmpaddr[i];
+        end
       end
     end
   end
@@ -147,13 +117,13 @@ module pmp
     lowaddr = 0;
     highaddr = 0;
     if (pmp_in.mem_valid == 1) begin
-      for (i=0; i<3; i=i+1) begin
+      for (i=0; i<pmp_region; i=i+1) begin
         ok = 0;
         if (pmp_in.mem_instr == 1) begin
           execute = 1;
           if (csr_pmpcfg[i].L == 1 && csr_pmpcfg[i].X == 1) begin
             ok = 1;
-          end else if (csr_pmpcfg[i].L == 0 && (csr_pmpcfg[i].X == 1 || pmp_in.priv_mode == m_mode)) begin
+          end else if (csr_pmpcfg[i].L == 0 && (csr_pmpcfg[i].X == 1 || pmp_in.mode == m_mode)) begin
             ok = 1;
           end
         end else if (pmp_in.mem_instr == 0) begin
@@ -161,14 +131,14 @@ module pmp
             write = 1;
             if (csr_pmpcfg[i].L == 1 && csr_pmpcfg[i].W == 1) begin
               ok = 1;
-            end else if (csr_pmpcfg[i].L == 0 && (csr_pmpcfg[i].W == 1 || pmp_in.priv_mode == m_mode)) begin
+            end else if (csr_pmpcfg[i].L == 0 && (csr_pmpcfg[i].W == 1 || pmp_in.mode == m_mode)) begin
               ok = 1;
             end
           end else if (|pmp_in.mem_wstrb == 0) begin
             read = 1;
             if (csr_pmpcfg[i].L == 1 && csr_pmpcfg[i].R == 1) begin
               ok = 1;
-            end else if (csr_pmpcfg[i].L == 0 && (csr_pmpcfg[i].R == 1 || pmp_in.priv_mode == m_mode)) begin
+            end else if (csr_pmpcfg[i].L == 0 && (csr_pmpcfg[i].R == 1 || pmp_in.mode == m_mode)) begin
               ok = 1;
             end
           end

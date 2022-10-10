@@ -8,6 +8,8 @@ package configure;
 
   parameter bram_depth = 10;
 
+  parameter pmp_region = 4;
+
   parameter clic_interrupt = 32;
   parameter clic_trigger   = 32;
   parameter clic_intctlbit = 8;

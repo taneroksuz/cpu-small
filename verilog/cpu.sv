@@ -45,6 +45,10 @@ module cpu
   forwarding_out_type forwarding_out;
   csr_in_type csr_in;
   csr_out_type csr_out;
+  pmp_csr_in_type pmp_csr_in;
+  pmp_csr_out_type pmp_csr_out;
+  pmp_in_type pmp_in;
+  pmp_out_type pmp_out;
   register_read_in_type register_rin;
   register_write_in_type register_win;
   register_out_type register_out;
@@ -163,6 +167,16 @@ module cpu
     .msip (msip),
     .mtip (mtip),
     .mtime (mtime)
+  );
+
+  pmp pmp_comp
+  (
+    .rst (rst),
+    .clk (clk),
+    .pmp_csr_in (pmp_csr_in),
+    .pmp_csr_out (pmp_csr_out),
+    .pmp_in (pmp_in),
+    .pmp_out (pmp_out)
   );
 
   arbiter arbiter_comp
