@@ -58,7 +58,7 @@ module postdecoder
 
     instr = postdecoder_in.instr;
 
-    imm_c = {{27{instr[19]}},instr[19:15]};
+    imm_c = {{27'h0},instr[19:15]};
     imm_i = {{20{instr[31]}},instr[31:20]};
     imm_u = {instr[31:12],12'h0};
 
