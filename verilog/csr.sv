@@ -17,6 +17,8 @@ module csr
 
   csr_machine_reg_type csr_machine_reg;
 
+  logic [1:0] mode = m_mode;
+
   logic [0:0] exception = 0;
   logic [0:0] mret = 0;
 
@@ -258,5 +260,21 @@ module csr
     end
 
   end
+
+  always_ff @(posedge clk) begin
+
+    if (rst == 0) begin
+      mode <= m_mode;
+    end else begin
+      if (csr_in.exception == 1) begin
+        mode <= m_mode;
+      end else if (csr_in.mret == 1) begin
+        mode <= u_mode;
+      end
+    end
+
+  end
+
+  assign csr_out.mode = mode;
 
 endmodule

@@ -242,6 +242,8 @@ module execute_stage
       v.invalid = 1;
     end
 
+    v.mode = csr_out.mode;
+
     register_win.wren = v.wren & |(v.waddr);
     register_win.waddr = v.waddr;
     register_win.wdata = v.wdata;
@@ -258,6 +260,7 @@ module execute_stage
     csr_pmp_in.cwren = v.cwren;
     csr_pmp_in.cwaddr = v.caddr;
     csr_pmp_in.cwdata = v.cdata;
+    csr_pmp_in.mode = v.mode;
 
     csr_in.mret = v.mret;
     csr_in.exception = v.exception;

@@ -40,11 +40,17 @@ module fetch_stage
     v.valid = ~(a.e.stall | d.e.clear) | d.f.fence;
     v.stall = v.stall | d.e.stall | d.e.clear;
 
+    v.spec = 0;
+    v.mode = csr_out.mode;
+
     if (csr_out.exception == 1) begin
+      v.spec = 1;
       v.pc = csr_out.mtvec;
     end else if (csr_out.mret == 1) begin
+      v.spec = 1;
       v.pc = csr_out.mepc;
     end else if (d.f.jump == 1) begin
+      v.spec = 1;
       v.pc = v.address;
     end else if (v.stall == 0) begin
       v.pc = v.pc + ((v.instr[1:0] == 2'b11) ? 4 : 2);
@@ -52,8 +58,9 @@ module fetch_stage
 
     fetchbuffer_in.mem_valid = v.valid;
     fetchbuffer_in.mem_fence = d.f.fence;
+    fetchbuffer_in.mem_spec = v.spec;
     fetchbuffer_in.mem_instr = 1;
-    fetchbuffer_in.mem_mode = m_mode;
+    fetchbuffer_in.mem_mode = v.mode;
     fetchbuffer_in.mem_addr = v.pc;
     fetchbuffer_in.mem_wdata = 0;
     fetchbuffer_in.mem_wstrb = 0;
@@ -168,8 +175,6 @@ module fetch_stage
     v.ecause = agu_out.ecause;
     v.etval = agu_out.etval;
 
-    
-
     if (v.stall == 1) begin
       v.wren = 0;
       v.jal = 0;
@@ -199,8 +204,9 @@ module fetch_stage
 
     dmem_in.mem_valid = v.load | v.store;
     dmem_in.mem_fence = 0;
+    dmem_in.mem_spec = 0;
     dmem_in.mem_instr = 0;
-    dmem_in.mem_mode = m_mode;
+    dmem_in.mem_mode = v.mode;
     dmem_in.mem_addr = v.address;
     dmem_in.mem_wdata = store_data(v.rdata2,v.lsu_op.lsu_sb,v.lsu_op.lsu_sh,v.lsu_op.lsu_sw);
     dmem_in.mem_wstrb = (v.load == 1) ? 4'h0 : v.byteenable;

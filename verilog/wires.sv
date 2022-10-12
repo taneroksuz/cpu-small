@@ -2,6 +2,8 @@ package wires;
   timeunit 1ns;
   timeprecision 1ps;
 
+  import constants::*;
+
   typedef struct packed{
     logic [0 : 0] alu_add;
     logic [0 : 0] alu_sub;
@@ -421,6 +423,8 @@ package wires;
     alu_op_type alu_op;
     bcu_op_type bcu_op;
     lsu_op_type lsu_op;
+    logic [0  : 0] spec;
+    logic [1  : 0] mode;
     logic [0  : 0] error;
     logic [0  : 0] exception;
     logic [3  : 0] ecause;
@@ -459,6 +463,8 @@ package wires;
     alu_op : init_alu_op,
     bcu_op : init_bcu_op,
     lsu_op : init_lsu_op,
+    spec : 0,
+    mode : m_mode,
     error : 0,
     exception : 0,
     ecause : 0,
@@ -515,6 +521,7 @@ package wires;
     csr_op_type csr_op;
     div_op_type div_op;
     mul_op_type mul_op;
+    logic [1  : 0] mode;
     logic [0  : 0] error;
     logic [0  : 0] exception;
     logic [3  : 0] ecause;
@@ -567,6 +574,7 @@ package wires;
     csr_op : init_csr_op,
     div_op : init_div_op,
     mul_op : init_mul_op,
+    mode : m_mode,
     error : 0,
     exception : 0,
     ecause : 0,
@@ -771,6 +779,7 @@ package wires;
     logic [31 : 0] mtvec;
     logic [31 : 0] mepc;
     logic [31 : 0] crdata;
+    logic [1  : 0] mode;
   } csr_out_type;
 
   typedef struct packed{
@@ -779,6 +788,7 @@ package wires;
     logic [11 : 0] cwaddr;
     logic [11 : 0] craddr;
     logic [31 : 0] cwdata;
+    logic [1  : 0] mode;
   } csr_pmp_in_type;
 
   typedef struct packed{
@@ -829,6 +839,7 @@ package wires;
   typedef struct packed{
     logic [0  : 0] mem_valid;
     logic [0  : 0] mem_fence;
+    logic [0  : 0] mem_spec;
     logic [0  : 0] mem_instr;
     logic [1  : 0] mem_mode;
     logic [31 : 0] mem_addr;

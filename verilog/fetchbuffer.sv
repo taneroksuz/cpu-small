@@ -84,6 +84,9 @@ module fetchbuffer_ctrl
     logic [0:0] pvalid;
     logic [0:0] valid;
     logic [0:0] comp;
+    logic [0:0] pspec;
+    logic [1:0] mode;
+    logic [1:0] pmode;
     logic [31:0] rdata;
     logic [0:0] ready;
     logic [0:0] stall;
@@ -111,6 +114,9 @@ module fetchbuffer_ctrl
     pvalid : 0,
     valid : 0,
     comp : 0,
+    pspec : 0,
+    mode : m_mode,
+    pmode : 0,
     rdata : 0,
     ready : 0,
     stall : 0
@@ -126,6 +132,8 @@ module fetchbuffer_ctrl
     v.pvalid = 0;
 
     v.pfence = 0;
+    v.pspec = 0;
+    v.pmode = 0;
 
     v.valid = 1;
 
@@ -150,11 +158,9 @@ module fetchbuffer_ctrl
     if (v.fence == 1) begin
       if (v.wid == 2**fetchbuffer_depth-1) begin
         v.wren = 0;
+        v.wid = 0;
         v.wdata = 0;
-        if (imem_out.mem_ready == 1) begin
-          v.wid = 0;
-          v.fence = 0;
-        end
+        v.fence = 0;
       end else begin 
         v.wren = 1;
         v.wid = v.wid + 1;
@@ -179,6 +185,8 @@ module fetchbuffer_ctrl
     if (fetchbuffer_in.mem_valid == 1) begin
       v.pvalid = fetchbuffer_in.mem_valid;
       v.pfence = fetchbuffer_in.mem_fence;
+      v.pspec = fetchbuffer_in.mem_spec;
+      v.pmode = fetchbuffer_in.mem_mode;
       v.paddr = fetchbuffer_in.mem_addr;
       v.paddrn = v.paddr + 4;
     end
@@ -250,15 +258,6 @@ module fetchbuffer_ctrl
           end
         end
       end
-      if (v.ready == 0 && v.wren == 1) begin
-        if (v.rden1 == 0) begin
-          v.addr = {v.paddr[31:2],2'b0};
-          v.incr = 0;
-        end else if (v.rden2 == 0) begin
-          v.addr = {v.paddrn[31:2],2'b0};
-          v.incr = 0;
-        end
-      end
       if (&(v.rdata[1:0]) == 0) begin
         v.step = 1;
       end else if (&(v.rdata[1:0]) == 1) begin
@@ -270,13 +269,22 @@ module fetchbuffer_ctrl
     end
 
     if (v.fence == 1) begin
+      v.addr = r.addr;
+      v.incr = 0;
+      v.valid = 0;
       v.ready = 0;
     end
 
+    if (v.pspec == 1) begin
+      v.mode = v.pmode;
+      v.addr = {v.paddr[31:2],2'b0};
+    end
+
     imem_in.mem_valid = v.valid;
-    imem_in.mem_fence = v.fence;
+    imem_in.mem_fence = 0;
+    imem_in.mem_spec = 0;
     imem_in.mem_instr = 1;
-    imem_in.mem_mode = m_mode;
+    imem_in.mem_mode = v.mode;
     imem_in.mem_addr = v.addr;
     imem_in.mem_wdata = 0;
     imem_in.mem_wstrb = 0;
