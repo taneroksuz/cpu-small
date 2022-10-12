@@ -39,11 +39,9 @@ module pmp
 
   logic [31 : 0] csr_pmpaddr [0:pmp_region-1];
 
-  logic [0  : 0] error;
-
+  logic [0  : 0] ok;
   logic [0  : 0] pass;
-
-  logic [pmp_region-1 : 0] ok;
+  logic [0  : 0] error;
 
   logic [29 : 0] shifted;
   logic [31 : 0] lowaddr;
@@ -113,26 +111,26 @@ module pmp
       for (i=0; i<pmp_region; i=i+1) begin
         if (pmp_in.mem_instr == 1) begin
           if (csr_pmpcfg[i].L == 1 && csr_pmpcfg[i].X == 1) begin
-            ok[i] = 1;
+            ok = 1;
           end else if (csr_pmpcfg[i].L == 0 && (csr_pmpcfg[i].X == 1 || pmp_in.mem_mode == m_mode)) begin
-            ok[i] = 1;
+            ok = 1;
           end
         end else if (pmp_in.mem_instr == 0) begin
           if (|pmp_in.mem_wstrb == 1) begin
             if (csr_pmpcfg[i].L == 1 && csr_pmpcfg[i].W == 1) begin
-              ok[i] = 1;
+              ok = 1;
             end else if (csr_pmpcfg[i].L == 0 && (csr_pmpcfg[i].W == 1 || pmp_in.mem_mode == m_mode)) begin
-              ok[i] = 1;
+              ok = 1;
             end
           end else if (|pmp_in.mem_wstrb == 0) begin
             if (csr_pmpcfg[i].L == 1 && csr_pmpcfg[i].R == 1) begin
-              ok[i] = 1;
+              ok = 1;
             end else if (csr_pmpcfg[i].L == 0 && (csr_pmpcfg[i].R == 1 || pmp_in.mem_mode == m_mode)) begin
-              ok[i] = 1;
+              ok = 1;
             end
           end
         end
-        if (ok[i] == 1) begin
+        if (ok == 1) begin
           if (csr_pmpcfg[i].A == OFF) begin
             continue;
           end if (csr_pmpcfg[i].A == TOR) begin
@@ -158,7 +156,7 @@ module pmp
           end
         end
       end
-      if (|ok == 1 && pass == 0) begin
+      if (pass == 0 && pmp_in.mem_mode != m_mode) begin
         error = 1;
       end
     end

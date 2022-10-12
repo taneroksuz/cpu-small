@@ -276,6 +276,7 @@ module fetchbuffer_ctrl
     imem_in.mem_valid = v.valid;
     imem_in.mem_fence = v.fence;
     imem_in.mem_instr = 1;
+    imem_in.mem_mode = m_mode;
     imem_in.mem_addr = v.addr;
     imem_in.mem_wdata = 0;
     imem_in.mem_wstrb = 0;

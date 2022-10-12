@@ -53,7 +53,7 @@ module fetch_stage
     fetchbuffer_in.mem_valid = v.valid;
     fetchbuffer_in.mem_fence = d.f.fence;
     fetchbuffer_in.mem_instr = 1;
-    fetchbuffer_in.mem_mode = 0;
+    fetchbuffer_in.mem_mode = m_mode;
     fetchbuffer_in.mem_addr = v.pc;
     fetchbuffer_in.mem_wdata = 0;
     fetchbuffer_in.mem_wstrb = 0;
@@ -200,7 +200,7 @@ module fetch_stage
     dmem_in.mem_valid = v.load | v.store;
     dmem_in.mem_fence = 0;
     dmem_in.mem_instr = 0;
-    dmem_in.mem_mode = 0;
+    dmem_in.mem_mode = m_mode;
     dmem_in.mem_addr = v.address;
     dmem_in.mem_wdata = store_data(v.rdata2,v.lsu_op.lsu_sb,v.lsu_op.lsu_sh,v.lsu_op.lsu_sw);
     dmem_in.mem_wstrb = (v.load == 1) ? 4'h0 : v.byteenable;
