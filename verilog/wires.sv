@@ -572,6 +572,182 @@ package wires;
   };
 
   typedef struct packed{
+    logic [11:11] meip;
+    logic [9:9] seip;
+    logic [8:8] ueip;
+    logic [7:7] mtip;
+    logic [5:5] stip;
+    logic [4:4] utip;
+    logic [3:3] msip;
+    logic [1:1] ssip;
+    logic [0:0] usip;
+  } csr_mip_reg_type;
+
+  parameter csr_mip_reg_type init_csr_mip_reg = '{
+    meip : 0,
+    seip : 0,
+    ueip : 0,
+    mtip : 0,
+    stip : 0,
+    utip : 0,
+    msip : 0,
+    ssip : 0,
+    usip : 0
+  };
+
+  typedef struct packed{
+    logic [11:11] meie;
+    logic [9:9] seie;
+    logic [8:8] ueie;
+    logic [7:7] mtie;
+    logic [5:5] stie;
+    logic [4:4] utie;
+    logic [3:3] msie;
+    logic [1:1] ssie;
+    logic [0:0] usie;
+  } csr_mie_reg_type;
+
+  parameter csr_mie_reg_type init_csr_mie_reg = '{
+    meie : 0,
+    seie : 0,
+    ueie : 0,
+    mtie : 0,
+    stie : 0,
+    utie : 0,
+    msie : 0,
+    ssie : 0,
+    usie : 0
+  };
+
+  typedef struct packed{
+    logic [31:31] sd;
+    logic [22:22] tsr;
+    logic [21:21] tw;
+    logic [20:20] tvm;
+    logic [19:19] mxr;
+    logic [18:18] sum;
+    logic [17:17] mprv;
+    logic [16:15] xs;
+    logic [14:13] fs;
+    logic [12:11] mpp;
+    logic [8:8] spp;
+    logic [7:7] mpie;
+    logic [5:5] spie;
+    logic [4:4] upie;
+    logic [3:3] mie;
+    logic [1:1] sie;
+    logic [0:0] uie;
+  } csr_mstatus_reg_type;
+
+  parameter csr_mstatus_reg_type init_csr_mstatus_reg = '{
+    sd : 0,
+    tsr : 0,
+    tw : 0,
+    tvm : 0,
+    mxr : 0,
+    sum : 0,
+    mprv : 0,
+    xs : 0,
+    fs : 0,
+    mpp : 0,
+    spp : 0,
+    mpie : 0,
+    spie : 0,
+    upie : 0,
+    mie : 0,
+    sie : 0,
+    uie : 0
+  };
+
+  typedef struct packed{
+    logic [31:30] mxl;
+    logic [25:25] z;
+    logic [24:24] y;
+    logic [23:23] x;
+    logic [22:22] w;
+    logic [21:21] v;
+    logic [20:20] u;
+    logic [19:19] t;
+    logic [18:18] s;
+    logic [17:17] r;
+    logic [16:16] q;
+    logic [15:15] p;
+    logic [14:14] o;
+    logic [13:13] n;
+    logic [12:12] m;
+    logic [11:11] l;
+    logic [10:10] k;
+    logic [9:9] j;
+    logic [8:8] i;
+    logic [7:7] h;
+    logic [6:6] g;
+    logic [5:5] f;
+    logic [4:4] e;
+    logic [3:3] d;
+    logic [2:2] c;
+    logic [1:1] b;
+    logic [0:0] a;
+  } csr_misa_reg_type;
+
+  parameter csr_misa_reg_type init_csr_misa_reg = '{
+    mxl : 1,
+    z : 0,
+    y : 0,
+    x : 0,
+    w : 0,
+    v : 0,
+    u : 0,
+    t : 0,
+    s : 0,
+    r : 0,
+    q : 0,
+    p : 0,
+    o : 0,
+    n : 0,
+    m : 1,
+    l : 0,
+    k : 0,
+    j : 0,
+    i : 1,
+    h : 0,
+    g : 0,
+    f : 0,
+    e : 0,
+    d : 0,
+    c : 1,
+    b : 0,
+    a : 0
+  };
+
+  typedef struct packed{
+    csr_mstatus_reg_type mstatus;
+    csr_misa_reg_type misa;
+    logic [31 : 0] mtvec;
+    logic [63 : 0] mcycle;
+    logic [63 : 0] minstret;
+    logic [31 : 0] mscratch;
+    logic [31 : 0] mepc;
+    logic [31 : 0] mcause;
+    logic [31 : 0] mtval;
+    csr_mip_reg_type mip;
+    csr_mie_reg_type mie;
+  } csr_machine_reg_type;
+
+  parameter csr_machine_reg_type init_csr_machine_reg = '{
+    mstatus : init_csr_mstatus_reg,
+    misa : init_csr_misa_reg,
+    mtvec : 0,
+    mscratch : 0,
+    mepc : 0,
+    mcause : 0,
+    mtval : 0,
+    mcycle : 0,
+    minstret : 0,
+    mip : init_csr_mip_reg,
+    mie : init_csr_mie_reg
+  };
+
+  typedef struct packed{
     logic [0  : 0] valid;
     logic [0  : 0] cwren;
     logic [0  : 0] crden;

@@ -15,303 +15,248 @@ module csr
   timeunit 1ns;
   timeprecision 1ps;
 
-  logic [31:0] csr_reg_file [0:4095] = '{default:'0,769:32'h40001104};
+  csr_machine_reg_type csr_machine_reg;
 
-  logic [0 :0] exception;
-  logic [0 :0] mret;
-  logic [31:0] mtvec;
-
-  logic [63:0] mcycle;
-  logic [63:0] minstret;
-
-  logic [31:0] crdata;
-
-  logic [0 :0] cwren;
-  logic [11:0] cwaddr;
-  logic [31:0] cwdata;
-
-  assign mcycle = {csr_reg_file[csr_mcycleh],csr_reg_file[csr_mcycle]} + 1;
-  assign minstret = {csr_reg_file[csr_minstreth],csr_reg_file[csr_minstret]} + {63'h0,csr_in.valid};
-
-  assign csr_out.exception = exception;
-  assign csr_out.mtvec = mtvec;
-
-  assign csr_out.mret = mret;
-  assign csr_out.mepc = csr_reg_file[csr_mepc];
-
-  always_ff @(posedge clk) begin
-
-    csr_reg_file[csr_mcycle] <= mcycle[31:0];
-    csr_reg_file[csr_mcycleh] <= mcycle[63:32];
-    csr_reg_file[csr_minstret] <= minstret[31:0];
-    csr_reg_file[csr_minstreth] <= minstret[63:32];
-
-    if (cwren == 1) begin
-      csr_reg_file[cwaddr] <= cwdata;
-    end
-
-    if (meip == 1) begin
-      csr_reg_file[csr_mip][11:11] <= 1;
-    end else begin
-      csr_reg_file[csr_mip][11:11] <= 0;
-    end
-
-    if (mtip == 1) begin
-      csr_reg_file[csr_mip][7:7] <= 1;
-    end else begin
-      csr_reg_file[csr_mip][7:7] <= 0;
-    end
-
-    if (msip == 1) begin
-      csr_reg_file[csr_mip][3:3] <= 1;
-    end else begin
-      csr_reg_file[csr_mip][3:3] <= 0;
-    end
-
-    if (csr_in.exception == 1) begin
-      csr_reg_file[csr_mstatus][7:7] <= csr_reg_file[csr_mstatus][3:3];
-      csr_reg_file[csr_mstatus][3:3] <= 0;
-      csr_reg_file[csr_mepc] <= csr_in.epc;
-      csr_reg_file[csr_mtval] <= csr_in.etval;
-      csr_reg_file[csr_mcause] <= {28'b0,csr_in.ecause};
-      exception <= 1;
-    end else if (csr_reg_file[csr_mstatus][3:3] == 1 &&
-                 csr_reg_file[csr_mie][11:11] == 1 &&
-                 csr_reg_file[csr_mip][11:11] == 1 &&
-                 csr_in.valid == 1) begin
-      csr_reg_file[csr_mstatus][7:7] <= csr_reg_file[csr_mstatus][3:3];
-      csr_reg_file[csr_mstatus][3:3] <= 0;
-      csr_reg_file[csr_mepc] <= csr_in.epc;
-      csr_reg_file[csr_mtval] <= csr_in.etval;
-      csr_reg_file[csr_mcause] <= {1'b1,27'b0,interrupt_mach_extern};
-      exception <= 1;
-    end else if (csr_reg_file[csr_mstatus][3:3] == 1 &&
-                 csr_reg_file[csr_mie][7:7] == 1 &&
-                 csr_reg_file[csr_mip][7:7] == 1 &&
-                 csr_in.valid == 1) begin
-      csr_reg_file[csr_mstatus][7:7] <= csr_reg_file[csr_mstatus][3:3];
-      csr_reg_file[csr_mstatus][3:3] <= 0;
-      csr_reg_file[csr_mepc] <= csr_in.epc;
-      csr_reg_file[csr_mtval] <= csr_in.etval;
-      csr_reg_file[csr_mcause] <= {1'b1,27'b0,interrupt_mach_timer};
-      exception <= 1;
-    end else if (csr_reg_file[csr_mstatus][3:3] == 1 &&
-                 csr_reg_file[csr_mie][3:3] == 1 &&
-                 csr_reg_file[csr_mip][3:3] == 1 &&
-                 csr_in.valid == 1) begin
-      csr_reg_file[csr_mstatus][7:7] <= csr_reg_file[csr_mstatus][3:3];
-      csr_reg_file[csr_mstatus][3:3] <= 0;
-      csr_reg_file[csr_mepc] <= csr_in.epc;
-      csr_reg_file[csr_mtval] <= csr_in.etval;
-      csr_reg_file[csr_mcause] <= {1'b1,27'b0,interrupt_mach_soft};
-      exception <= 1;
-    end else begin
-      exception <= 0;
-    end
-
-    if (csr_in.mret == 1) begin
-      csr_reg_file[csr_mstatus][3:3] <= csr_reg_file[csr_mstatus][7:7];
-      csr_reg_file[csr_mstatus][7:7] <= 0;
-      mret <= 1;
-    end else begin
-      mret <= 0;
-    end
-
-  end
-
-  assign crdata = csr_reg_file[csr_in.craddr];
+  logic [0:0] exception = 0;
+  logic [0:0] mret = 0;
 
   always_comb begin
     if (csr_in.crden == 1) begin
       case (csr_in.craddr)
-        csr_mstatus : csr_out.cdata = {crdata[31:31],
+        csr_mstatus : csr_out.cdata = {csr_machine_reg.mstatus.sd,
                                        8'h0,
-                                       crdata[22:22],
-                                       crdata[21:21],
-                                       crdata[20:20],
-                                       crdata[19:19],
-                                       crdata[18:18],
-                                       crdata[17:17],
-                                       crdata[16:15],
-                                       crdata[14:13],
-                                       crdata[12:11],
+                                       csr_machine_reg.mstatus.tsr,
+                                       csr_machine_reg.mstatus.tw,
+                                       csr_machine_reg.mstatus.tvm,
+                                       csr_machine_reg.mstatus.mxr,
+                                       csr_machine_reg.mstatus.sum,
+                                       csr_machine_reg.mstatus.mprv,
+                                       csr_machine_reg.mstatus.xs,
+                                       csr_machine_reg.mstatus.fs,
+                                       csr_machine_reg.mstatus.mpp,
                                        2'h0,
-                                       crdata[8:8],
-                                       crdata[7:7],
+                                       csr_machine_reg.mstatus.spp,
+                                       csr_machine_reg.mstatus.mpie,
                                        1'h0,
-                                       crdata[5:5],
-                                       crdata[4:4],
-                                       crdata[3:3],
+                                       csr_machine_reg.mstatus.spie,
+                                       csr_machine_reg.mstatus.upie,
+                                       csr_machine_reg.mstatus.mie,
                                        1'h0,
-                                       crdata[1:1],
-                                       crdata[0:0]};
-        csr_misa : csr_out.cdata = {crdata[31:30],
+                                       csr_machine_reg.mstatus.sie,
+                                       csr_machine_reg.mstatus.uie};
+        csr_misa : csr_out.cdata = {csr_machine_reg.misa.mxl,
                                     4'h0,
-                                    crdata[25:25],
-                                    crdata[24:24],
-                                    crdata[23:23],
-                                    crdata[22:22],
-                                    crdata[21:21],
-                                    crdata[20:20],
-                                    crdata[19:19],
-                                    crdata[18:18],
-                                    crdata[17:17],
-                                    crdata[16:16],
-                                    crdata[15:15],
-                                    crdata[14:14],
-                                    crdata[13:13],
-                                    crdata[12:12],
-                                    crdata[11:11],
-                                    crdata[10:10],
-                                    crdata[9:9],
-                                    crdata[8:8],
-                                    crdata[7:7],
-                                    crdata[6:6],
-                                    crdata[5:5],
-                                    crdata[4:4],
-                                    crdata[3:3],
-                                    crdata[2:2],
-                                    crdata[1:1],
-                                    crdata[0:0]};
+                                    csr_machine_reg.misa.z,
+                                    csr_machine_reg.misa.y,
+                                    csr_machine_reg.misa.x,
+                                    csr_machine_reg.misa.w,
+                                    csr_machine_reg.misa.v,
+                                    csr_machine_reg.misa.u,
+                                    csr_machine_reg.misa.t,
+                                    csr_machine_reg.misa.s,
+                                    csr_machine_reg.misa.r,
+                                    csr_machine_reg.misa.q,
+                                    csr_machine_reg.misa.p,
+                                    csr_machine_reg.misa.o,
+                                    csr_machine_reg.misa.n,
+                                    csr_machine_reg.misa.m,
+                                    csr_machine_reg.misa.l,
+                                    csr_machine_reg.misa.k,
+                                    csr_machine_reg.misa.j,
+                                    csr_machine_reg.misa.i,
+                                    csr_machine_reg.misa.h,
+                                    csr_machine_reg.misa.g,
+                                    csr_machine_reg.misa.f,
+                                    csr_machine_reg.misa.e,
+                                    csr_machine_reg.misa.d,
+                                    csr_machine_reg.misa.c,
+                                    csr_machine_reg.misa.b,
+                                    csr_machine_reg.misa.a};
         csr_mie : csr_out.cdata = {20'h0,
-                                   crdata[11:11],
+                                   csr_machine_reg.mie.meie,
                                    1'h0,
-                                   crdata[9:9],
-                                   crdata[8:8],
-                                   crdata[7:7],
+                                   csr_machine_reg.mie.seie,
+                                   csr_machine_reg.mie.ueie,
+                                   csr_machine_reg.mie.mtie,
                                    1'h0,
-                                   crdata[5:5],
-                                   crdata[4:4],
-                                   crdata[3:3],
+                                   csr_machine_reg.mie.stie,
+                                   csr_machine_reg.mie.utie,
+                                   csr_machine_reg.mie.msie,
                                    1'h0,
-                                   crdata[1:1],
-                                   crdata[0:0]};
+                                   csr_machine_reg.mie.ssie,
+                                   csr_machine_reg.mie.usie};
+        csr_mtvec : csr_out.cdata = csr_machine_reg.mtvec;
+        csr_mscratch : csr_out.cdata = csr_machine_reg.mscratch;
+        csr_mepc : csr_out.cdata = csr_machine_reg.mepc;
+        csr_mcause : csr_out.cdata = csr_machine_reg.mcause;
+        csr_mtval : csr_out.cdata = csr_machine_reg.mtval;
         csr_mip : csr_out.cdata = {20'h0,
-                                   crdata[11:11],
+                                   csr_machine_reg.mip.meip,
                                    1'h0,
-                                   crdata[9:9],
-                                   crdata[8:8],
-                                   crdata[7:7],
+                                   csr_machine_reg.mip.seip,
+                                   csr_machine_reg.mip.ueip,
+                                   csr_machine_reg.mip.mtip,
                                    1'h0,
-                                   crdata[5:5],
-                                   crdata[4:4],
-                                   crdata[3:3],
+                                   csr_machine_reg.mip.stip,
+                                   csr_machine_reg.mip.utip,
+                                   csr_machine_reg.mip.msip,
                                    1'h0,
-                                   crdata[1:1],
-                                   crdata[0:0]};
-        default : csr_out.cdata = crdata;
+                                   csr_machine_reg.mip.ssip,
+                                   csr_machine_reg.mip.usip};
+        csr_mcycle : csr_out.cdata = csr_machine_reg.mcycle[31:0];
+        csr_mcycleh : csr_out.cdata = csr_machine_reg.mcycle[63:32];
+        csr_minstret : csr_out.cdata = csr_machine_reg.minstret[31:0];
+        csr_minstreth : csr_out.cdata = csr_machine_reg.minstret[63:32];
+        default : csr_out.cdata = 0;
       endcase
     end else begin
       csr_out.cdata = 0;
     end
-  end 
 
-  always_comb begin
-    cwren = 0;
-    cwaddr = 0;
-    cwdata = 0;
-    if (csr_in.cwren == 1) begin
-      case (csr_in.cwaddr)
-        csr_mstatus : begin
-          cwren = 1;
-          cwaddr = csr_in.cwaddr;
-          cwdata[31:31] = csr_in.cdata[31:31];
-          cwdata[22:22] = csr_in.cdata[22:22];
-          cwdata[21:21] = csr_in.cdata[21:21];
-          cwdata[20:20] = csr_in.cdata[20:20];
-          cwdata[19:19] = csr_in.cdata[19:19];
-          cwdata[18:18] = csr_in.cdata[18:18];
-          cwdata[17:17] = csr_in.cdata[17:17];
-          cwdata[16:15] = csr_in.cdata[16:15];
-          cwdata[14:13] = csr_in.cdata[14:13];
-          cwdata[12:11] = csr_in.cdata[12:11];
-          cwdata[8:8] = csr_in.cdata[8:8];
-          cwdata[7:7] = csr_in.cdata[7:7];
-          cwdata[5:5] = csr_in.cdata[5:5];
-          cwdata[4:4] = csr_in.cdata[4:4];
-          cwdata[3:3] = csr_in.cdata[3:3];
-          cwdata[1:1] = csr_in.cdata[1:1];
-          cwdata[0:0] = csr_in.cdata[0:0];
-        end
-        csr_mie : begin
-          cwren = 1;
-          cwaddr = csr_in.cwaddr;
-          cwdata[11:11] = csr_in.cdata[11:11];
-          cwdata[9:9] = csr_in.cdata[9:9];
-          cwdata[8:8] = csr_in.cdata[8:8];
-          cwdata[7:7] = csr_in.cdata[7:7];
-          cwdata[5:5] = csr_in.cdata[5:5];
-          cwdata[4:4] = csr_in.cdata[4:4];
-          cwdata[3:3] = csr_in.cdata[3:3];
-          cwdata[1:1] = csr_in.cdata[1:1];
-          cwdata[0:0] = csr_in.cdata[0:0];
-        end
-        csr_mip : begin
-          cwren = 1;
-          cwaddr = csr_in.cwaddr;
-          cwdata[9:9] = csr_in.cdata[9:9];
-          cwdata[8:8] = csr_in.cdata[8:8];
-          cwdata[5:5] = csr_in.cdata[5:5];
-          cwdata[4:4] = csr_in.cdata[4:4];
-          cwdata[1:1] = csr_in.cdata[1:1];
-          cwdata[0:0] = csr_in.cdata[0:0];
-        end
-        csr_mtvec : begin
-          cwren = 1;
-          cwaddr = csr_in.cwaddr;
-          cwdata = csr_in.cdata;
-        end
-        csr_mscratch : begin
-          cwren = 1;
-          cwaddr = csr_in.cwaddr;
-          cwdata = csr_in.cdata;
-        end
-        csr_mepc : begin
-          cwren = 1;
-          cwaddr = csr_in.cwaddr;
-          cwdata = csr_in.cdata;
-        end
-        csr_mcause : begin
-          cwren = 1;
-          cwaddr = csr_in.cwaddr;
-          cwdata = csr_in.cdata;
-        end
-        csr_mtval : begin
-          cwren = 1;
-          cwaddr = csr_in.cwaddr;
-          cwdata = csr_in.cdata;
-        end
-        csr_mcycle : begin
-          cwren = 1;
-          cwaddr = csr_in.cwaddr;
-          cwdata = csr_in.cdata;
-        end
-        csr_mcycleh : begin
-          cwren = 1;
-          cwaddr = csr_in.cwaddr;
-          cwdata = csr_in.cdata;
-        end
-        csr_minstret : begin
-          cwren = 1;
-          cwaddr = csr_in.cwaddr;
-          cwdata = csr_in.cdata;
-        end
-        csr_minstreth : begin
-          cwren = 1;
-          cwaddr = csr_in.cwaddr;
-          cwdata = csr_in.cdata;
-        end
-        default :;
-      endcase
+    csr_out.exception = exception;
+    csr_out.mret = mret;
+    csr_out.mepc = csr_machine_reg.mepc;
+    if (csr_machine_reg.mtvec[1:0] == 1) begin
+      csr_out.mtvec = {(csr_machine_reg.mtvec[31:2] + {26'b0,csr_machine_reg.mcause[3:0]}),2'b0};
+    end else begin
+      csr_out.mtvec = {csr_machine_reg.mtvec[31:2],2'b0};
     end
+
   end
 
-  always_comb begin
-    if (csr_reg_file[csr_mtvec][1:0] == 1) begin
-      mtvec = {(csr_reg_file[csr_mtvec][31:2] + {26'b0,csr_reg_file[csr_mtvec][3:0]}),2'b0};
+  always_ff @(posedge clk) begin
+
+    if (rst == 0) begin
+      csr_machine_reg <= init_csr_machine_reg;
     end else begin
-      mtvec = {csr_reg_file[csr_mtvec][31:2],2'b0};
+      if (csr_in.cwren == 1) begin
+        case (csr_in.cwaddr)
+          csr_mstatus : begin
+            csr_machine_reg.mstatus.sd <= csr_in.cdata[31];
+            csr_machine_reg.mstatus.tsr <= csr_in.cdata[22];
+            csr_machine_reg.mstatus.tw <= csr_in.cdata[21];
+            csr_machine_reg.mstatus.tvm <= csr_in.cdata[20];
+            csr_machine_reg.mstatus.mxr <= csr_in.cdata[19];
+            csr_machine_reg.mstatus.sum <= csr_in.cdata[18];
+            csr_machine_reg.mstatus.mprv <= csr_in.cdata[17];
+            csr_machine_reg.mstatus.xs <= csr_in.cdata[16:15];
+            csr_machine_reg.mstatus.fs <= csr_in.cdata[14:13];
+            csr_machine_reg.mstatus.mpp <= csr_in.cdata[12:11];
+            csr_machine_reg.mstatus.spp <= csr_in.cdata[8];
+            csr_machine_reg.mstatus.mpie <= csr_in.cdata[7];
+            csr_machine_reg.mstatus.spie <= csr_in.cdata[5];
+            csr_machine_reg.mstatus.upie <= csr_in.cdata[4];
+            csr_machine_reg.mstatus.mie <= csr_in.cdata[3];
+            csr_machine_reg.mstatus.sie <= csr_in.cdata[1];
+            csr_machine_reg.mstatus.uie <= csr_in.cdata[0];
+          end
+          csr_mtvec : csr_machine_reg.mtvec <= csr_in.cdata;
+          csr_mscratch : csr_machine_reg.mscratch <= csr_in.cdata;
+          csr_mepc : csr_machine_reg.mepc <= csr_in.cdata;
+          csr_mcause : csr_machine_reg.mcause <= csr_in.cdata;
+          csr_mtval : csr_machine_reg.mtval <= csr_in.cdata;
+          csr_mie : begin
+            csr_machine_reg.mie.meie <= csr_in.cdata[11];
+            csr_machine_reg.mie.seie <= csr_in.cdata[9];
+            csr_machine_reg.mie.ueie <= csr_in.cdata[8];
+            csr_machine_reg.mie.mtie <= csr_in.cdata[7];
+            csr_machine_reg.mie.stie <= csr_in.cdata[5];
+            csr_machine_reg.mie.ueie <= csr_in.cdata[4];
+            csr_machine_reg.mie.msie <= csr_in.cdata[3];
+            csr_machine_reg.mie.ssie <= csr_in.cdata[1];
+            csr_machine_reg.mie.usie <= csr_in.cdata[0];
+          end
+          csr_mip : begin
+            csr_machine_reg.mip.seip <= csr_in.cdata[9];
+            csr_machine_reg.mip.ueip <= csr_in.cdata[8];
+            csr_machine_reg.mip.stip <= csr_in.cdata[5];
+            csr_machine_reg.mip.ueip <= csr_in.cdata[4];
+            csr_machine_reg.mip.ssip <= csr_in.cdata[1];
+            csr_machine_reg.mip.usip <= csr_in.cdata[0];
+          end
+          csr_mcycle : csr_machine_reg.mcycle[31:0] <= csr_in.cdata;
+          csr_mcycleh : csr_machine_reg.mcycle[63:32] <= csr_in.cdata;
+          csr_minstret : csr_machine_reg.minstret[31:0] <= csr_in.cdata;
+          csr_minstreth : csr_machine_reg.minstret[63:32] <= csr_in.cdata;
+          default :;
+        endcase
+      end
+
+      if (csr_in.valid == 1) begin
+        csr_machine_reg.minstret <= csr_machine_reg.minstret + 1;
+      end
+
+      if (meip == 1) begin
+        csr_machine_reg.mip.meip <= 1;
+      end else begin
+        csr_machine_reg.mip.meip <= 0;
+      end
+
+      if (mtip == 1) begin
+        csr_machine_reg.mip.mtip <= 1;
+      end else begin
+        csr_machine_reg.mip.mtip <= 0;
+      end
+
+      if (msip == 1) begin
+        csr_machine_reg.mip.msip <= 1;
+      end else begin
+        csr_machine_reg.mip.msip <= 0;
+      end
+
+      csr_machine_reg.mcycle <= csr_machine_reg.mcycle + 1;
+
+      if (csr_in.exception == 1) begin
+        csr_machine_reg.mstatus.mpie <= csr_machine_reg.mstatus.mie;
+        csr_machine_reg.mstatus.mie <= 0;
+        csr_machine_reg.mepc <= csr_in.epc;
+        csr_machine_reg.mtval <= csr_in.etval;
+        csr_machine_reg.mcause <= {28'b0,csr_in.ecause};
+        exception <= 1;
+      end else if (csr_machine_reg.mstatus.mie == 1 &&
+                   csr_machine_reg.mie.meie == 1 &&
+                   csr_machine_reg.mip.meip == 1 &&
+                   csr_in.valid == 1) begin
+        csr_machine_reg.mstatus.mpie <= csr_machine_reg.mstatus.mie;
+        csr_machine_reg.mstatus.mie <= 0;
+        csr_machine_reg.mepc <= csr_in.epc;
+        csr_machine_reg.mtval <= csr_in.etval;
+        csr_machine_reg.mcause <= {1'b1,27'b0,interrupt_mach_extern};
+        exception <= 1;
+      end else if (csr_machine_reg.mstatus.mie == 1 &&
+                   csr_machine_reg.mie.mtie == 1 &&
+                   csr_machine_reg.mip.mtip == 1 &&
+                   csr_in.valid == 1) begin
+        csr_machine_reg.mstatus.mpie <= csr_machine_reg.mstatus.mie;
+        csr_machine_reg.mstatus.mie <= 0;
+        csr_machine_reg.mepc <= csr_in.epc;
+        csr_machine_reg.mtval <= csr_in.etval;
+        csr_machine_reg.mcause <= {1'b1,27'b0,interrupt_mach_timer};
+        exception <= 1;
+      end else if (csr_machine_reg.mstatus.mie == 1 &&
+                   csr_machine_reg.mie.msie == 1 &&
+                   csr_machine_reg.mip.msip == 1 &&
+                   csr_in.valid == 1) begin
+        csr_machine_reg.mstatus.mpie <= csr_machine_reg.mstatus.mie;
+        csr_machine_reg.mstatus.mie <= 0;
+        csr_machine_reg.mepc <= csr_in.epc;
+        csr_machine_reg.mtval <= csr_in.etval;
+        csr_machine_reg.mcause <= {1'b1,27'b0,interrupt_mach_soft};
+        exception <= 1;
+      end else begin
+        exception <= 0;
+      end
+
+      if (csr_in.mret == 1) begin
+        csr_machine_reg.mstatus.mie <= csr_machine_reg.mstatus.mpie;
+        csr_machine_reg.mstatus.mpie <= 0;
+        mret <= 1;
+      end else begin
+        mret <= 0;
+      end
+
     end
+
   end
 
 endmodule
