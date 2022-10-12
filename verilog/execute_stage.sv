@@ -21,6 +21,8 @@ module execute_stage
   output forwarding_execute_in_type forwarding_ein,
   input csr_out_type csr_out,
   output csr_in_type csr_in,
+  input csr_pmp_out_type csr_pmp_out,
+  output csr_pmp_in_type csr_pmp_in,
   input mem_out_type dmem_out,
   input execute_in_type a,
   input execute_in_type d,
@@ -139,7 +141,10 @@ module execute_stage
     csr_in.crden = v.crden;
     csr_in.craddr = v.caddr;
 
-    v.cdata = csr_out.cdata;
+    csr_pmp_in.crden = v.crden;
+    csr_pmp_in.craddr = v.caddr;
+
+    v.cdata = csr_pmp_out.cready == 1 ? csr_pmp_out.crdata : csr_out.crdata;
 
     alu_in.rdata1 = v.rdata1;
     alu_in.rdata2 = v.rdata2;
@@ -248,7 +253,11 @@ module execute_stage
     csr_in.valid = ~v.invalid;
     csr_in.cwren = v.cwren;
     csr_in.cwaddr = v.caddr;
-    csr_in.cdata = v.cdata;
+    csr_in.cwdata = v.cdata;
+
+    csr_pmp_in.cwren = v.cwren;
+    csr_pmp_in.cwaddr = v.caddr;
+    csr_pmp_in.cwdata = v.cdata;
 
     csr_in.mret = v.mret;
     csr_in.exception = v.exception;

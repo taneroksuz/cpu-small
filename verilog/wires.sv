@@ -421,6 +421,7 @@ package wires;
     alu_op_type alu_op;
     bcu_op_type bcu_op;
     lsu_op_type lsu_op;
+    logic [0  : 0] error;
     logic [0  : 0] exception;
     logic [3  : 0] ecause;
     logic [31 : 0] etval;
@@ -458,6 +459,7 @@ package wires;
     alu_op : init_alu_op,
     bcu_op : init_bcu_op,
     lsu_op : init_lsu_op,
+    error : 0,
     exception : 0,
     ecause : 0,
     etval : 0,
@@ -513,6 +515,7 @@ package wires;
     csr_op_type csr_op;
     div_op_type div_op;
     mul_op_type mul_op;
+    logic [0  : 0] error;
     logic [0  : 0] exception;
     logic [3  : 0] ecause;
     logic [31 : 0] etval;
@@ -564,6 +567,7 @@ package wires;
     csr_op : init_csr_op,
     div_op : init_div_op,
     mul_op : init_mul_op,
+    error : 0,
     exception : 0,
     ecause : 0,
     etval : 0,
@@ -753,7 +757,7 @@ package wires;
     logic [0  : 0] crden;
     logic [11 : 0] cwaddr;
     logic [11 : 0] craddr;
-    logic [31 : 0] cdata;
+    logic [31 : 0] cwdata;
     logic [0  : 0] mret;
     logic [0  : 0] exception;
     logic [31 : 0] epc;
@@ -766,7 +770,7 @@ package wires;
     logic [0  : 0] mret;
     logic [31 : 0] mtvec;
     logic [31 : 0] mepc;
-    logic [31 : 0] cdata;
+    logic [31 : 0] crdata;
   } csr_out_type;
 
   typedef struct packed{
@@ -775,24 +779,23 @@ package wires;
     logic [11 : 0] cwaddr;
     logic [11 : 0] craddr;
     logic [31 : 0] cwdata;
-  } pmp_csr_in_type;
+  } csr_pmp_in_type;
 
   typedef struct packed{
     logic [31 : 0] crdata;
-  } pmp_csr_out_type;
+    logic [0  : 0] cready;
+  } csr_pmp_out_type;
 
   typedef struct packed{
     logic [0  : 0] mem_valid;
     logic [0  : 0] mem_instr;
+    logic [1  : 0] mem_mode;
     logic [31 : 0] mem_addr;
     logic [3  : 0] mem_wstrb;
-    logic [1  : 0] mode;
   } pmp_in_type;
 
   typedef struct packed{
-    logic [0  : 0] exception;
-    logic [31 : 0] etval;
-    logic [3  : 0] ecause;
+    logic [0  : 0] mem_error;
   } pmp_out_type;
 
   typedef struct packed{
@@ -827,6 +830,7 @@ package wires;
     logic [0  : 0] mem_valid;
     logic [0  : 0] mem_fence;
     logic [0  : 0] mem_instr;
+    logic [1  : 0] mem_mode;
     logic [31 : 0] mem_addr;
     logic [31 : 0] mem_wdata;
     logic [3  : 0] mem_wstrb;
@@ -834,6 +838,7 @@ package wires;
 
   typedef struct packed{
     logic [0  : 0] mem_ready;
+    logic [0  : 0] mem_error;
     logic [31 : 0] mem_rdata;
   } mem_out_type;
 

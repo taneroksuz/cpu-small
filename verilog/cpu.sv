@@ -45,8 +45,8 @@ module cpu
   forwarding_out_type forwarding_out;
   csr_in_type csr_in;
   csr_out_type csr_out;
-  pmp_csr_in_type pmp_csr_in;
-  pmp_csr_out_type pmp_csr_out;
+  csr_pmp_in_type csr_pmp_in;
+  csr_pmp_out_type csr_pmp_out;
   pmp_in_type pmp_in;
   pmp_out_type pmp_out;
   register_read_in_type register_rin;
@@ -173,8 +173,8 @@ module cpu
   (
     .rst (rst),
     .clk (clk),
-    .pmp_csr_in (pmp_csr_in),
-    .pmp_csr_out (pmp_csr_out),
+    .csr_pmp_in (csr_pmp_in),
+    .csr_pmp_out (csr_pmp_out),
     .pmp_in (pmp_in),
     .pmp_out (pmp_out)
   );
@@ -187,6 +187,8 @@ module cpu
     .imem_out (imem_out),
     .dmem_in (dmem_in),
     .dmem_out (dmem_out),
+    .pmp_out (pmp_out),
+    .pmp_in (pmp_in),
     .memory_valid (memory_valid),
     .memory_instr (memory_instr),
     .memory_addr (memory_addr),
@@ -252,6 +254,8 @@ module cpu
     .forwarding_ein (forwarding_ein),
     .csr_out (csr_out),
     .csr_in (csr_in),
+    .csr_pmp_out (csr_pmp_out),
+    .csr_pmp_in (csr_pmp_in),
     .dmem_out (dmem_out),
     .a (execute_in_a),
     .d (execute_in_d),

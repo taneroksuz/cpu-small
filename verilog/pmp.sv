@@ -6,8 +6,8 @@ module pmp
 (
   input logic rst,
   input logic clk,
-  input pmp_csr_in_type pmp_csr_in,
-  output pmp_csr_out_type pmp_csr_out,
+  input csr_pmp_in_type csr_pmp_in,
+  output csr_pmp_out_type csr_pmp_out,
   input pmp_in_type pmp_in,
   output pmp_out_type pmp_out
 );
@@ -39,16 +39,11 @@ module pmp
 
   logic [31 : 0] csr_pmpaddr [0:pmp_region-1];
 
-  logic [0  : 0] exception;
-  logic [31 : 0] etval;
-  logic [3  : 0] ecause;
-
-  logic [0  : 0] execute;
-  logic [0  : 0] write;
-  logic [0  : 0] read;
+  logic [0  : 0] error;
 
   logic [0  : 0] pass;
-  logic [0  : 0] ok;
+
+  logic [pmp_region-1 : 0] ok;
 
   logic [29 : 0] shifted;
   logic [31 : 0] lowaddr;
@@ -62,24 +57,24 @@ module pmp
       csr_pmpcfg <= '{default:init_csr_pmpcfg};
       csr_pmpaddr <= '{default:'0};
     end else begin
-      if (pmp_csr_in.cwren == 1) begin
+      if (csr_pmp_in.cwren == 1) begin
         for (i=0; i<pmp_region; i=i+1) begin
-          if (pmp_csr_in.cwaddr == (csr_pmpcfg0 + (i[11:0]%4))) begin
+          if (csr_pmp_in.cwaddr == (csr_pmpcfg0 + (i[11:0]%4))) begin
             if (csr_pmpcfg[i].L == 0) begin
-              csr_pmpcfg[i].L <= pmp_csr_in.cwdata[8*i+7];
-              csr_pmpcfg[i].A <= pmp_csr_in.cwdata[8*i+3 +: 2];
-              csr_pmpcfg[i].X <= pmp_csr_in.cwdata[8*i+2];
-              csr_pmpcfg[i].W <= pmp_csr_in.cwdata[8*i+1];
-              csr_pmpcfg[i].R <= pmp_csr_in.cwdata[8*i];
+              csr_pmpcfg[i].L <= csr_pmp_in.cwdata[8*i+7];
+              csr_pmpcfg[i].A <= csr_pmp_in.cwdata[8*i+3 +: 2];
+              csr_pmpcfg[i].X <= csr_pmp_in.cwdata[8*i+2];
+              csr_pmpcfg[i].W <= csr_pmp_in.cwdata[8*i+1];
+              csr_pmpcfg[i].R <= csr_pmp_in.cwdata[8*i];
             end
-          end else if (pmp_csr_in.cwaddr == (csr_pmpaddr0 + i[11:0])) begin
+          end else if (csr_pmp_in.cwaddr == (csr_pmpaddr0 + i[11:0])) begin
             if (i==(pmp_region-1)) begin
               if  (csr_pmpcfg[i].L == 0) begin
-                csr_pmpaddr[i] <= pmp_csr_in.cwdata;
+                csr_pmpaddr[i] <= csr_pmp_in.cwdata;
               end
             end else begin
               if  (csr_pmpcfg[i].L == 0 && !(csr_pmpcfg[i+1].L == 1 && csr_pmpcfg[i+1].A == 1)) begin
-                csr_pmpaddr[i] <= pmp_csr_in.cwdata;
+                csr_pmpaddr[i] <= csr_pmp_in.cwdata;
               end
             end
           end
@@ -89,28 +84,26 @@ module pmp
   end
 
   always_comb begin
-    pmp_csr_out.crdata = 0;
-    if (pmp_csr_in.crden == 1) begin
+    csr_pmp_out.crdata = 0;
+    csr_pmp_out.cready = 0;
+    if (csr_pmp_in.crden == 1) begin
       for (i=0; i<pmp_region; i=i+1) begin
-        if (pmp_csr_in.craddr == (csr_pmpcfg0 + i[11:0]%4)) begin
-          pmp_csr_out.crdata[31:24] = {csr_pmpcfg[i+3].L,2'b0,csr_pmpcfg[i+3].A,csr_pmpcfg[i+3].X,csr_pmpcfg[i+3].W,csr_pmpcfg[i+3].R};
-          pmp_csr_out.crdata[23:16] = {csr_pmpcfg[i+2].L,2'b0,csr_pmpcfg[i+2].A,csr_pmpcfg[i+2].X,csr_pmpcfg[i+2].W,csr_pmpcfg[i+2].R};
-          pmp_csr_out.crdata[15:8] = {csr_pmpcfg[i+1].L,2'b0,csr_pmpcfg[i+1].A,csr_pmpcfg[i+1].X,csr_pmpcfg[i+1].W,csr_pmpcfg[i+1].R};
-          pmp_csr_out.crdata[7:0] = {csr_pmpcfg[i].L,2'b0,csr_pmpcfg[i+0].A,csr_pmpcfg[i].X,csr_pmpcfg[i].W,csr_pmpcfg[i].R};
-        end else if (pmp_csr_in.craddr == (csr_pmpaddr0 + i[11:0])) begin
-          pmp_csr_out.crdata = csr_pmpaddr[i];
+        if (csr_pmp_in.craddr == (csr_pmpcfg0 + i[11:0]%4)) begin
+          csr_pmp_out.crdata[31:24] = {csr_pmpcfg[i+3].L,2'b0,csr_pmpcfg[i+3].A,csr_pmpcfg[i+3].X,csr_pmpcfg[i+3].W,csr_pmpcfg[i+3].R};
+          csr_pmp_out.crdata[23:16] = {csr_pmpcfg[i+2].L,2'b0,csr_pmpcfg[i+2].A,csr_pmpcfg[i+2].X,csr_pmpcfg[i+2].W,csr_pmpcfg[i+2].R};
+          csr_pmp_out.crdata[15:8] = {csr_pmpcfg[i+1].L,2'b0,csr_pmpcfg[i+1].A,csr_pmpcfg[i+1].X,csr_pmpcfg[i+1].W,csr_pmpcfg[i+1].R};
+          csr_pmp_out.crdata[7:0] = {csr_pmpcfg[i].L,2'b0,csr_pmpcfg[i+0].A,csr_pmpcfg[i].X,csr_pmpcfg[i].W,csr_pmpcfg[i].R};
+          csr_pmp_out.cready = 1;
+        end else if (csr_pmp_in.craddr == (csr_pmpaddr0 + i[11:0])) begin
+          csr_pmp_out.crdata = csr_pmpaddr[i];
+          csr_pmp_out.cready = 1;
         end
       end
     end
   end
 
   always_comb begin
-    exception = 0;
-    etval = 0;
-    ecause = 0;
-    execute = 0;
-    write = 0;
-    read = 0;
+    error = 0;
     pass = 0;
     ok = 0;
     shifted = 0;
@@ -118,32 +111,28 @@ module pmp
     highaddr = 0;
     if (pmp_in.mem_valid == 1) begin
       for (i=0; i<pmp_region; i=i+1) begin
-        ok = 0;
         if (pmp_in.mem_instr == 1) begin
-          execute = 1;
           if (csr_pmpcfg[i].L == 1 && csr_pmpcfg[i].X == 1) begin
-            ok = 1;
-          end else if (csr_pmpcfg[i].L == 0 && (csr_pmpcfg[i].X == 1 || pmp_in.mode == m_mode)) begin
-            ok = 1;
+            ok[i] = 1;
+          end else if (csr_pmpcfg[i].L == 0 && (csr_pmpcfg[i].X == 1 || pmp_in.mem_mode == m_mode)) begin
+            ok[i] = 1;
           end
         end else if (pmp_in.mem_instr == 0) begin
           if (|pmp_in.mem_wstrb == 1) begin
-            write = 1;
             if (csr_pmpcfg[i].L == 1 && csr_pmpcfg[i].W == 1) begin
-              ok = 1;
-            end else if (csr_pmpcfg[i].L == 0 && (csr_pmpcfg[i].W == 1 || pmp_in.mode == m_mode)) begin
-              ok = 1;
+              ok[i] = 1;
+            end else if (csr_pmpcfg[i].L == 0 && (csr_pmpcfg[i].W == 1 || pmp_in.mem_mode == m_mode)) begin
+              ok[i] = 1;
             end
           end else if (|pmp_in.mem_wstrb == 0) begin
-            read = 1;
             if (csr_pmpcfg[i].L == 1 && csr_pmpcfg[i].R == 1) begin
-              ok = 1;
-            end else if (csr_pmpcfg[i].L == 0 && (csr_pmpcfg[i].R == 1 || pmp_in.mode == m_mode)) begin
-              ok = 1;
+              ok[i] = 1;
+            end else if (csr_pmpcfg[i].L == 0 && (csr_pmpcfg[i].R == 1 || pmp_in.mem_mode == m_mode)) begin
+              ok[i] = 1;
             end
           end
         end
-        if (ok == 1) begin
+        if (ok[i] == 1) begin
           if (csr_pmpcfg[i].A == OFF) begin
             continue;
           end if (csr_pmpcfg[i].A == TOR) begin
@@ -169,17 +158,11 @@ module pmp
           end
         end
       end
-      if (pass == 0) begin
-        exception = 1;
-        etval = pmp_in.mem_addr;
-        ecause = (execute == 1) ? except_instr_access_fault :
-                 (write == 1) ? except_store_access_fault :
-                 (read == 1) ? except_load_access_fault : 0;
+      if (|ok == 1 && pass == 0) begin
+        error = 1;
       end
     end
-    pmp_out.exception = exception;
-    pmp_out.etval = etval;
-    pmp_out.ecause = ecause;
+    pmp_out.mem_error = error;
   end
 
 endmodule
