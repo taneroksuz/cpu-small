@@ -117,6 +117,7 @@ module csr
 
     csr_out.exception = exception;
     csr_out.mret = mret;
+    csr_out.mode = mode;
     csr_out.mepc = csr_machine_reg.mepc;
     if (csr_machine_reg.mtvec[1:0] == 1) begin
       csr_out.mtvec = {(csr_machine_reg.mtvec[31:2] + {26'b0,csr_machine_reg.mcause[3:0]}),2'b0};
@@ -130,6 +131,7 @@ module csr
 
     if (rst == 0) begin
       csr_machine_reg <= init_csr_machine_reg;
+      mode <= m_mode;
     end else begin
       if (csr_in.cwren == 1) begin
         case (csr_in.cwaddr)
@@ -211,6 +213,8 @@ module csr
       if (csr_in.exception == 1) begin
         csr_machine_reg.mstatus.mpie <= csr_machine_reg.mstatus.mie;
         csr_machine_reg.mstatus.mie <= 0;
+        csr_machine_reg.mstatus.mpp <= mode;
+        mode <= m_mode;
         csr_machine_reg.mepc <= csr_in.epc;
         csr_machine_reg.mtval <= csr_in.etval;
         csr_machine_reg.mcause <= {28'b0,csr_in.ecause};
@@ -221,6 +225,8 @@ module csr
                    csr_in.valid == 1) begin
         csr_machine_reg.mstatus.mpie <= csr_machine_reg.mstatus.mie;
         csr_machine_reg.mstatus.mie <= 0;
+        csr_machine_reg.mstatus.mpp <= mode;
+        mode <= m_mode;
         csr_machine_reg.mepc <= csr_in.epc;
         csr_machine_reg.mtval <= csr_in.etval;
         csr_machine_reg.mcause <= {1'b1,27'b0,interrupt_mach_extern};
@@ -231,6 +237,8 @@ module csr
                    csr_in.valid == 1) begin
         csr_machine_reg.mstatus.mpie <= csr_machine_reg.mstatus.mie;
         csr_machine_reg.mstatus.mie <= 0;
+        csr_machine_reg.mstatus.mpp <= mode;
+        mode <= m_mode;
         csr_machine_reg.mepc <= csr_in.epc;
         csr_machine_reg.mtval <= csr_in.etval;
         csr_machine_reg.mcause <= {1'b1,27'b0,interrupt_mach_timer};
@@ -241,6 +249,8 @@ module csr
                    csr_in.valid == 1) begin
         csr_machine_reg.mstatus.mpie <= csr_machine_reg.mstatus.mie;
         csr_machine_reg.mstatus.mie <= 0;
+        csr_machine_reg.mstatus.mpp <= mode;
+        mode <= m_mode;
         csr_machine_reg.mepc <= csr_in.epc;
         csr_machine_reg.mtval <= csr_in.etval;
         csr_machine_reg.mcause <= {1'b1,27'b0,interrupt_mach_soft};
@@ -251,7 +261,9 @@ module csr
 
       if (csr_in.mret == 1) begin
         csr_machine_reg.mstatus.mie <= csr_machine_reg.mstatus.mpie;
-        csr_machine_reg.mstatus.mpie <= 0;
+        csr_machine_reg.mstatus.mpie <= 1;
+        mode <= csr_machine_reg.mstatus.mpp;
+        csr_machine_reg.mstatus.mpp <= u_mode;
         mret <= 1;
       end else begin
         mret <= 0;
@@ -260,21 +272,5 @@ module csr
     end
 
   end
-
-  always_ff @(posedge clk) begin
-
-    if (rst == 0) begin
-      mode <= m_mode;
-    end else begin
-      if (csr_in.exception == 1) begin
-        mode <= m_mode;
-      end else if (csr_in.mret == 1) begin
-        mode <= u_mode;
-      end
-    end
-
-  end
-
-  assign csr_out.mode = mode;
 
 endmodule
