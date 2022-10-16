@@ -269,7 +269,7 @@ module fetchbuffer_ctrl
     end
 
     if (v.fence == 1) begin
-      v.addr = r.addr;
+      v.addr = r.paddr;
       v.incr = 0;
       v.valid = 0;
       v.ready = 0;
