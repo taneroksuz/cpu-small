@@ -674,12 +674,14 @@ package wires;
   typedef struct packed{
     csr_mstatus_reg_type mstatus;
     logic [31 : 0] mtvec;
-    logic [63 : 0] mcycle;
-    logic [63 : 0] minstret;
     logic [31 : 0] mscratch;
     logic [31 : 0] mepc;
     logic [31 : 0] mcause;
     logic [31 : 0] mtval;
+    logic [63 : 0] mcycle;
+    logic [63 : 0] minstret;
+    logic [31 : 0] mcounteren;
+    logic [31 : 0] mcountinhibit;
     csr_mip_reg_type mip;
     csr_mie_reg_type mie;
   } csr_machine_reg_type;
@@ -693,6 +695,8 @@ package wires;
     mtval : 0,
     mcycle : 0,
     minstret : 0,
+    mcounteren : 0,
+    mcountinhibit : 0,
     mip : init_csr_mip_reg,
     mie : init_csr_mie_reg
   };
@@ -716,6 +720,7 @@ package wires;
     logic [0  : 0] mret;
     logic [31 : 0] mtvec;
     logic [31 : 0] mepc;
+    logic [31 : 0] mcounteren;
     logic [31 : 0] crdata;
     logic [1  : 0] mode;
   } csr_out_type;

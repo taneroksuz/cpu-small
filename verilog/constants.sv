@@ -151,6 +151,8 @@ package constants;
 	parameter [11 : 0] csr_mtvec                  = 12'h305;
 	parameter [11 : 0] csr_mcounteren             = 12'h306;
 
+	parameter [11 : 0] csr_mcountinhibit          = 12'h320;
+
 	parameter [11 : 0] csr_mscratch               = 12'h340;
 	parameter [11 : 0] csr_mepc                   = 12'h341;
 	parameter [11 : 0] csr_mcause                 = 12'h342;

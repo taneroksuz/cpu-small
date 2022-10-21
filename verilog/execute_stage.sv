@@ -115,6 +115,18 @@ module execute_stage
       v.invalid = 0;
     end
 
+    if (v.cwren == 1 || v.crden == 1) begin
+      if (csr_out.mode < v.caddr[9:8]) begin
+        if (v.caddr[11:8] == 4'hB && csr_out.mcounteren[v.caddr[4:0]] == 1) begin
+          v.valid = 1;
+        end else begin
+          v.valid = 0;
+          v.cwren = 0;
+          v.crden = 0;
+        end
+      end
+    end
+
     if (v.rden1 == 0) begin
       v.rdata1 = 0;
     end

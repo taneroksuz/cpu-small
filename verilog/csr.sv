@@ -86,6 +86,8 @@ module csr
         csr_mcycleh : csr_out.crdata = csr_machine_reg.mcycle[63:32];
         csr_minstret : csr_out.crdata = csr_machine_reg.minstret[31:0];
         csr_minstreth : csr_out.crdata = csr_machine_reg.minstret[63:32];
+        csr_mcounteren : csr_out.crdata = csr_machine_reg.mcounteren;
+        csr_mcountinhibit: csr_out.crdata = csr_machine_reg.mcountinhibit;
         default : csr_out.crdata = 0;
       endcase
     end else begin
@@ -96,6 +98,7 @@ module csr
     csr_out.mret = mret;
     csr_out.mode = mode;
     csr_out.mepc = csr_machine_reg.mepc;
+    csr_out.mcounteren = csr_machine_reg.mcounteren;
     if (csr_machine_reg.mtvec[1:0] == 1) begin
       csr_out.mtvec = {(csr_machine_reg.mtvec[31:2] + {26'b0,csr_machine_reg.mcause[3:0]}),2'b0};
     end else begin
@@ -161,11 +164,17 @@ module csr
           csr_mcycleh : csr_machine_reg.mcycle[63:32] <= csr_in.cwdata;
           csr_minstret : csr_machine_reg.minstret[31:0] <= csr_in.cwdata;
           csr_minstreth : csr_machine_reg.minstret[63:32] <= csr_in.cwdata;
+          csr_mcounteren : csr_machine_reg.mcounteren <= csr_in.cwdata;
+          csr_mcountinhibit: csr_machine_reg.mcountinhibit <= csr_in.cwdata;
           default :;
         endcase
       end
 
-      if (csr_in.valid == 1) begin
+      if (csr_machine_reg.mcountinhibit[0] == 0) begin
+        csr_machine_reg.mcycle <= csr_machine_reg.mcycle + 1;
+      end
+
+      if (csr_in.valid == 1 && csr_machine_reg.mcountinhibit[2] == 0) begin
         csr_machine_reg.minstret <= csr_machine_reg.minstret + 1;
       end
 
@@ -186,8 +195,6 @@ module csr
       end else begin
         csr_machine_reg.mip.msip <= 0;
       end
-
-      csr_machine_reg.mcycle <= csr_machine_reg.mcycle + 1;
 
       if (csr_in.exception == 1) begin
         csr_machine_reg.mstatus.mpie <= csr_machine_reg.mstatus.mie;
