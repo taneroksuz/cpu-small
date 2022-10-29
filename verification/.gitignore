@@ -1,0 +1,6 @@
+*
+!.gitignore
+!checks.cfg
+!disasm.py
+!run.sh
+!wrapper.sv

@@ -26,4 +26,7 @@ generate:
 simulate:
 	sim/run.sh --basedir ${BASEDIR} --verilator ${VERILATOR} --systemc ${SYSTEMC} --program ${PROGRAM} --cycles ${CYCLES} --wave ${WAVE}
 
+verify:
+	verification/run.sh --basedir ${BASEDIR}
+
 all: generate simulate
