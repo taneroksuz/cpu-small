@@ -60,6 +60,7 @@ module execute_stage
     v.load = d.f.load;
     v.store = d.f.store;
     v.ebreak = d.f.ebreak;
+    v.jump = d.f.jump;
     v.valid = d.f.valid;
     v.invalid = d.f.invalid;
     v.address = d.f.address;
@@ -258,6 +259,7 @@ module execute_stage
     end
 
     v.mode = csr_out.mode;
+    v.retired = ~v.invalid;
 
     register_win.wren = v.wren & |(v.waddr);
     register_win.waddr = v.waddr;
@@ -267,7 +269,7 @@ module execute_stage
     forwarding_ein.waddr = v.waddr;
     forwarding_ein.wdata = v.wdata;
 
-    csr_in.valid = ~v.invalid;
+    csr_in.valid = v.retired;
     csr_in.cwren = v.cwren;
     csr_in.cwaddr = v.caddr;
     csr_in.cwdata = v.cdata;
@@ -283,31 +285,31 @@ module execute_stage
     csr_in.ecause = v.ecause;
     csr_in.etval = v.etval;
 
-    rvfi_out.rvfi_valid = ~v.invalid;
+    rvfi_out.rvfi_valid = v.retired;
     rvfi_out.rvfi_order = csr_out.minstret;
     rvfi_out.rvfi_insn = v.instr;
     rvfi_out.rvfi_trap = v.exception;
     rvfi_out.rvfi_halt = v.exception;
     rvfi_out.rvfi_intr = csr_out.exception;
     rvfi_out.rvfi_mode = v.mode;
-    rvfi_out.rvfi_ixl = 2'b1;
+    rvfi_out.rvfi_ixl = 1;
 
     rvfi_out.rvfi_rs1_addr = (v.rden1 == 1) ? v.raddr1 : 0;
     rvfi_out.rvfi_rs2_addr = (v.rden2 == 1) ? v.raddr2 : 0;
-    rvfi_out.rvfi_rs2_rdata = (v.rden1 == 1) ? v.rdata1 : 0;
+    rvfi_out.rvfi_rs1_rdata = (v.rden1 == 1) ? v.rdata1 : 0;
     rvfi_out.rvfi_rs2_rdata = (v.rden2 == 1) ? v.rdata2 : 0;
 
     rvfi_out.rvfi_rd_addr = (v.wren == 1) ? v.waddr : 0;
     rvfi_out.rvfi_rd_wdata = (v.wren == 1) ? v.wdata : 0;
 
     rvfi_out.rvfi_pc_rdata = v.pc;
-    rvfi_out.rvfi_pc_wdata = v.npc;
+    rvfi_out.rvfi_pc_wdata = (v.jump == 1) ? v.address : v.npc;
 
     rvfi_out.rvfi_mem_addr = v.address;
-    rvfi_out.rvfi_mem_rmask = (v.load == 1) ? v.byteenable : 4'b0;
-    rvfi_out.rvfi_mem_wmask = (v.store == 1) ? v.byteenable : 4'b0;
-    rvfi_out.rvfi_mem_rdata = (v.load == 1) ? v.ldata : 32'b0;
-    rvfi_out.rvfi_mem_wdata = (v.store == 1) ? v.rdata2 : 32'b0;
+    rvfi_out.rvfi_mem_rmask = (v.load == 1) ? v.byteenable : 0;
+    rvfi_out.rvfi_mem_wmask = (v.store == 1) ? v.byteenable : 0;
+    rvfi_out.rvfi_mem_rdata = (v.load == 1) ? v.ldata : 0;
+    rvfi_out.rvfi_mem_wdata = (v.store == 1) ? v.rdata2 : 0;
 
     rin = v;
 

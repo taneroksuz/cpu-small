@@ -5,17 +5,19 @@ sudo apt-get install build-essential clang bison flex \
               graphviz xdot pkg-config python3 libboost-system-dev \
               libboost-python-dev libboost-filesystem-dev zlib1g-dev
 
-stack upgrade
-
-if [ -d "sv2v" ]; then
-  rm -rf sv2v
+if [ -d "boolector" ]; then
+  rm -rf boolector
 fi
 
-git clone https://github.com/zachjs/sv2v.git
+git clone https://github.com/boolector/boolector.git
 
-cd sv2v
+cd boolector
+
+./contrib/setup-lingeling.sh
+./contrib/setup-btor2tools.sh
+
+./configure.sh
+cd build
 
 make -j$(nproc)
-
-sudo cp bin/sv2v /usr/local/bin/
-sudo chmod +x /usr/local/bin/sv2v
+sudo make install

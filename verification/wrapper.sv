@@ -17,8 +17,8 @@ module rvfi_wrapper (
 	(* keep *) `rvformal_rand_reg        mem_ready;
 
 	cpu uut (
-		.rst (reset),
 		.clk (clock),
+		.rst (reset),
 
 		.memory_valid (mem_valid),
 		.memory_instr (mem_instr),

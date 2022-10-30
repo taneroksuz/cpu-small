@@ -259,6 +259,7 @@ module fetchbuffer_ctrl
         end
       end
       if (&(v.rdata[1:0]) == 0) begin
+        v.rdata[31:16] = 0;
         v.step = 1;
       end else if (&(v.rdata[1:0]) == 1) begin
         v.step = 2;

@@ -1,6 +1,10 @@
+import configure::*;
 import wires::*;
 
 module mul
+#(
+  parameter mul_performance = 1
+)
 (
   input logic rst,
   input logic clk,
@@ -9,8 +13,6 @@ module mul
 );
   timeunit 1ns;
   timeprecision 1ps;
-
-  parameter PERFORMANCE = 1;
 
   mul_reg_type r,rin;
   mul_reg_type v;
@@ -27,7 +29,7 @@ module mul
 
   generate
 
-    if (PERFORMANCE == 0) begin
+    if (mul_performance == 0) begin
 
       always_comb begin
 
@@ -114,9 +116,7 @@ module mul
 
       end
 
-    end
-
-    if (PERFORMANCE == 1) begin
+    end else if (mul_performance == 1) begin
 
       always_comb begin
 

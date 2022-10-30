@@ -532,6 +532,7 @@ package wires;
     logic [0  : 0] ebreak;
     logic [0  : 0] mret;
     logic [0  : 0] wfi;
+    logic [0  : 0] jump;
     logic [0  : 0] valid;
     logic [0  : 0] invalid;
     logic [31 : 0] rdata1;
@@ -548,6 +549,7 @@ package wires;
     div_op_type div_op;
     mul_op_type mul_op;
     logic [1  : 0] mode;
+    logic [0  : 0] retired;
     logic [0  : 0] error;
     logic [0  : 0] exception;
     logic [3  : 0] ecause;
@@ -585,6 +587,7 @@ package wires;
     ebreak : 0,
     mret : 0,
     wfi : 0,
+    jump : 0,
     valid : 0,
     invalid : 1,
     rdata1 : 0,
@@ -601,6 +604,7 @@ package wires;
     div_op : init_div_op,
     mul_op : init_mul_op,
     mode : m_mode,
+    retired : 0,
     error : 0,
     exception : 0,
     ecause : 0,
