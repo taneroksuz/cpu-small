@@ -34,6 +34,8 @@ module soc
   logic [4  : 0] rvfi_rs2_addr;
   logic [31 : 0] rvfi_rs1_rdata;
   logic [31 : 0] rvfi_rs2_rdata;
+  logic [4  : 0] rvfi_rd_addr;
+  logic [31 : 0] rvfi_rd_wdata;
   logic [31 : 0] rvfi_pc_rdata;
   logic [31 : 0] rvfi_pc_wdata;
   logic [31 : 0] rvfi_mem_addr;
@@ -230,6 +232,8 @@ module soc
     .rvfi_rs2_addr (rvfi_rs2_addr),
     .rvfi_rs1_rdata (rvfi_rs1_rdata),
     .rvfi_rs2_rdata (rvfi_rs2_rdata),
+    .rvfi_rd_addr (rvfi_rd_addr),
+    .rvfi_rd_wdata (rvfi_rd_wdata),
     .rvfi_pc_rdata (rvfi_pc_rdata),
     .rvfi_pc_wdata (rvfi_pc_wdata),
     .rvfi_mem_addr (rvfi_mem_addr),

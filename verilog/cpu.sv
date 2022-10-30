@@ -17,6 +17,8 @@ module cpu
   output logic [4  : 0] rvfi_rs2_addr,
   output logic [31 : 0] rvfi_rs1_rdata,
   output logic [31 : 0] rvfi_rs2_rdata,
+  output logic [4  : 0] rvfi_rd_addr,
+  output logic [31 : 0] rvfi_rd_wdata,
   output logic [31 : 0] rvfi_pc_rdata,
   output logic [31 : 0] rvfi_pc_wdata,
   output logic [31 : 0] rvfi_mem_addr,
@@ -85,6 +87,7 @@ module cpu
   mem_out_type imem_out;
   mem_in_type dmem_in;
   mem_out_type dmem_out;
+  rvfi_out_type rvfi_out;
 
   assign fetch_in_a.f = fetch_out_y;
   assign fetch_in_a.e = execute_out_y;
@@ -95,6 +98,28 @@ module cpu
   assign fetch_in_d.e = execute_out_q;
   assign execute_in_d.f = fetch_out_q;
   assign execute_in_d.e = execute_out_q;
+
+  assign rvfi_valid = rvfi_out.rvfi_valid;
+  assign rvfi_order = rvfi_out.rvfi_order;
+  assign rvfi_insn = rvfi_out.rvfi_insn;
+  assign rvfi_trap = rvfi_out.rvfi_trap;
+  assign rvfi_halt = rvfi_out.rvfi_halt;
+  assign rvfi_intr = rvfi_out.rvfi_intr;
+  assign rvfi_mode = rvfi_out.rvfi_mode;
+  assign rvfi_ixl = rvfi_out.rvfi_ixl;
+  assign rvfi_rs1_addr = rvfi_out.rvfi_rs1_addr;
+  assign rvfi_rs2_addr = rvfi_out.rvfi_rs2_addr;
+  assign rvfi_rs1_rdata = rvfi_out.rvfi_rs1_rdata;
+  assign rvfi_rs2_rdata = rvfi_out.rvfi_rs2_rdata;
+  assign rvfi_rd_addr = rvfi_out.rvfi_rd_addr;
+  assign rvfi_rd_wdata = rvfi_out.rvfi_rd_wdata;
+  assign rvfi_pc_rdata = rvfi_out.rvfi_pc_rdata;
+  assign rvfi_pc_wdata = rvfi_out.rvfi_pc_wdata;
+  assign rvfi_mem_addr = rvfi_out.rvfi_mem_addr;
+  assign rvfi_mem_rmask = rvfi_out.rvfi_mem_rmask;
+  assign rvfi_mem_wmask = rvfi_out.rvfi_mem_wmask;
+  assign rvfi_mem_rdata = rvfi_out.rvfi_mem_rdata;
+  assign rvfi_mem_wdata = rvfi_out.rvfi_mem_wdata;
 
   agu agu_comp
   (
@@ -276,6 +301,7 @@ module cpu
     .csr_pmp_out (csr_pmp_out),
     .csr_pmp_in (csr_pmp_in),
     .dmem_out (dmem_out),
+    .rvfi_out (rvfi_out),
     .a (execute_in_a),
     .d (execute_in_d),
     .y (execute_out_y),

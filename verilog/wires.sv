@@ -359,6 +359,30 @@ package wires;
     logic [31 : 0] rdata2;
   } register_out_type;
 
+ typedef struct packed {
+    logic [0  : 0] rvfi_valid;
+    logic [63 : 0] rvfi_order;
+    logic [31 : 0] rvfi_insn;
+    logic [0  : 0] rvfi_trap;
+    logic [0  : 0] rvfi_halt;
+    logic [0  : 0] rvfi_intr;
+    logic [1  : 0] rvfi_mode;
+    logic [1  : 0] rvfi_ixl;
+    logic [4  : 0] rvfi_rs1_addr;
+    logic [4  : 0] rvfi_rs2_addr;
+    logic [31 : 0] rvfi_rs1_rdata;
+    logic [31 : 0] rvfi_rs2_rdata;
+    logic [4  : 0] rvfi_rd_addr;
+    logic [31 : 0] rvfi_rd_wdata;
+    logic [31 : 0] rvfi_pc_rdata;
+    logic [31 : 0] rvfi_pc_wdata;
+    logic [31 : 0] rvfi_mem_addr;
+    logic [3  : 0] rvfi_mem_rmask;
+    logic [3  : 0] rvfi_mem_wmask;
+    logic [31 : 0] rvfi_mem_rdata;
+    logic [31 : 0] rvfi_mem_wdata;
+ } rvfi_out_type;
+
   typedef struct packed{
     logic [31 : 0] pc;
     logic [31 : 0] imm;
@@ -367,6 +391,8 @@ package wires;
     logic [0  : 0] rden1;
     logic [0  : 0] rden2;
     logic [4  : 0] waddr;
+    logic [4  : 0] raddr1;
+    logic [4  : 0] raddr2;
     logic [11 : 0] caddr;
     logic [0  : 0] auipc;
     logic [0  : 0] lui;
@@ -718,6 +744,7 @@ package wires;
   typedef struct packed{
     logic [0  : 0] exception;
     logic [0  : 0] mret;
+    logic [63 : 0] minstret;
     logic [31 : 0] mtvec;
     logic [31 : 0] mepc;
     logic [31 : 0] mcounteren;

@@ -97,6 +97,7 @@ module csr
     csr_out.exception = exception;
     csr_out.mret = mret;
     csr_out.mode = mode;
+    csr_out.minstret = csr_machine_reg.minstret;
     csr_out.mepc = csr_machine_reg.mepc;
     csr_out.mcounteren = csr_machine_reg.mcounteren;
     if (csr_machine_reg.mtvec[1:0] == 1) begin

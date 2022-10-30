@@ -24,6 +24,7 @@ module execute_stage
   input csr_pmp_out_type csr_pmp_out,
   output csr_pmp_in_type csr_pmp_in,
   input mem_out_type dmem_out,
+  output rvfi_out_type rvfi_out,
   input execute_in_type a,
   input execute_in_type d,
   output execute_out_type y,
@@ -48,6 +49,8 @@ module execute_stage
     v.rden1 = d.f.rden1;
     v.rden2 = d.f.rden2;
     v.waddr = d.f.waddr;
+    v.raddr1 = d.f.raddr1;
+    v.raddr2 = d.f.raddr2;
     v.caddr = d.f.caddr;
     v.lui = d.f.lui;
     v.auipc = d.f.auipc;
@@ -279,6 +282,32 @@ module execute_stage
     csr_in.epc = v.pc;
     csr_in.ecause = v.ecause;
     csr_in.etval = v.etval;
+
+    rvfi_out.rvfi_valid = ~v.invalid;
+    rvfi_out.rvfi_order = csr_out.minstret;
+    rvfi_out.rvfi_insn = v.instr;
+    rvfi_out.rvfi_trap = v.exception;
+    rvfi_out.rvfi_halt = v.exception;
+    rvfi_out.rvfi_intr = csr_out.exception;
+    rvfi_out.rvfi_mode = v.mode;
+    rvfi_out.rvfi_ixl = 2'b1;
+
+    rvfi_out.rvfi_rs1_addr = (v.rden1 == 1) ? v.raddr1 : 0;
+    rvfi_out.rvfi_rs2_addr = (v.rden2 == 1) ? v.raddr2 : 0;
+    rvfi_out.rvfi_rs2_rdata = (v.rden1 == 1) ? v.rdata1 : 0;
+    rvfi_out.rvfi_rs2_rdata = (v.rden2 == 1) ? v.rdata2 : 0;
+
+    rvfi_out.rvfi_rd_addr = (v.wren == 1) ? v.waddr : 0;
+    rvfi_out.rvfi_rd_wdata = (v.wren == 1) ? v.wdata : 0;
+
+    rvfi_out.rvfi_pc_rdata = v.pc;
+    rvfi_out.rvfi_pc_wdata = v.npc;
+
+    rvfi_out.rvfi_mem_addr = v.address;
+    rvfi_out.rvfi_mem_rmask = (v.load == 1) ? v.byteenable : 4'b0;
+    rvfi_out.rvfi_mem_wmask = (v.store == 1) ? v.byteenable : 4'b0;
+    rvfi_out.rvfi_mem_rdata = (v.load == 1) ? v.ldata : 32'b0;
+    rvfi_out.rvfi_mem_wdata = (v.store == 1) ? v.rdata2 : 32'b0;
 
     rin = v;
 

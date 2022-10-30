@@ -35,7 +35,7 @@ module pmp
     R : 0
   };
 
-  csr_pmpcfg_type csr_pmpcfg [0:pmp_region-1];
+  csr_pmpcfg_type csr_pmpcfg [0:4*pmp_region-1];
 
   logic [31 : 0] csr_pmpaddr [0:pmp_region-1];
 

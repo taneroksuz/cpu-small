@@ -222,6 +222,8 @@ module fetch_stage
     y.rden1 = v.rden1;
     y.rden2 = v.rden2;
     y.waddr = v.waddr;
+    y.raddr1 = v.raddr1;
+    y.raddr2 = v.raddr2;
     y.caddr = v.caddr;
     y.lui = v.lui;
     y.auipc = v.auipc;
@@ -253,6 +255,8 @@ module fetch_stage
     q.rden1 = r.rden1;
     q.rden2 = r.rden2;
     q.waddr = r.waddr;
+    q.raddr1 = r.raddr1;
+    q.raddr2 = r.raddr2;
     q.caddr = r.caddr;
     q.lui = r.lui;
     q.auipc = r.auipc;

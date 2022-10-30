@@ -50,6 +50,7 @@ sv2v -w riscv-formal/cores/riscv-z0/cpu.v \
       ${DIR}/verilog/fetch_stage.sv \
       ${DIR}/verilog/execute_stage.sv \
       ${DIR}/verilog/arbiter.sv \
+      ${DIR}/verilog/pmp.sv \
       ${DIR}/verilog/cpu.sv
 
 start=`date +%s`
