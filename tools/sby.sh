@@ -9,7 +9,7 @@ if [ -d "sby" ]; then
   rm -rf sby
 fi
 
-git clone https://github.com/YosysHQ/sby
+git clone https://github.com/YosysHQ/sby.git
 
 cd sby
 

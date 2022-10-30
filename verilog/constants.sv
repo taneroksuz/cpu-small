@@ -194,9 +194,6 @@ package constants;
 	parameter [11 : 0] csr_dpc                    = 12'h7B1;
 	parameter [11 : 0] csr_dscratch               = 12'h7B2;
 
-	parameter [0  : 0] interrupt                  = 1'b1;
-	parameter [0  : 0] exception                  = 1'b0;
-
 	parameter [3  : 0] interrupt_user_soft        = 4'h0;
 	parameter [3  : 0] interrupt_super_soft       = 4'h1;
 	parameter [3  : 0] interrupt_mach_soft        = 4'h3;

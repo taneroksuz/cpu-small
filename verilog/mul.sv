@@ -42,7 +42,7 @@ module mul
                            v.op.mulhsu;
             v.op2_signed = v.op.muls | v.op.mulh;
             v.negativ = 0;
-            v.multiplication = v.op.muls | v.op.mulh |
+            v.mult = v.op.muls | v.op.mulh |
                    v.op.mulhsu | v.op.mulhu;
             v.op1_neg = 0;
             if (v.op1_signed == 1 && v.op1[31] == 1) begin
@@ -61,7 +61,7 @@ module mul
               end
               v.counter = v.counter + 1;
             end
-            if (v.multiplication == 1) begin
+            if (v.mult == 1) begin
               v.result = 0;
             end
             if (mul_in.enable == 0) begin
@@ -74,7 +74,7 @@ module mul
           end
           33 : begin
             if (v.negativ == 1) begin
-              if (v.multiplication == 1) begin
+              if (v.mult == 1) begin
                 v.result = -v.result;
               end
             end
@@ -89,7 +89,7 @@ module mul
             mul_out.ready = 1;
           end
           default : begin
-            if (v.multiplication == 1) begin
+            if (v.mult == 1) begin
               v.result = {v.result[63:0],1'b0};
               if (v.op1[32-v.counter] == 1) begin
                 v.result = v.result + {33'b0,v.op2};
