@@ -3,19 +3,38 @@ import wires::*;
 
 module cpu
 (
-  input logic rst,
-  input logic clk,
+  input  logic rst,
+  input  logic clk,
+  output logic [0  : 0] rvfi_valid,
+  output logic [63 : 0] rvfi_order,
+  output logic [31 : 0] rvfi_insn,
+  output logic [0  : 0] rvfi_trap,
+  output logic [0  : 0] rvfi_halt,
+  output logic [0  : 0] rvfi_intr,
+  output logic [1  : 0] rvfi_mode,
+  output logic [1  : 0] rvfi_ixl,
+  output logic [4  : 0] rvfi_rs1_addr,
+  output logic [4  : 0] rvfi_rs2_addr,
+  output logic [31 : 0] rvfi_rs1_rdata,
+  output logic [31 : 0] rvfi_rs2_rdata,
+  output logic [31 : 0] rvfi_pc_rdata,
+  output logic [31 : 0] rvfi_pc_wdata,
+  output logic [31 : 0] rvfi_mem_addr,
+  output logic [3  : 0] rvfi_mem_rmask,
+  output logic [3  : 0] rvfi_mem_wmask,
+  output logic [31 : 0] rvfi_mem_rdata,
+  output logic [31 : 0] rvfi_mem_wdata,
   output logic [0  : 0] memory_valid,
   output logic [0  : 0] memory_instr,
   output logic [31 : 0] memory_addr,
   output logic [31 : 0] memory_wdata,
   output logic [3  : 0] memory_wstrb,
-  input logic [31  : 0] memory_rdata,
-  input logic [0   : 0] memory_ready,
-  input logic [0   : 0] meip,
-  input logic [0   : 0] msip,
-  input logic [0   : 0] mtip,
-  input logic [63  : 0] mtime
+  input  logic [31 : 0] memory_rdata,
+  input  logic [0  : 0] memory_ready,
+  input  logic [0  : 0] meip,
+  input  logic [0  : 0] msip,
+  input  logic [0  : 0] mtip,
+  input  logic [63 : 0] mtime
 );
   timeunit 1ns;
   timeprecision 1ps;

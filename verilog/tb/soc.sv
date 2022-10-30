@@ -6,6 +6,26 @@ module soc
   timeunit 1ns;
   timeprecision 1ps;
 
+  logic [0  : 0] rvfi_valid;
+  logic [63 : 0] rvfi_order;
+  logic [31 : 0] rvfi_insn;
+  logic [0  : 0] rvfi_trap;
+  logic [0  : 0] rvfi_halt;
+  logic [0  : 0] rvfi_intr;
+  logic [1  : 0] rvfi_mode;
+  logic [1  : 0] rvfi_ixl;
+  logic [4  : 0] rvfi_rs1_addr;
+  logic [4  : 0] rvfi_rs2_addr;
+  logic [31 : 0] rvfi_rs1_rdata;
+  logic [31 : 0] rvfi_rs2_rdata;
+  logic [31 : 0] rvfi_pc_rdata;
+  logic [31 : 0] rvfi_pc_wdata;
+  logic [31 : 0] rvfi_mem_addr;
+  logic [3  : 0] rvfi_mem_rmask;
+  logic [3  : 0] rvfi_mem_wmask;
+  logic [31 : 0] rvfi_mem_rdata;
+  logic [31 : 0] rvfi_mem_wdata;
+
   logic [0  : 0] memory_valid;
   logic [0  : 0] memory_instr;
   logic [31 : 0] memory_addr;
@@ -163,6 +183,25 @@ module soc
   (
     .rst (rst),
     .clk (clk),
+    .rvfi_valid (rvfi_valid),
+    .rvfi_order (rvfi_order),
+    .rvfi_insn (rvfi_insn),
+    .rvfi_trap (rvfi_trap),
+    .rvfi_halt (rvfi_halt),
+    .rvfi_intr (rvfi_intr),
+    .rvfi_mode (rvfi_mode),
+    .rvfi_ixl (rvfi_ixl),
+    .rvfi_rs1_addr (rvfi_rs1_addr),
+    .rvfi_rs2_addr (rvfi_rs2_addr),
+    .rvfi_rs1_rdata (rvfi_rs1_rdata),
+    .rvfi_rs2_rdata (rvfi_rs2_rdata),
+    .rvfi_pc_rdata (rvfi_pc_rdata),
+    .rvfi_pc_wdata (rvfi_pc_wdata),
+    .rvfi_mem_addr (rvfi_mem_addr),
+    .rvfi_mem_rmask (rvfi_mem_rmask),
+    .rvfi_mem_wmask (rvfi_mem_wmask),
+    .rvfi_mem_rdata (rvfi_mem_rdata),
+    .rvfi_mem_wdata (rvfi_mem_wdata),
     .memory_valid (memory_valid),
     .memory_instr (memory_instr),
     .memory_addr (memory_addr),
