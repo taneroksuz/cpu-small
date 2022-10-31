@@ -19,8 +19,6 @@ module pmp
   localparam [1:0] NA4 = 2;
   localparam [1:0] NAPOT = 3;
 
-  localparam pmpcfg_region = pmp_region/4;
-
   typedef struct packed{
     logic [0 : 0] L;
     logic [1 : 0] A;
@@ -57,16 +55,40 @@ module pmp
       csr_pmpaddr <= '{default:'0};
     end else begin
       if (csr_pmp_in.cwren == 1) begin
-        for (i=0; i<pmp_region; i=i+1) begin
-          if (csr_pmp_in.cwaddr == (csr_pmpcfg0 + (i[11:0]%4))) begin
-            if (csr_pmpcfg[i].L == 0) begin
-              csr_pmpcfg[i].L <= csr_pmp_in.cwdata[8*i+7];
-              csr_pmpcfg[i].A <= csr_pmp_in.cwdata[8*i+3 +: 2];
-              csr_pmpcfg[i].X <= csr_pmp_in.cwdata[8*i+2];
-              csr_pmpcfg[i].W <= csr_pmp_in.cwdata[8*i+1];
-              csr_pmpcfg[i].R <= csr_pmp_in.cwdata[8*i];
+        for (i=0; i<pmp_region; i=i+4) begin
+          if (csr_pmp_in.cwaddr == (csr_pmpcfg0 + (i[11:0]>>2))) begin
+            if (csr_pmpcfg[i+3].L == 0) begin
+              csr_pmpcfg[i+3].L <= csr_pmp_in.cwdata[31];
+              csr_pmpcfg[i+3].A <= csr_pmp_in.cwdata[28:27];
+              csr_pmpcfg[i+3].X <= csr_pmp_in.cwdata[26];
+              csr_pmpcfg[i+3].W <= csr_pmp_in.cwdata[25];
+              csr_pmpcfg[i+3].R <= csr_pmp_in.cwdata[24];
             end
-          end else if (csr_pmp_in.cwaddr == (csr_pmpaddr0 + i[11:0])) begin
+            if (csr_pmpcfg[i+2].L == 0) begin
+              csr_pmpcfg[i+2].L <= csr_pmp_in.cwdata[23];
+              csr_pmpcfg[i+2].A <= csr_pmp_in.cwdata[20:19];
+              csr_pmpcfg[i+2].X <= csr_pmp_in.cwdata[18];
+              csr_pmpcfg[i+2].W <= csr_pmp_in.cwdata[17];
+              csr_pmpcfg[i+2].R <= csr_pmp_in.cwdata[16];
+            end
+            if (csr_pmpcfg[i+1].L == 0) begin
+              csr_pmpcfg[i+1].L <= csr_pmp_in.cwdata[15];
+              csr_pmpcfg[i+1].A <= csr_pmp_in.cwdata[12:11];
+              csr_pmpcfg[i+1].X <= csr_pmp_in.cwdata[10];
+              csr_pmpcfg[i+1].W <= csr_pmp_in.cwdata[9];
+              csr_pmpcfg[i+1].R <= csr_pmp_in.cwdata[8];
+            end
+            if (csr_pmpcfg[i].L == 0) begin
+              csr_pmpcfg[i].L <= csr_pmp_in.cwdata[7];
+              csr_pmpcfg[i].A <= csr_pmp_in.cwdata[4:3];
+              csr_pmpcfg[i].X <= csr_pmp_in.cwdata[2];
+              csr_pmpcfg[i].W <= csr_pmp_in.cwdata[1];
+              csr_pmpcfg[i].R <= csr_pmp_in.cwdata[0];
+            end
+          end
+        end
+        for (i=0; i<pmp_region; i=i+1) begin
+          if (csr_pmp_in.cwaddr == (csr_pmpaddr0 + i[11:0])) begin
             if (i==(pmp_region-1)) begin
               if  (csr_pmpcfg[i].L == 0) begin
                 csr_pmpaddr[i] <= csr_pmp_in.cwdata;
@@ -86,8 +108,8 @@ module pmp
     csr_pmp_out.crdata = 0;
     csr_pmp_out.cready = 0;
     if (csr_pmp_in.crden == 1) begin
-      for (i=0; i<pmpcfg_region; i=i+1) begin
-        if (csr_pmp_in.craddr == (csr_pmpcfg0 + i[11:0])) begin
+      for (i=0; i<pmp_region; i=i+4) begin
+        if (csr_pmp_in.craddr == (csr_pmpcfg0 + (i[11:0]>>2))) begin
           csr_pmp_out.crdata[31:24] = {csr_pmpcfg[i+3].L,2'b0,csr_pmpcfg[i+3].A,csr_pmpcfg[i+3].X,csr_pmpcfg[i+3].W,csr_pmpcfg[i+3].R};
           csr_pmp_out.crdata[23:16] = {csr_pmpcfg[i+2].L,2'b0,csr_pmpcfg[i+2].A,csr_pmpcfg[i+2].X,csr_pmpcfg[i+2].W,csr_pmpcfg[i+2].R};
           csr_pmp_out.crdata[15:8] = {csr_pmpcfg[i+1].L,2'b0,csr_pmpcfg[i+1].A,csr_pmpcfg[i+1].X,csr_pmpcfg[i+1].W,csr_pmpcfg[i+1].R};
