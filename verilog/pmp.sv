@@ -19,6 +19,8 @@ module pmp
   localparam [1:0] NA4 = 2;
   localparam [1:0] NAPOT = 3;
 
+  localparam pmpcfg_region = pmp_region/4;
+
   typedef struct packed{
     logic [0 : 0] L;
     logic [1 : 0] A;
@@ -35,7 +37,7 @@ module pmp
     R : 0
   };
 
-  csr_pmpcfg_type csr_pmpcfg [0:4*pmp_region-1];
+  csr_pmpcfg_type csr_pmpcfg [0:pmp_region-1];
 
   logic [31 : 0] csr_pmpaddr [0:pmp_region-1];
 
@@ -47,8 +49,7 @@ module pmp
   logic [31 : 0] lowaddr;
   logic [31 : 0] highaddr;
 
-  integer i;
-  integer j;
+  integer i,j;
 
   always_ff @(posedge clk) begin
     if (rst == 0) begin
@@ -85,14 +86,17 @@ module pmp
     csr_pmp_out.crdata = 0;
     csr_pmp_out.cready = 0;
     if (csr_pmp_in.crden == 1) begin
-      for (i=0; i<pmp_region; i=i+1) begin
-        if (csr_pmp_in.craddr == (csr_pmpcfg0 + i[11:0]%4)) begin
+      for (i=0; i<pmpcfg_region; i=i+1) begin
+        if (csr_pmp_in.craddr == (csr_pmpcfg0 + i[11:0])) begin
           csr_pmp_out.crdata[31:24] = {csr_pmpcfg[i+3].L,2'b0,csr_pmpcfg[i+3].A,csr_pmpcfg[i+3].X,csr_pmpcfg[i+3].W,csr_pmpcfg[i+3].R};
           csr_pmp_out.crdata[23:16] = {csr_pmpcfg[i+2].L,2'b0,csr_pmpcfg[i+2].A,csr_pmpcfg[i+2].X,csr_pmpcfg[i+2].W,csr_pmpcfg[i+2].R};
           csr_pmp_out.crdata[15:8] = {csr_pmpcfg[i+1].L,2'b0,csr_pmpcfg[i+1].A,csr_pmpcfg[i+1].X,csr_pmpcfg[i+1].W,csr_pmpcfg[i+1].R};
-          csr_pmp_out.crdata[7:0] = {csr_pmpcfg[i].L,2'b0,csr_pmpcfg[i+0].A,csr_pmpcfg[i].X,csr_pmpcfg[i].W,csr_pmpcfg[i].R};
+          csr_pmp_out.crdata[7:0] = {csr_pmpcfg[i].L,2'b0,csr_pmpcfg[i].A,csr_pmpcfg[i].X,csr_pmpcfg[i].W,csr_pmpcfg[i].R};
           csr_pmp_out.cready = 1;
-        end else if (csr_pmp_in.craddr == (csr_pmpaddr0 + i[11:0])) begin
+        end
+      end
+      for (i=0; i<pmp_region; i=i+1) begin
+        if (csr_pmp_in.craddr == (csr_pmpaddr0 + i[11:0])) begin
           csr_pmp_out.crdata = csr_pmpaddr[i];
           csr_pmp_out.cready = 1;
         end
