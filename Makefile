@@ -2,6 +2,7 @@ default: none
 
 VERILATOR ?= /opt/verilator/bin/verilator
 SYSTEMC ?= /opt/systemc
+OSS ?= /opt/oss-cad-suite/bin
 RISCV ?= /opt/riscv/bin/riscv32-unknown-elf-
 MARCH ?= rv32imc_zicsr_zifencei
 MABI ?= ilp32
@@ -27,6 +28,6 @@ simulate:
 	sim/run.sh --basedir ${BASEDIR} --verilator ${VERILATOR} --systemc ${SYSTEMC} --program ${PROGRAM} --cycles ${CYCLES} --wave ${WAVE}
 
 verify:
-	verification/run.sh --basedir ${BASEDIR}
+	verification/run.sh --basedir ${BASEDIR} --oss ${OSS}
 
 all: generate simulate

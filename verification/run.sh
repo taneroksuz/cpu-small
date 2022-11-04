@@ -8,11 +8,18 @@ while [[ $# -gt 0 ]]; do
       shift
       shift
       ;;
+    --oss) 
+      OSS="$2"
+      shift
+      shift
+      ;;
     *)
       echo "Unknown commandline arguments: $1 -> $2"
       exit 1
   esac
 done
+
+export PATH=$OSS:$PATH
 
 if [ ! -d "${DIR}/verification/work" ]; then
   mkdir ${DIR}/verification/work
