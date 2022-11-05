@@ -8,6 +8,11 @@ while [[ $# -gt 0 ]]; do
       shift
       shift
       ;;
+    --sv2v) 
+      SV2V="$2"
+      shift
+      shift
+      ;;
     --oss) 
       OSS="$2"
       shift
@@ -35,29 +40,30 @@ cp ${DIR}/verification/checks.cfg riscv-formal/cores/cpu/
 cp ${DIR}/verification/wrapper.sv riscv-formal/cores/cpu/
 cp ${DIR}/verification/disasm.py riscv-formal/cores/cpu/
 
-cp ${DIR}/verilog/tb/configure.sv riscv-formal/cores/cpu/
-cp ${DIR}/verilog/constants.sv riscv-formal/cores/cpu/
-cp ${DIR}/verilog/functions.sv riscv-formal/cores/cpu/
-cp ${DIR}/verilog/wires.sv riscv-formal/cores/cpu/
-cp ${DIR}/verilog/alu.sv riscv-formal/cores/cpu/
-cp ${DIR}/verilog/agu.sv riscv-formal/cores/cpu/
-cp ${DIR}/verilog/bcu.sv riscv-formal/cores/cpu/
-cp ${DIR}/verilog/lsu.sv riscv-formal/cores/cpu/
-cp ${DIR}/verilog/csr_alu.sv riscv-formal/cores/cpu/
-cp ${DIR}/verilog/div.sv riscv-formal/cores/cpu/
-cp ${DIR}/verilog/mul.sv riscv-formal/cores/cpu/
-cp ${DIR}/verilog/predecoder.sv riscv-formal/cores/cpu/
-cp ${DIR}/verilog/postdecoder.sv riscv-formal/cores/cpu/
-cp ${DIR}/verilog/register.sv riscv-formal/cores/cpu/
-cp ${DIR}/verilog/csr.sv riscv-formal/cores/cpu/
-cp ${DIR}/verilog/compress.sv riscv-formal/cores/cpu/
-cp ${DIR}/verilog/fetchbuffer.sv riscv-formal/cores/cpu/
-cp ${DIR}/verilog/forwarding.sv riscv-formal/cores/cpu/
-cp ${DIR}/verilog/fetch_stage.sv riscv-formal/cores/cpu/
-cp ${DIR}/verilog/execute_stage.sv riscv-formal/cores/cpu/
-cp ${DIR}/verilog/arbiter.sv riscv-formal/cores/cpu/
-cp ${DIR}/verilog/pmp.sv riscv-formal/cores/cpu/
-cp ${DIR}/verilog/cpu.sv riscv-formal/cores/cpu/
+${SV2V} -w riscv-formal/cores/cpu/cpu.v \
+          ${DIR}/verilog/tb/configure.sv \
+          ${DIR}/verilog/constants.sv \
+          ${DIR}/verilog/functions.sv \
+          ${DIR}/verilog/wires.sv \
+          ${DIR}/verilog/alu.sv \
+          ${DIR}/verilog/agu.sv \
+          ${DIR}/verilog/bcu.sv \
+          ${DIR}/verilog/lsu.sv \
+          ${DIR}/verilog/csr_alu.sv \
+          ${DIR}/verilog/div.sv \
+          ${DIR}/verilog/mul.sv \
+          ${DIR}/verilog/predecoder.sv \
+          ${DIR}/verilog/postdecoder.sv \
+          ${DIR}/verilog/register.sv \
+          ${DIR}/verilog/csr.sv \
+          ${DIR}/verilog/compress.sv \
+          ${DIR}/verilog/fetchbuffer.sv \
+          ${DIR}/verilog/forwarding.sv \
+          ${DIR}/verilog/fetch_stage.sv \
+          ${DIR}/verilog/execute_stage.sv \
+          ${DIR}/verilog/arbiter.sv \
+          ${DIR}/verilog/pmp.sv \
+          ${DIR}/verilog/cpu.sv
 
 start=`date +%s`
 

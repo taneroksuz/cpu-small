@@ -43,13 +43,13 @@ module div
         end else begin
           v.op2 = v.data2;
         end
-        v.counter = 0;
         for (i=31; i>=0; i=i-1) begin
+          v.counter = i[5:0];
           if (v.op1[i] == 1) begin
             break;
           end
-          v.counter = v.counter + 6'h1;
         end
+        v.counter = 6'h1F - v.counter;
         v.divisionbyzero = 0;
         if (v.division == 1 && v.op2 == 0) begin
           v.divisionbyzero = 1;
