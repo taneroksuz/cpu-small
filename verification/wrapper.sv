@@ -18,7 +18,7 @@ module rvfi_wrapper (
 
 	cpu uut (
 		.clk (clock),
-		.rst (reset),
+		.rst (~reset),
 
 		.memory_valid (mem_valid),
 		.memory_instr (mem_instr),
