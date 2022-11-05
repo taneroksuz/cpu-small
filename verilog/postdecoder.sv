@@ -255,7 +255,7 @@ module postdecoder
     end
 
     if (csrreg == 1) begin
-      if (caddr[11:8] == 4'hB && caddr[6:5] == 0 && mcounteren[caddr[4:0]] == 0) begin
+      if (mode < caddr[9:8] && caddr[11:8] == 4'hB && caddr[6:5] == 0 && mcounteren[caddr[4:0]] == 0) begin
         valid = 0;
       end else if (mode < caddr[9:8]) begin
         valid = 0;
