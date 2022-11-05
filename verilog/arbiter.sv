@@ -80,7 +80,7 @@ module arbiter(
 
     pmp_in.mem_valid = v.mem_valid;
     pmp_in.mem_mode = v.mem_mode;
-    pmp_in.mem_valid = v.mem_valid;
+    pmp_in.mem_instr = v.mem_instr;
     pmp_in.mem_addr = v.mem_addr;
     pmp_in.mem_wstrb = v.mem_wstrb;
 

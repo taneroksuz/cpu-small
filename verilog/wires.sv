@@ -293,6 +293,8 @@ package wires;
 
   typedef struct packed{
     logic [31 : 0] instr;
+    logic [31 : 0] mcounteren;
+    logic [1  : 0] mode;
   } postdecoder_in_type;
 
   typedef struct packed{
@@ -549,6 +551,7 @@ package wires;
     div_op_type div_op;
     mul_op_type mul_op;
     logic [1  : 0] mode;
+    logic [31 : 0] mcounteren;
     logic [0  : 0] retired;
     logic [0  : 0] error;
     logic [0  : 0] exception;
@@ -604,6 +607,7 @@ package wires;
     div_op : init_div_op,
     mul_op : init_mul_op,
     mode : m_mode,
+    mcounteren : 0,
     retired : 0,
     error : 0,
     exception : 0,

@@ -93,7 +93,12 @@ module execute_stage
 
     v.stall = 0;
 
+    v.mode = csr_out.mode;
+    v.mcounteren = csr_out.mcounteren;
+
     postdecoder_in.instr = v.instr;
+    postdecoder_in.mcounteren = v.mcounteren;
+    postdecoder_in.mode = v.mode;
 
     if (v.valid == 0) begin
       v.imm = postdecoder_out.imm;
@@ -117,18 +122,6 @@ module execute_stage
       v.wfi = postdecoder_out.wfi;
       v.valid = postdecoder_out.valid;
       v.invalid = 0;
-    end
-
-    if (v.cwren == 1 || v.crden == 1) begin
-      if (csr_out.mode < v.caddr[9:8]) begin
-        if (v.caddr[11:8] == 4'hB && csr_out.mcounteren[v.caddr[4:0]] == 1) begin
-          v.valid = 1;
-        end else begin
-          v.valid = 0;
-          v.cwren = 0;
-          v.crden = 0;
-        end
-      end
     end
 
     if (v.rden1 == 0) begin
@@ -258,7 +251,6 @@ module execute_stage
       v.invalid = 1;
     end
 
-    v.mode = csr_out.mode;
     v.retired = ~v.invalid;
 
     register_win.wren = v.wren & |(v.waddr);

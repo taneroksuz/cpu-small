@@ -10,6 +10,8 @@ module postdecoder
   timeprecision 1ps;
 
   logic [31 : 0] instr;
+  logic [31 : 0] mcounteren;
+  logic [1  : 0] mode;
 
   logic [31 : 0] imm_c;
   logic [31 : 0] imm_i;
@@ -57,6 +59,8 @@ module postdecoder
   always_comb begin
 
     instr = postdecoder_in.instr;
+    mcounteren = postdecoder_in.mcounteren;
+    mode = postdecoder_in.mode;
 
     imm_c = {{27'h0},instr[19:15]};
     imm_i = {{20{instr[31]}},instr[31:20]};
@@ -248,6 +252,14 @@ module postdecoder
     if (instr == nop_instr) begin
       alu_op.alu_add = 0;
       nop = 1;
+    end
+
+    if (csrreg == 1) begin
+      if (caddr[11:8] == 4'hB && caddr[6:5] == 0 && mcounteren[caddr[4:0]] == 0) begin
+        valid = 0;
+      end else if (mode < caddr[9:8]) begin
+        valid = 0;
+      end
     end
 
     postdecoder_out.imm = imm;
