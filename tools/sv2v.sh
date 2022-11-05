@@ -13,6 +13,8 @@ if [ -d "sv2v" ]; then
   rm -rf sv2v
 fi
 
+sudo apt-get install haskell-stack
+
 git clone https://github.com/zachjs/sv2v.git
 
 cd sv2v
