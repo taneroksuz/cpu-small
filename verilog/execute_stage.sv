@@ -45,6 +45,7 @@ module execute_stage
     v.instr = d.f.instr;
     v.rdata1 = d.f.rdata1;
     v.rdata2 = d.f.rdata2;
+    v.sdata = d.f.sdata;
     v.wren = d.f.wren;
     v.rden1 = d.f.rden1;
     v.rden2 = d.f.rden2;
@@ -286,16 +287,9 @@ module execute_stage
     rvfi_out.rvfi_mode = v.mode;
     rvfi_out.rvfi_ixl = 1;
 
-    rvfi_out.rvfi_rs1_addr = (v.rden1 == 1) ? v.raddr1 : 0;
-    rvfi_out.rvfi_rs2_addr = (v.rden2 == 1) ? v.raddr2 : 0;
-    rvfi_out.rvfi_rs1_rdata = (v.rden1 == 1) ? v.rdata1 : 0;
-    rvfi_out.rvfi_rs2_rdata = (v.rden2 == 1) ? v.rdata2 : 0;
-
     rvfi_out.rvfi_rd_addr = (v.wren == 1) ? v.waddr : 0;
     rvfi_out.rvfi_rd_wdata = (v.wren == 1) ? v.wdata : 0;
-
-    rvfi_out.rvfi_pc_rdata = v.pc;
-    rvfi_out.rvfi_pc_wdata = (v.jump == 1) ? v.address : v.npc;
+    rvfi_out.rvfi_pc_wdata = v.pc;
 
     rvfi_out.rvfi_mem_addr = v.address;
     rvfi_out.rvfi_mem_rmask = (v.load == 1) ? v.byteenable : 0;

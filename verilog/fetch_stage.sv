@@ -22,6 +22,7 @@ module fetch_stage
   input mem_out_type fetchbuffer_out,
   output mem_in_type fetchbuffer_in,
   output mem_in_type dmem_in,
+  output rvfi_out_type rvfi_out,
   input fetch_in_type a,
   input fetch_in_type d,
   output fetch_out_type y,
@@ -152,6 +153,8 @@ module fetch_stage
     v.rdata1 = forwarding_out.data1;
     v.rdata2 = forwarding_out.data2;
 
+    v.sdata = v.rdata2;
+
     bcu_in.rdata1 = v.rdata1;
     bcu_in.rdata2 = v.rdata2;
     bcu_in.bcu_op = v.bcu_op;
@@ -208,8 +211,14 @@ module fetch_stage
     dmem_in.mem_instr = 0;
     dmem_in.mem_mode = v.mode;
     dmem_in.mem_addr = v.address;
-    dmem_in.mem_wdata = store_data(v.rdata2,v.lsu_op.lsu_sb,v.lsu_op.lsu_sh,v.lsu_op.lsu_sw);
+    dmem_in.mem_wdata = store_data(v.sdata,v.lsu_op.lsu_sb,v.lsu_op.lsu_sh,v.lsu_op.lsu_sw);
     dmem_in.mem_wstrb = (v.load == 1) ? 4'h0 : v.byteenable;
+
+    rvfi_out.rvfi_rs1_addr = (v.rden1 == 1) ? v.raddr1 : 0;
+    rvfi_out.rvfi_rs2_addr = (v.rden2 == 1) ? v.raddr2 : 0;
+    rvfi_out.rvfi_rs1_rdata = (v.rden1 == 1) ? v.rdata1 : 0;
+    rvfi_out.rvfi_rs2_rdata = (v.rden2 == 1) ? v.rdata2 : 0;
+    rvfi_out.rvfi_pc_rdata = v.pc;
 
     rin = v;
 
@@ -218,6 +227,7 @@ module fetch_stage
     y.instr = v.instr;
     y.rdata1 = v.rdata1;
     y.rdata2 = v.rdata2;
+    y.sdata = v.sdata;
     y.wren = v.wren;
     y.rden1 = v.rden1;
     y.rden2 = v.rden2;
@@ -251,6 +261,7 @@ module fetch_stage
     q.instr = r.instr;
     q.rdata1 = r.rdata1;
     q.rdata2 = r.rdata2;
+    q.sdata = r.sdata;
     q.wren = r.wren;
     q.rden1 = r.rden1;
     q.rden2 = r.rden2;
