@@ -272,7 +272,6 @@ module cpu
     .fetchbuffer_out (fetchbuffer_out),
     .fetchbuffer_in (fetchbuffer_in),
     .dmem_in (dmem_in),
-    .rvfi_out (rvfi_out),
     .a (fetch_in_a),
     .d (fetch_in_d),
     .y (fetch_out_y),

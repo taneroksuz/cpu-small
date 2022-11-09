@@ -22,7 +22,6 @@ module fetch_stage
   input mem_out_type fetchbuffer_out,
   output mem_in_type fetchbuffer_in,
   output mem_in_type dmem_in,
-  output rvfi_out_type rvfi_out,
   input fetch_in_type a,
   input fetch_in_type d,
   output fetch_out_type y,
@@ -213,12 +212,6 @@ module fetch_stage
     dmem_in.mem_addr = v.address;
     dmem_in.mem_wdata = store_data(v.sdata,v.lsu_op.lsu_sb,v.lsu_op.lsu_sh,v.lsu_op.lsu_sw);
     dmem_in.mem_wstrb = (v.load == 1) ? 4'h0 : v.byteenable;
-
-    rvfi_out.rvfi_rs1_addr = (v.rden1 == 1) ? v.raddr1 : 0;
-    rvfi_out.rvfi_rs2_addr = (v.rden2 == 1) ? v.raddr2 : 0;
-    rvfi_out.rvfi_rs1_rdata = (v.rden1 == 1) ? v.rdata1 : 0;
-    rvfi_out.rvfi_rs2_rdata = (v.rden2 == 1) ? v.rdata2 : 0;
-    rvfi_out.rvfi_pc_rdata = v.pc;
 
     rin = v;
 

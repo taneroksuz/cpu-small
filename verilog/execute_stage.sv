@@ -125,6 +125,10 @@ module execute_stage
       v.invalid = 0;
     end
 
+    if (v.waddr == 0) begin
+      v.wren = 0;
+    end
+
     if (v.rden1 == 0) begin
       v.rdata1 = 0;
     end
@@ -254,7 +258,7 @@ module execute_stage
 
     v.retired = ~v.invalid;
 
-    register_win.wren = v.wren & |(v.waddr);
+    register_win.wren = v.wren;
     register_win.waddr = v.waddr;
     register_win.wdata = v.wdata;
 
@@ -287,15 +291,21 @@ module execute_stage
     rvfi_out.rvfi_mode = v.mode;
     rvfi_out.rvfi_ixl = 1;
 
+    rvfi_out.rvfi_rs1_addr = (v.rden1 == 1) ? v.raddr1 : 0;
+    rvfi_out.rvfi_rs2_addr = (v.rden2 == 1) ? v.raddr2 : 0;
+    rvfi_out.rvfi_rs1_rdata = (v.rden1 == 1) ? v.rdata1 : 0;
+    rvfi_out.rvfi_rs2_rdata = (v.rden2 == 1) ? v.rdata2 : 0;
     rvfi_out.rvfi_rd_addr = (v.wren == 1) ? v.waddr : 0;
     rvfi_out.rvfi_rd_wdata = (v.wren == 1) ? v.wdata : 0;
-    rvfi_out.rvfi_pc_wdata = v.pc;
+
+    rvfi_out.rvfi_pc_rdata = v.pc;
+    rvfi_out.rvfi_pc_wdata = (csr_out.exception == 1) ? csr_out.mtvec : v.npc;
 
     rvfi_out.rvfi_mem_addr = v.address;
     rvfi_out.rvfi_mem_rmask = (v.load == 1) ? v.byteenable : 0;
     rvfi_out.rvfi_mem_wmask = (v.store == 1) ? v.byteenable : 0;
     rvfi_out.rvfi_mem_rdata = (v.load == 1) ? v.ldata : 0;
-    rvfi_out.rvfi_mem_wdata = (v.store == 1) ? v.rdata2 : 0;
+    rvfi_out.rvfi_mem_wdata = (v.store == 1) ? v.sdata : 0;
 
     rin = v;
 
