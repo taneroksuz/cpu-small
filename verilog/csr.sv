@@ -197,7 +197,8 @@ module csr
         csr_machine_reg.mip.msip <= 0;
       end
 
-      if (csr_in.exception == 1) begin
+      if (csr_machine_reg.mstatus.mie == 1 &&
+          csr_in.exception == 1) begin
         csr_machine_reg.mstatus.mpie <= csr_machine_reg.mstatus.mie;
         csr_machine_reg.mstatus.mie <= 0;
         csr_machine_reg.mstatus.mpp <= mode;
