@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e
 
-RISCV_PATH=/opt/riscv
+RISCV_PATH=/opt/rv32imc
 
 if [ -d "$RISCV_PATH" ]
 then
