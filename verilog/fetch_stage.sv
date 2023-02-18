@@ -43,7 +43,7 @@ module fetch_stage
     v.spec = 0;
     v.mode = csr_out.mode;
 
-    if (csr_out.exception == 1) begin
+    if (csr_out.trap == 1) begin
       v.spec = 1;
       v.pc = csr_out.mtvec;
     end else if (csr_out.mret == 1) begin

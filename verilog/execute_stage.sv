@@ -229,7 +229,7 @@ module execute_stage
       end
     end
 
-    if ((v.stall | v.clear | csr_out.exception | csr_out.mret) == 1) begin
+    if ((v.stall | v.clear | csr_out.trap | csr_out.mret) == 1) begin
       v.wren = 0;
       v.cwren = 0;
       v.auipc = 0;
@@ -287,7 +287,7 @@ module execute_stage
     rvfi_out.rvfi_insn = v.instr;
     rvfi_out.rvfi_trap = v.exception;
     rvfi_out.rvfi_halt = v.exception;
-    rvfi_out.rvfi_intr = csr_out.exception;
+    rvfi_out.rvfi_intr = csr_out.trap;
     rvfi_out.rvfi_mode = v.mode;
     rvfi_out.rvfi_ixl = 1;
 
@@ -299,7 +299,7 @@ module execute_stage
     rvfi_out.rvfi_rd_wdata = (v.wren == 1) ? v.wdata : 0;
 
     rvfi_out.rvfi_pc_rdata = v.pc;
-    rvfi_out.rvfi_pc_wdata = (csr_out.exception == 1) ? csr_out.mtvec : v.npc;
+    rvfi_out.rvfi_pc_wdata = (csr_out.trap == 1) ? csr_out.mtvec : v.npc;
 
     rvfi_out.rvfi_mem_addr = v.address;
     rvfi_out.rvfi_mem_rmask = (v.load == 1) ? v.byteenable : 0;
