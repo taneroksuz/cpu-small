@@ -69,6 +69,7 @@ module execute_stage
     v.alu_op = d.f.alu_op;
     v.bcu_op = d.f.bcu_op;
     v.lsu_op = d.f.lsu_op;
+    v.ierror = d.f.ierror;
     v.exception = d.f.exception;
     v.ecause = d.f.ecause;
     v.etval = d.f.etval;
@@ -93,6 +94,7 @@ module execute_stage
     v.clear = d.e.clear;
 
     v.stall = 0;
+    v.derror = 0;
 
     v.mode = csr_out.mode;
     v.mcounteren = csr_out.mcounteren;
@@ -223,6 +225,8 @@ module execute_stage
     if (v.load == 1 | v.store == 1) begin
       if (dmem_out.mem_ready == 0) begin
         v.stall = 1;
+      end else if (dmem_out.mem_error == 1) begin
+        v.derror = 1;
       end else if (dmem_out.mem_ready == 1) begin
         v.wren = v.load & |v.waddr;
         v.wdata = v.ldata;

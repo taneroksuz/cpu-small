@@ -9,12 +9,12 @@ package fetch_wires;
     logic [fetchbuffer_depth-1 : 0] waddr;
     logic [fetchbuffer_depth-1 : 0] raddr1;
     logic [fetchbuffer_depth-1 : 0] raddr2;
-    logic [62 : 0] wdata;
+    logic [63 : 0] wdata;
   } fetchbuffer_data_in_type;
 
   typedef struct packed{
-    logic [62 : 0] rdata1;
-    logic [62 : 0] rdata2;
+    logic [63 : 0] rdata1;
+    logic [63 : 0] rdata2;
   } fetchbuffer_data_out_type;
 
 endpackage
@@ -33,7 +33,7 @@ module fetchbuffer_data
   timeunit 1ns;
   timeprecision 1ps;
 
-  logic [62 : 0] fetchbuffer_data_array[0:2**fetchbuffer_depth-1] = '{default:'0};
+  logic [63 : 0] fetchbuffer_data_array[0:2**fetchbuffer_depth-1] = '{default:'0};
 
   assign fetchbuffer_data_out.rdata1 = fetchbuffer_data_array[fetchbuffer_data_in.raddr1];
   assign fetchbuffer_data_out.rdata2 = fetchbuffer_data_array[fetchbuffer_data_in.raddr2];
@@ -68,9 +68,9 @@ module fetchbuffer_ctrl
     logic [fetchbuffer_depth-1:0] wid;
     logic [fetchbuffer_depth-1:0] rid1;
     logic [fetchbuffer_depth-1:0] rid2;
-    logic [62:0] wdata;
-    logic [62:0] rdata1;
-    logic [62:0] rdata2;
+    logic [63:0] wdata;
+    logic [63:0] rdata1;
+    logic [63:0] rdata2;
     logic [0:0] wren;
     logic [0:0] rden1;
     logic [0:0] rden2;
@@ -88,6 +88,7 @@ module fetchbuffer_ctrl
     logic [1:0] mode;
     logic [1:0] pmode;
     logic [31:0] rdata;
+    logic [0:0] error;
     logic [0:0] ready;
     logic [0:0] stall;
   } reg_type;
@@ -118,6 +119,7 @@ module fetchbuffer_ctrl
     mode : m_mode,
     pmode : 0,
     rdata : 0,
+    error : 0,
     ready : 0,
     stall : 0
   };
@@ -137,8 +139,9 @@ module fetchbuffer_ctrl
 
     v.valid = 1;
 
-    v.ready = 0;
     v.rdata = 0;
+    v.error = 0;
+    v.ready = 0;
 
     v.rden1 = 0;
     v.rden2 = 0;
@@ -167,13 +170,17 @@ module fetchbuffer_ctrl
         v.wdata = 0;
         v.fence = 1;
       end
+    end else if (imem_out.mem_error == 1) begin
+      v.wren = 1;
+      v.wid = v.addr[(fetchbuffer_depth+1):2];
+      v.wdata = {1'b1,v.wren,v.addr[31:2],imem_out.mem_rdata};
     end else if (imem_out.mem_ready == 1) begin
       v.wren = 1;
       v.wid = v.addr[(fetchbuffer_depth+1):2];
-      v.wdata = {v.wren,v.addr[31:2],imem_out.mem_rdata};
+      v.wdata = {1'b0,v.wren,v.addr[31:2],imem_out.mem_rdata};
     end
 
-    if (v.wren == 1) begin
+    if (v.wren == 1 && v.wdata[63] == 0) begin
       if (v.incr < max_count) begin
         v.incr = v.incr + 2;
         v.addr = v.addr + 4;
@@ -229,21 +236,25 @@ module fetchbuffer_ctrl
       if (v.paddr[1:1] == 0) begin
         if (v.wrden1 == 1) begin
           v.rdata = v.wdata[31:0];
+          v.error = v.wdata[63];
           v.ready = 1;
         end else if (v.rden1 == 1) begin
           v.rdata = v.rdata1[31:0];
+          v.error = v.rdata1[63];
           v.ready = 1;
         end
       end else if (v.paddr[1:1] == 1) begin
         if (v.wrden1 == 1) begin
           v.rdata[15:0] = v.wdata[31:16];
           if (&(v.rdata[1:0]) == 0) begin
+            v.error = v.wdata[63];
             v.ready = 1;
           end
           v.comp = 1;
         end else if (v.rden1 == 1) begin
           v.rdata[15:0] = v.rdata1[31:16];
           if (&(v.rdata[1:0]) == 0) begin
+            v.error = v.rdata1[63];
             v.ready = 1;
           end
           v.comp = 1;
@@ -251,21 +262,25 @@ module fetchbuffer_ctrl
         if (v.comp == 1) begin
           if (v.wrden2 == 1) begin
             v.rdata[31:16] = v.wdata[15:0];
+            v.error = v.wdata[63];
             v.ready = 1;
           end else if (v.rden2 == 1) begin
             v.rdata[31:16] = v.rdata2[15:0];
+            v.error = v.rdata2[63];
             v.ready = 1;
           end
         end
       end
-      if (&(v.rdata[1:0]) == 0) begin
-        v.rdata[31:16] = 0;
-        v.step = 1;
-      end else if (&(v.rdata[1:0]) == 1) begin
-        v.step = 2;
-      end
-      if (v.step <= v.incr) begin
-        v.incr = v.incr - v.step;
+      if (v.error == 0) begin
+        if (&(v.rdata[1:0]) == 0) begin
+          v.rdata[31:16] = 0;
+          v.step = 1;
+        end else if (&(v.rdata[1:0]) == 1) begin
+          v.step = 2;
+        end
+        if (v.step <= v.incr) begin
+          v.incr = v.incr - v.step;
+        end
       end
     end
 
@@ -291,6 +306,7 @@ module fetchbuffer_ctrl
     imem_in.mem_wstrb = 0;
 
     fetchbuffer_out.mem_rdata = v.rdata;
+    fetchbuffer_out.mem_error = v.error;
     fetchbuffer_out.mem_ready = v.ready;
 
     rin = v;
