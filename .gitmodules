@@ -1,4 +1,4 @@
 [submodule "soft"]
 	path = soft
 	url = https://github.com/taneroksuz/riscv-test-case-generation.git
-        branch = rv32imc
+	branch = rv32imc
