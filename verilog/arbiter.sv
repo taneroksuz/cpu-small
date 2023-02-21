@@ -54,7 +54,7 @@ module arbiter(
 
     v = r;
 
-    if (memory_ready == 1) begin
+    if (memory_ready == 1 || v.mem_error == 1) begin
       v.access_type = no_access;
     end
 

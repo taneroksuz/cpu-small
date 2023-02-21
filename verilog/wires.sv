@@ -416,7 +416,6 @@ package wires;
     alu_op_type alu_op;
     bcu_op_type bcu_op;
     lsu_op_type lsu_op;
-    logic [0  : 0] ierror;
     logic [0  : 0] exception;
     logic [3  : 0] ecause;
     logic [31 : 0] etval;
@@ -456,7 +455,7 @@ package wires;
     lsu_op_type lsu_op;
     logic [0  : 0] spec;
     logic [1  : 0] mode;
-    logic [0  : 0] ierror;
+    logic [0  : 0] error;
     logic [0  : 0] exception;
     logic [3  : 0] ecause;
     logic [31 : 0] etval;
@@ -497,7 +496,7 @@ package wires;
     lsu_op : init_lsu_op,
     spec : 0,
     mode : m_mode,
-    ierror : 0,
+    error : 0,
     exception : 0,
     ecause : 0,
     etval : 0,
@@ -558,8 +557,7 @@ package wires;
     logic [1  : 0] mode;
     logic [31 : 0] mcounteren;
     logic [0  : 0] retired;
-    logic [0  : 0] ierror;
-    logic [0  : 0] derror;
+    logic [0  : 0] error;
     logic [0  : 0] exception;
     logic [3  : 0] ecause;
     logic [31 : 0] etval;
@@ -616,8 +614,7 @@ package wires;
     mode : m_mode,
     mcounteren : 0,
     retired : 0,
-    ierror : 0,
-    derror : 0,
+    error : 0,
     exception : 0,
     ecause : 0,
     etval : 0,

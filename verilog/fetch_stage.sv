@@ -67,15 +67,15 @@ module fetch_stage
 
     if (fetchbuffer_out.mem_error == 1) begin
       v.instr = nop_instr;
-      v.ierror = 1;
+      v.error = 1;
       v.stall = 0;
     end else if (fetchbuffer_out.mem_ready == 1) begin
       v.instr = fetchbuffer_out.mem_rdata;
-      v.ierror = 0;
+      v.error = 0;
       v.stall = 0;
     end else begin
       v.instr = nop_instr;
-      v.ierror = 0;
+      v.error = 0;
       v.stall = 1;
     end
 
@@ -210,6 +210,12 @@ module fetch_stage
       end
     end
 
+    if (v.error == 1) begin
+      v.exception = 1;
+      v.ecause = except_instr_access_fault;
+      v.etval = r.pc;
+    end
+
     dmem_in.mem_valid = v.load | v.store;
     dmem_in.mem_fence = 0;
     dmem_in.mem_spec = 0;
@@ -251,7 +257,6 @@ module fetch_stage
     y.alu_op = v.alu_op;
     y.bcu_op = v.bcu_op;
     y.lsu_op = v.lsu_op;
-    y.ierror = v.ierror;
     y.exception = v.exception;
     y.ecause = v.ecause;
     y.etval = v.etval;
@@ -286,7 +291,6 @@ module fetch_stage
     q.alu_op = r.alu_op;
     q.bcu_op = r.bcu_op;
     q.lsu_op = r.lsu_op;
-    q.ierror = r.ierror;
     q.exception = r.exception;
     q.ecause = r.ecause;
     q.etval = r.etval;

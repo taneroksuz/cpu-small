@@ -294,6 +294,7 @@ module fetchbuffer_ctrl
     if (v.pspec == 1) begin
       v.mode = v.pmode;
       v.addr = {v.paddr[31:2],2'b0};
+      v.error = 0;
     end
 
     imem_in.mem_valid = v.valid;
