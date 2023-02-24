@@ -4,8 +4,8 @@ import wires::*;
 
 module pmp
 (
-  input logic rst,
-  input logic clk,
+  input logic reset,
+  input logic clock,
   input csr_pmp_in_type csr_pmp_in,
   output csr_pmp_out_type csr_pmp_out,
   input pmp_in_type pmp_in,
@@ -49,8 +49,8 @@ module pmp
 
   integer i,j;
 
-  always_ff @(posedge clk) begin
-    if (rst == 0) begin
+  always_ff @(posedge clock) begin
+    if (reset == 1) begin
       csr_pmpcfg <= '{default:init_csr_pmpcfg};
       csr_pmpaddr <= '{default:'0};
     end else begin

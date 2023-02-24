@@ -4,8 +4,8 @@ import wires::*;
 
 module clic
 (
-  input logic rst,
-  input logic clk,
+  input logic reset,
+  input logic clock,
   input logic [0   : 0] clic_valid,
   input logic [0   : 0] clic_instr,
   input logic [31  : 0] clic_addr,
@@ -121,8 +121,8 @@ module clic
 
   integer i,j;
 
-  always_ff @(posedge clk) begin
-    if (rst == 0) begin
+  always_ff @(posedge clock) begin
+    if (reset == 1) begin
       rdata_cfg <= 0;
       ready_cfg <= 0;
     end else begin
@@ -145,8 +145,8 @@ module clic
     end
   end
 
-  always_ff @(posedge clk) begin
-    if (rst == 0) begin
+  always_ff @(posedge clock) begin
+    if (reset == 1) begin
       rdata_info <= 0;
       ready_info <= 0;
     end else begin
@@ -167,8 +167,8 @@ module clic
     end
   end
 
-  always_ff @(posedge clk) begin
-    if (rst == 0) begin
+  always_ff @(posedge clock) begin
+    if (reset == 1) begin
       rdata_trig <= 0;
       ready_trig <= 0;
     end else begin
@@ -189,8 +189,8 @@ module clic
     end
   end
 
-  always_ff @(posedge clk) begin
-    if (rst == 0) begin
+  always_ff @(posedge clock) begin
+    if (reset == 1) begin
       rdata_irpt <= 0;
       ready_irpt <= 0;
       irpt <= '{default:'0};

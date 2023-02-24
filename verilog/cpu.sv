@@ -3,8 +3,8 @@ import wires::*;
 
 module cpu
 (
-  input  logic rst,
-  input  logic clk,
+  input  logic reset,
+  input  logic clock,
   output logic [0  : 0] rvfi_valid,
   output logic [63 : 0] rvfi_order,
   output logic [31 : 0] rvfi_insn,
@@ -153,16 +153,16 @@ module cpu
 
   div div_comp
   (
-    .rst (rst),
-    .clk (clk),
+    .reset (reset),
+    .clock (clock),
     .div_in (div_in),
     .div_out (div_out)
   );
 
   mul #(mul_performance) mul_comp
   (
-    .rst (rst),
-    .clk (clk),
+    .reset (reset),
+    .clock (clock),
     .mul_in (mul_in),
     .mul_out (mul_out)
   );
@@ -194,8 +194,8 @@ module cpu
 
   register register_comp
   (
-    .rst (rst),
-    .clk (clk),
+    .reset (reset),
+    .clock (clock),
     .register_rin (register_rin),
     .register_win (register_win),
     .register_out (register_out)
@@ -203,8 +203,8 @@ module cpu
 
   csr csr_comp
   (
-    .rst (rst),
-    .clk (clk),
+    .reset (reset),
+    .clock (clock),
     .csr_in (csr_in),
     .csr_out (csr_out),
     .meip (meip),
@@ -215,8 +215,8 @@ module cpu
 
   pmp pmp_comp
   (
-    .rst (rst),
-    .clk (clk),
+    .reset (reset),
+    .clock (clock),
     .csr_pmp_in (csr_pmp_in),
     .csr_pmp_out (csr_pmp_out),
     .pmp_in (pmp_in),
@@ -225,8 +225,8 @@ module cpu
 
   arbiter arbiter_comp
   (
-    .rst (rst),
-    .clk (clk),
+    .reset (reset),
+    .clock (clock),
     .imem_in (imem_in),
     .imem_out (imem_out),
     .dmem_in (dmem_in),
@@ -244,8 +244,8 @@ module cpu
 
   fetchbuffer fetchbuffer_comp
   (
-    .rst (rst),
-    .clk (clk),
+    .reset (reset),
+    .clock (clock),
     .fetchbuffer_in (fetchbuffer_in),
     .fetchbuffer_out (fetchbuffer_out),
     .imem_out (imem_out),
@@ -254,8 +254,8 @@ module cpu
 
   fetch_stage fetch_stage_comp
   (
-    .rst (rst),
-    .clk (clk),
+    .reset (reset),
+    .clock (clock),
     .predecoder_out (predecoder_out),
     .predecoder_in (predecoder_in),
     .compress_out (compress_out),
@@ -280,8 +280,8 @@ module cpu
 
   execute_stage execute_stage_comp
   (
-    .rst (rst),
-    .clk (clk),
+    .reset (reset),
+    .clock (clock),
     .postdecoder_out (postdecoder_out),
     .postdecoder_in (postdecoder_in),
     .alu_out (alu_out),

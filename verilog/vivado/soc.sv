@@ -2,8 +2,8 @@ import configure::*;
 
 module soc
 (
-  input logic rst,
-  input logic clk,
+  input logic reset,
+  input logic clock,
   input logic rx,
   output logic tx,
   output logic [31 : 0] m_axi_awaddr,
@@ -238,8 +238,8 @@ module soc
 
   cpu cpu_comp
   (
-    .rst (rst),
-    .clk (clk),
+    .reset (reset),
+    .clock (clock),
     .rvfi_valid (rvfi_valid),
     .rvfi_order (rvfi_order),
     .rvfi_insn (rvfi_insn),
@@ -276,8 +276,8 @@ module soc
 
   bram bram_comp
   (
-    .rst (rst),
-    .clk (clk),
+    .reset (reset),
+    .clock (clock),
     .bram_valid (bram_valid),
     .bram_instr (bram_instr),
     .bram_addr (bram_addr),
@@ -289,8 +289,8 @@ module soc
 
   uart uart_comp
   (
-    .rst (rst),
-    .clk (clk),
+    .reset (reset),
+    .clock (clock),
     .uart_valid (uart_valid),
     .uart_instr (uart_instr),
     .uart_addr (uart_addr),
@@ -304,8 +304,8 @@ module soc
 
   clint clint_comp
   (
-    .rst (rst),
-    .clk (clk),
+    .reset (reset),
+    .clock (clock),
     .clint_valid (clint_valid),
     .clint_instr (clint_instr),
     .clint_addr (clint_addr),
@@ -320,8 +320,8 @@ module soc
 
   clic clic_comp
   (
-    .rst (rst),
-    .clk (clk),
+    .reset (reset),
+    .clock (clock),
     .clic_valid (clic_valid),
     .clic_instr (clic_instr),
     .clic_addr (clic_addr),
@@ -336,8 +336,8 @@ module soc
 
   axi axi_comp
   (
-    .rst (rst),
-    .clk (clk),
+    .reset (reset),
+    .clock (clock),
     .axi_valid (axi_valid),
     .axi_instr (axi_instr),
     .axi_addr (axi_addr),
