@@ -47,15 +47,13 @@ module pmp
   logic [31 : 0] lowaddr;
   logic [31 : 0] highaddr;
 
-  integer i,j;
-
   always_ff @(posedge clock) begin
     if (reset == 1) begin
       csr_pmpcfg <= '{default:init_csr_pmpcfg};
       csr_pmpaddr <= '{default:'0};
     end else begin
       if (csr_pmp_in.cwren == 1) begin
-        for (i=0; i<pmp_region; i=i+4) begin
+        for (int i=0; i<pmp_region; i=i+4) begin
           if (csr_pmp_in.cwaddr == (csr_pmpcfg0 + (i[11:0]>>2))) begin
             if (csr_pmpcfg[i+3].L == 0) begin
               csr_pmpcfg[i+3].L <= csr_pmp_in.cwdata[31];
@@ -87,7 +85,7 @@ module pmp
             end
           end
         end
-        for (i=0; i<pmp_region; i=i+1) begin
+        for (int i=0; i<pmp_region; i=i+1) begin
           if (csr_pmp_in.cwaddr == (csr_pmpaddr0 + i[11:0])) begin
             if (i==(pmp_region-1)) begin
               if  (csr_pmpcfg[i].L == 0) begin
@@ -108,7 +106,7 @@ module pmp
     csr_pmp_out.crdata = 0;
     csr_pmp_out.cready = 0;
     if (csr_pmp_in.crden == 1) begin
-      for (i=0; i<pmp_region; i=i+4) begin
+      for (int i=0; i<pmp_region; i=i+4) begin
         if (csr_pmp_in.craddr == (csr_pmpcfg0 + (i[11:0]>>2))) begin
           csr_pmp_out.crdata[31:24] = {csr_pmpcfg[i+3].L,2'b0,csr_pmpcfg[i+3].A,csr_pmpcfg[i+3].X,csr_pmpcfg[i+3].W,csr_pmpcfg[i+3].R};
           csr_pmp_out.crdata[23:16] = {csr_pmpcfg[i+2].L,2'b0,csr_pmpcfg[i+2].A,csr_pmpcfg[i+2].X,csr_pmpcfg[i+2].W,csr_pmpcfg[i+2].R};
@@ -117,7 +115,7 @@ module pmp
           csr_pmp_out.cready = 1;
         end
       end
-      for (i=0; i<pmp_region; i=i+1) begin
+      for (int i=0; i<pmp_region; i=i+1) begin
         if (csr_pmp_in.craddr == (csr_pmpaddr0 + i[11:0])) begin
           csr_pmp_out.crdata = csr_pmpaddr[i];
           csr_pmp_out.cready = 1;
@@ -134,7 +132,7 @@ module pmp
     lowaddr = 0;
     highaddr = 0;
     if (pmp_in.mem_valid == 1) begin
-      for (i=0; i<pmp_region; i=i+1) begin
+      for (int i=0; i<pmp_region; i=i+1) begin
         if (pmp_in.mem_instr == 1) begin
           if (csr_pmpcfg[i].L == 1 && csr_pmpcfg[i].X == 1) begin
             ok = 1;
