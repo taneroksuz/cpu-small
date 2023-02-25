@@ -119,8 +119,6 @@ module clic
   logic [7  : 0] max_prio;
   logic [7  : 0] max_level;
 
-  integer i,j;
-
   always_ff @(posedge clock) begin
     if (reset == 1) begin
       rdata_cfg <= 0;
@@ -225,7 +223,7 @@ module clic
           ready_irpt <= 1;
         end
       end
-      for (i=0; i<clic_interrupt; i=i+1) begin
+      for (int i=0; i<clic_interrupt; i=i+1) begin
         if (clic_int_attr[i].trig[0] == 0) begin
           if (clic_irpt[i] == 1) begin
             clic_int_ip[i][0] <= 1;
@@ -249,21 +247,21 @@ module clic
   end
 
   always_comb begin
-    prio[i] = '{default:'0};
-    level[i] = '{default:'0};
-    prio_p[i] = '{default:'0};
-    level_p[i] = '{default:'0};
-    prio_e[i] = '{default:'0};
-    level_e[i] = '{default:'0};
+    prio = '{default:'0};
+    level = '{default:'0};
+    prio_p = '{default:'0};
+    level_p = '{default:'0};
+    prio_e = '{default:'0};
+    level_e = '{default:'0};
     max_id = 0;
     max_prio = 0;
     max_level = 0;
     meip = 0;
     meid = 0;
-    for (i=1; i<clic_interrupt; i=i+1) begin
+    for (int i=1; i<clic_interrupt; i=i+1) begin
       if (clic_cfg.nlbits >= clic_info.num_intctlbit) begin
         prio[i] = 8'hFF;
-        for (j=0; j<8; j=j+1) begin
+        for (int j=0; j<8; j=j+1) begin
           if (j<clic_info.num_intctlbit) begin
             level[i][j] = 1;
           end else begin
@@ -271,14 +269,14 @@ module clic
           end
         end
       end else if (clic_cfg.nlbits < clic_info.num_intctlbit) begin
-        for (j=0; j<8; j=j+1) begin
+        for (int j=0; j<8; j=j+1) begin
           if (j<clic_info.num_intctlbit) begin
             prio[i][j] = 1;
           end else begin
             prio[i][j] = clic_int_ctl[i][j];
           end
         end
-        for (j=0; j<8; j=j+1) begin
+        for (int j=0; j<8; j=j+1) begin
           if (j<clic_cfg.nlbits) begin
             level[i][j] = 1;
           end else begin
