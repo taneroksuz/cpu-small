@@ -4,18 +4,18 @@ import wires::*;
 
 module clic
 (
-  input logic reset,
-  input logic clock,
-  input logic [0   : 0] clic_valid,
-  input logic [0   : 0] clic_instr,
-  input logic [31  : 0] clic_addr,
-  input logic [31  : 0] clic_wdata,
-  input logic [3   : 0] clic_wstrb,
+  input  logic reset,
+  input  logic clock,
+  input  logic [0  : 0] clic_valid,
+  input  logic [0  : 0] clic_instr,
+  input  logic [31 : 0] clic_addr,
+  input  logic [31 : 0] clic_wdata,
+  input  logic [3  : 0] clic_wstrb,
   output logic [31 : 0] clic_rdata,
   output logic [0  : 0] clic_ready,
   output logic [0  : 0] clic_meip,
   output logic [11 : 0] clic_meid,
-  input logic [0   : 0] clic_irpt [0:clic_interrupt-1]
+  input  logic [31 : 0] clic_irpt
 );
   timeunit 1ns;
   timeprecision 1ps;

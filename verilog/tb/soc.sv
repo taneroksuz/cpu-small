@@ -72,7 +72,7 @@ module soc
   logic [0 : 0] msip;
   logic [0 : 0] mtip;
 
-  logic [0 : 0] irpt [0:clic_interrupt-1];
+  logic [31: 0] irpt;
 
   logic [11 : 0] meid;
   logic [63 : 0] mtime;

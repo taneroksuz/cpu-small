@@ -2,10 +2,11 @@ import configure::*;
 
 module soc
 (
-  input logic reset,
-  input logic clock,
-  input logic rx,
+  input  logic reset,
+  input  logic clock,
+  input  logic rx,
   output logic tx,
+  input  logic [31 : 0] irpt,
   output logic [31 : 0] m_axi_awaddr,
   output logic [7  : 0] m_axi_awlen,
   output logic [2  : 0] m_axi_awsize,
@@ -116,8 +117,6 @@ module soc
   logic [0  : 0] meip;
   logic [0  : 0] msip;
   logic [0  : 0] mtip;
-
-  logic [0 : 0] irpt [0:clic_interrupt-1];
 
   logic [11 : 0] meid;
   logic [63 : 0] mtime;
