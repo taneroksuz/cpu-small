@@ -120,6 +120,10 @@ module clic
   logic [7  : 0] max_prio [0:clic_interrupt-1];
   logic [7  : 0] max_level [0:clic_interrupt-1];
 
+  logic [11 : 0] max_id_reg [0:clic_interrupt-1];
+  logic [7  : 0] max_prio_reg [0:clic_interrupt-1];
+  logic [7  : 0] max_level_reg [0:clic_interrupt-1];
+
   logic [0  : 0] meip = 0;
   logic [11 : 0] meid = 0;
 
@@ -257,9 +261,6 @@ module clic
     level_p = '{default:'0};
     prio_e = '{default:'0};
     level_e = '{default:'0};
-    max_id = '{default:'0};
-    max_prio = '{default:'0};
-    max_level = '{default:'0};
     for (int i=1; i<clic_interrupt; i=i+1) begin
       if (clic_cfg.nlbits >= clic_info.num_intctlbit) begin
         prio[i] = 8'hFF;
@@ -290,15 +291,31 @@ module clic
       prio_e[i] = {8{clic_int_ie[i][0]}} & prio_p[i];
       level_p[i] = {8{clic_int_ip[i][0]}} & level[i];
       level_e[i] = {8{clic_int_ie[i][0]}} & level_p[i];
-      if (level_e[i] > max_level[i-1] || (level_e[i] == max_level[i-1] && prio_e[i] > max_prio[i-1])) begin
+    end
+  end
+
+  always_comb begin
+    max_id = max_id_reg;
+    max_prio = max_prio_reg;
+    max_level = max_level_reg;
+    for (int i=1; i<clic_interrupt; i=i+1) begin
+      if (level_e[i] > max_level_reg[i-1] || (level_e[i] == max_level_reg[i-1] && prio_e[i] > max_prio_reg[i-1])) begin
         max_id[i] = i[11:0];
         max_prio[i] = prio_p[i];
         max_level[i] = level_p[i];
-      end else begin
-        max_id[i] = max_id[i-1];
-        max_prio[i] = max_prio[i-1];
-        max_level[i] = max_level[i-1];
       end
+    end
+  end
+
+  always_ff @(posedge clock) begin
+    if (reset == 1) begin
+      max_id_reg <= '{default:'0};
+      max_prio_reg <= '{default:'0};
+      max_level_reg <= '{default:'0};
+    end else begin
+      max_id_reg <= max_id;
+      max_prio_reg <= max_prio;
+      max_level_reg <= max_level;
     end
   end
 
