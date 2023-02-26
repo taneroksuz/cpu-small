@@ -36,8 +36,7 @@ module clint
   logic [0  : 0] msip = 0;
 
   logic [31 : 0] count = 0;
-  logic [0  : 0] state = 0;
-  logic [0  : 0] incr  = 0;
+  logic [0  : 0] enable = 0;
 
   always_ff @(posedge clock) begin
     if (reset == 1) begin
@@ -47,11 +46,11 @@ module clint
       ready <= 0;
       msip <= 0;
     end else begin
-      if (incr == 1) begin
-        mtime <= mtime + 64'h1;
-      end
       rdata <= 0;
       ready <= 0;
+      if (enable == 1) begin
+        mtime <= mtime + 64'h1;
+      end
       if (clint_valid == 1) begin
         if (clint_addr < clint_msip_end) begin
           if (|clint_wstrb == 0) begin
@@ -113,20 +112,14 @@ module clint
   always_ff @(posedge clock) begin
     if (reset == 1) begin
       count <= 0;
-      state <= 0;
-      incr <= 0;
+      enable <= 0;
     end else begin
-      if (state == 0 && count == clk_divider_rtc) begin
+      if (count == clk_divider_rtc) begin
         count <= 0;
-        state <= 1;
-        incr <= 1;
-      end else if (state == 1 && count == clk_divider_rtc) begin
-        count <= 0;
-        state <= 0;
-        incr <= 0;
+        enable <= 1;
       end else begin
         count <= count + 1;
-        incr <= 0;
+        enable <= 0;
       end
     end
   end

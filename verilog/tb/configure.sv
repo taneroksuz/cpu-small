@@ -25,6 +25,6 @@ package configure;
   parameter clk_freq = 1000000000; // 1000MHz
   parameter rtc_freq = 32768; // 32768Hz
 
-  parameter clk_divider_rtc = (clk_freq/rtc_freq)/2-1;
+  parameter clk_divider_rtc = clk_freq/rtc_freq-1;
 
 endpackage
