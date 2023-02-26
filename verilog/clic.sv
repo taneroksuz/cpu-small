@@ -127,6 +127,9 @@ module clic
   logic [0  : 0] meip = 0;
   logic [11 : 0] meid = 0;
 
+  logic [31 : 0] count_clic = 0;
+  logic [0  : 0] clock_clic = 0;
+
   always_ff @(posedge clock) begin
     if (reset == 1) begin
       rdata_cfg <= 0;
@@ -295,19 +298,32 @@ module clic
   end
 
   always_comb begin
-    max_id = max_id_reg;
-    max_prio = max_prio_reg;
-    max_level = max_level_reg;
+    max_id = '{default:'0};
+    max_prio = '{default:'0};
+    max_level = '{default:'0};
     for (int i=1; i<clic_interrupt; i=i+1) begin
-      if (level_e[i] > max_level_reg[i-1] || (level_e[i] == max_level_reg[i-1] && prio_e[i] > max_prio_reg[i-1])) begin
+      if (level_e[i] > max_level[i-1] || (level_e[i] == max_level[i-1] && prio_e[i] > max_prio[i-1])) begin
         max_id[i] = i[11:0];
         max_prio[i] = prio_p[i];
         max_level[i] = level_p[i];
+      end else begin
+        max_id[i] = max_id[i-1];
+        max_prio[i] = max_prio[i-1];
+        max_level[i] = max_level[i-1];
       end
     end
   end
 
   always_ff @(posedge clock) begin
+    if (count_clic == clk_divider_clic) begin
+      count_clic <= 0;
+      clock_clic <= ~clock_clic;
+    end else begin
+      count_clic <= count_clic + 1;
+    end
+  end
+
+  always_ff @(posedge clock_clic) begin
     if (reset == 1) begin
       max_id_reg <= '{default:'0};
       max_prio_reg <= '{default:'0};
@@ -326,9 +342,9 @@ module clic
     end else begin
       meip <= 0;
       meid <= 0;
-      if (max_id[clic_interrupt-1]>0) begin
+      if (max_id_reg[clic_interrupt-1]>0) begin
         meip <= 1;
-        meid <= max_id[clic_interrupt-1];
+        meid <= max_id_reg[clic_interrupt-1];
       end
     end
   end

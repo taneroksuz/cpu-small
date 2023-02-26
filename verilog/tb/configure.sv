@@ -23,8 +23,10 @@ package configure;
   parameter clic_top_addr  = 32'h3005000;
 
   parameter clk_freq = 1000000000; // 1000MHz
+  parameter clic_freq = 250000000; // 250MHz
   parameter rtc_freq = 32768; // 32768Hz
 
+  parameter clk_divider_clic = clk_freq/clic_freq/2-1;
   parameter clk_divider_rtc = clk_freq/rtc_freq-1;
 
 endpackage
