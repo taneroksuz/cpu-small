@@ -20,14 +20,18 @@ module clic
   timeunit 1ns;
   timeprecision 1ps;
 
-  localparam  clic_cfg_start  = 0;
-  localparam  clic_cfg_end    = clic_cfg_start+1;
-  localparam  clic_info_start = 4;
-  localparam  clic_info_end   = clic_info_start + 4;
-  localparam  clic_trig_start = 64;
-  localparam  clic_trig_end   = clic_trig_start + clic_trigger*4;
-  localparam  clic_int_start  = 4096;
-  localparam  clic_int_end    = clic_int_start + clic_interrupt*4;
+  localparam clic_interrupt = 32;
+  localparam clic_trigger   = 32;
+  localparam clic_intctlbit = 8;
+
+  localparam clic_cfg_start  = 0;
+  localparam clic_cfg_end    = clic_cfg_start+1;
+  localparam clic_info_start = 4;
+  localparam clic_info_end   = clic_info_start + 4;
+  localparam clic_trig_start = 64;
+  localparam clic_trig_end   = clic_trig_start + clic_trigger*4;
+  localparam clic_int_start  = 4096;
+  localparam clic_int_end    = clic_int_start + clic_interrupt*4;
 
   typedef struct packed{
     logic [1 : 0] nmbits;
@@ -80,7 +84,7 @@ module clic
   };
 
   clic_cfg_type clic_cfg;
-  clic_info_type clic_info;
+  clic_info_type clic_info = init_clic_info;
 
   clic_trig_type clic_int_trig [0:clic_trigger-1];
 

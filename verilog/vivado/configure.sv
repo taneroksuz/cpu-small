@@ -10,10 +10,6 @@ package configure;
 
   parameter pmp_region = 4;
 
-  parameter clic_interrupt = 32;
-  parameter clic_trigger   = 32;
-  parameter clic_intctlbit = 8;
-
   parameter bram_base_addr = 32'h0;
   parameter bram_top_addr  = 32'h1000;
 
