@@ -90,6 +90,8 @@ module clic
 
   clic_attr_type clic_int_attr [0:clic_interrupt-1];
 
+  logic [0  : 0] clic_irpt_reg [0:clic_interrupt-1];
+
   logic [0  : 0] clic_int_ip [0:clic_interrupt-1];
   logic [0  : 0] clic_int_ie [0:clic_interrupt-1];
   logic [7  : 0] clic_int_ctl [0:clic_interrupt-1];
@@ -104,17 +106,8 @@ module clic
   logic [0  : 0] ready_trig = 0;
   logic [0  : 0] ready_irpt = 0;
 
-  logic [0  : 0] irpt [0:clic_interrupt-1];
   logic [7  : 0] prio [0:clic_interrupt-1];
   logic [7  : 0] level [0:clic_interrupt-1];
-
-  logic [0  : 0] irpt_p [0:clic_interrupt-1];
-  logic [7  : 0] prio_p [0:clic_interrupt-1];
-  logic [7  : 0] level_p [0:clic_interrupt-1];
-
-  logic [0  : 0] irpt_e [0:clic_interrupt-1];
-  logic [7  : 0] prio_e [0:clic_interrupt-1];
-  logic [7  : 0] level_e [0:clic_interrupt-1];
 
   logic [11 : 0] max_id [0:clic_interrupt-1];
   logic [7  : 0] max_prio [0:clic_interrupt-1];
@@ -202,7 +195,6 @@ module clic
     if (reset == 1) begin
       rdata_irpt <= 0;
       ready_irpt <= 0;
-      irpt <= '{default:'0};
     end else begin
       rdata_irpt <= 0;
       ready_irpt <= 0;
@@ -243,16 +235,25 @@ module clic
           end
         end else if (clic_int_attr[i].trig[0] == 1) begin
           if (clic_int_attr[i].trig[1] == 0) begin
-            if (irpt[i] == 0 && clic_irpt[i] == 1) begin
+            if (clic_irpt_reg[i] == 0 && clic_irpt[i] == 1) begin
               clic_int_ip[i][0] <= 1;
             end
           end else if (clic_int_attr[i].trig[1] == 1) begin
-            if (irpt[i] == 1 && clic_irpt[i] == 0) begin
+            if (clic_irpt_reg[i] == 1 && clic_irpt[i] == 0) begin
               clic_int_ip[i][0] <= 1;
             end
           end
         end
-        irpt[i] <= clic_irpt[i];
+      end
+    end
+  end
+
+  always_ff @(posedge clock) begin
+    if (reset == 1) begin
+      clic_irpt_reg <= '{default:'0};
+    end else begin
+      for (int i=0; i<clic_interrupt; i=i+1) begin
+        clic_irpt_reg[i] <= clic_irpt[i];
       end
     end
   end
@@ -260,10 +261,6 @@ module clic
   always_comb begin
     prio = '{default:'0};
     level = '{default:'0};
-    prio_p = '{default:'0};
-    level_p = '{default:'0};
-    prio_e = '{default:'0};
-    level_e = '{default:'0};
     for (int i=1; i<clic_interrupt; i=i+1) begin
       if (clic_cfg.nlbits >= clic_info.num_intctlbit) begin
         prio[i] = 8'hFF;
@@ -290,10 +287,10 @@ module clic
           end
         end
       end
-      prio_p[i] = {8{clic_int_ip[i][0]}} & prio[i];
-      prio_e[i] = {8{clic_int_ie[i][0]}} & prio_p[i];
-      level_p[i] = {8{clic_int_ip[i][0]}} & level[i];
-      level_e[i] = {8{clic_int_ie[i][0]}} & level_p[i];
+      prio[i] = {8{clic_int_ip[i][0]}} & prio[i];
+      prio[i] = {8{clic_int_ie[i][0]}} & prio[i];
+      level[i] = {8{clic_int_ip[i][0]}} & level[i];
+      level[i] = {8{clic_int_ie[i][0]}} & level[i];
     end
   end
 
@@ -302,10 +299,10 @@ module clic
     max_prio = '{default:'0};
     max_level = '{default:'0};
     for (int i=1; i<clic_interrupt; i=i+1) begin
-      if (level_e[i] > max_level[i-1] || (level_e[i] == max_level[i-1] && prio_e[i] > max_prio[i-1])) begin
+      if (level[i] > max_level[i-1] || (level[i] == max_level[i-1] && prio[i] > max_prio[i-1])) begin
         max_id[i] = i[11:0];
-        max_prio[i] = prio_p[i];
-        max_level[i] = level_p[i];
+        max_prio[i] = prio[i];
+        max_level[i] = level[i];
       end else begin
         max_id[i] = max_id[i-1];
         max_prio[i] = max_prio[i-1];
