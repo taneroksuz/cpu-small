@@ -6,12 +6,10 @@ package configure;
 
   parameter fetchbuffer_depth = 4;
 
-  parameter bram_depth = 8;
-
   parameter pmp_region = 4;
 
   parameter bram_base_addr = 32'h0;
-  parameter bram_top_addr  = 32'h400;
+  parameter bram_top_addr  = 32'h80;
 
   parameter uart_base_addr = 32'h1000000;
   parameter uart_top_addr  = 32'h1000004;

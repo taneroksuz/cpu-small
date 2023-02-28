@@ -51,10 +51,13 @@ module soc
   logic [31 : 0] memory_wdata;
   logic [3  : 0] memory_wstrb;
   logic [31 : 0] memory_rdata;
+  logic [0  : 0] memory_error;
   logic [0  : 0] memory_ready;
 
+  logic [0  : 0] mem_error;
+  logic [0  : 0] mem_ready;
+
   logic [0  : 0] bram_valid;
-  logic [0  : 0] bram_wen;
   logic [0  : 0] bram_instr;
   logic [31 : 0] bram_addr;
   logic [31 : 0] bram_wdata;
@@ -107,6 +110,8 @@ module soc
 
   always_comb begin
 
+    mem_error = 0;
+
     bram_valid = 0;
     uart_valid = 0;
     clint_valid = 0;
@@ -118,6 +123,7 @@ module soc
     if (memory_valid == 1) begin
       if (memory_addr >= avl_base_addr &&
         memory_addr < avl_top_addr) begin
+          mem_error = 0;
           bram_valid = 0;
           uart_valid = 0;
           clint_valid = 0;
@@ -126,6 +132,7 @@ module soc
           base_addr = bram_base_addr;
       end else if (memory_addr >= clic_base_addr &&
         memory_addr < clic_top_addr) begin
+          mem_error = 0;
           bram_valid = 0;
           uart_valid = 0;
           clint_valid = 0;
@@ -134,6 +141,7 @@ module soc
           base_addr = clic_base_addr;
       end else if (memory_addr >= clint_base_addr &&
         memory_addr < clint_top_addr) begin
+          mem_error = 0;
           bram_valid = 0;
           uart_valid = 0;
           clint_valid = memory_valid;
@@ -142,6 +150,7 @@ module soc
           base_addr = clint_base_addr;
       end else if (memory_addr >= uart_base_addr &&
         memory_addr < uart_top_addr) begin
+          mem_error = 0;
           bram_valid = 0;
           uart_valid = memory_valid;
           clint_valid = 0;
@@ -150,6 +159,7 @@ module soc
           base_addr = uart_base_addr;
       end else if (memory_addr >= bram_base_addr &&
         memory_addr < bram_top_addr) begin
+          mem_error = 0;
           bram_valid = memory_valid;
           uart_valid = 0;
           clint_valid = 0;
@@ -157,6 +167,7 @@ module soc
           avl_valid = 0;
           base_addr = bram_base_addr;
       end else begin
+          mem_error = 1;
           bram_valid = 0;
           uart_valid = 0;
           clint_valid = 0;
@@ -195,24 +206,42 @@ module soc
 
     if (bram_ready == 1) begin
       memory_rdata = bram_rdata;
+      memory_error = 0;
       memory_ready = bram_ready;
-    end else if  (uart_ready == 1) begin
+    end else if (uart_ready == 1) begin
       memory_rdata = uart_rdata;
+      memory_error = 0;
       memory_ready = uart_ready;
-    end else if  (clint_ready == 1) begin
+    end else if (clint_ready == 1) begin
       memory_rdata = clint_rdata;
+      memory_error = 0;
       memory_ready = clint_ready;
-    end else if  (clic_ready == 1) begin
+    end else if (clic_ready == 1) begin
       memory_rdata = clic_rdata;
+      memory_error = 0;
       memory_ready = clic_ready;
-    end else if  (avl_ready == 1) begin
+    end else if (avl_ready == 1) begin
       memory_rdata = avl_rdata;
+      memory_error = 0;
       memory_ready = avl_ready;
+    end else if (mem_ready == 1) begin
+      memory_rdata = 0;
+      memory_error = 1;
+      memory_ready = 1;
     end else begin
       memory_rdata = 0;
+      memory_error = 0;
       memory_ready = 0;
     end
 
+  end
+
+  always_ff @(posedge clock) begin
+    if (reset == 1) begin
+      mem_ready <= 0;
+    end else begin
+      mem_ready <= mem_error;
+    end
   end
 
   cpu cpu_comp
@@ -246,6 +275,7 @@ module soc
     .memory_wdata (memory_wdata),
     .memory_wstrb (memory_wstrb),
     .memory_rdata (memory_rdata),
+    .memory_error (memory_error),
     .memory_ready (memory_ready),
     .meip (meip),
     .msip (msip),

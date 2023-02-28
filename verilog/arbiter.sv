@@ -16,6 +16,7 @@ module arbiter(
   output logic [31 : 0] memory_wdata,
   output logic [3  : 0] memory_wstrb,
   input logic [31  : 0] memory_rdata,
+  input logic [0   : 0] memory_error,
   input logic [0   : 0] memory_ready
 );
   timeunit 1ns;
@@ -54,7 +55,7 @@ module arbiter(
 
     v = r;
 
-    if (memory_ready == 1 || v.mem_error == 1) begin
+    if (memory_ready == 1 || memory_error == 1 || v.mem_error == 1) begin
       v.access_type = no_access;
     end
 
@@ -115,7 +116,7 @@ module arbiter(
         imem_out.mem_rdata = 0;
       end else begin
         imem_out.mem_ready = memory_ready;
-        imem_out.mem_error = 0;
+        imem_out.mem_error = memory_error;
         imem_out.mem_rdata = memory_rdata;
       end
     end else begin
@@ -131,7 +132,7 @@ module arbiter(
         dmem_out.mem_rdata = 0;
       end else begin
         dmem_out.mem_ready = memory_ready;
-        dmem_out.mem_error = 0;
+        dmem_out.mem_error = memory_error;
         dmem_out.mem_rdata = memory_rdata;
       end
     end else begin

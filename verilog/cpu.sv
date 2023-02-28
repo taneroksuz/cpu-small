@@ -32,6 +32,7 @@ module cpu
   output logic [31 : 0] memory_wdata,
   output logic [3  : 0] memory_wstrb,
   input  logic [31 : 0] memory_rdata,
+  input  logic [0  : 0] memory_error,
   input  logic [0  : 0] memory_ready,
   input  logic [0  : 0] meip,
   input  logic [0  : 0] msip,
@@ -239,6 +240,7 @@ module cpu
     .memory_wdata (memory_wdata),
     .memory_wstrb (memory_wstrb),
     .memory_rdata (memory_rdata),
+    .memory_error (memory_error),
     .memory_ready (memory_ready)
   );
 

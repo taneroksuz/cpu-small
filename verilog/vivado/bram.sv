@@ -15,41 +15,67 @@ module bram
 	timeunit 1ns;
 	timeprecision 1ps;
 
-  logic [31 : 0] bram_block[0:2**bram_depth-1];
+  logic [31 : 0] bram_block[0:31];
 
-  logic [31 : 0] raddr;
+  logic [4  : 0] raddr;
+
+  logic [31 : 0] rdata;
   logic [0  : 0] ready;
 
   initial begin
-    $readmemh("bram.dat", bram_block);
+    bram_block[0] = 32'h41014081;
+    bram_block[1] = 32'h42014181;
+    bram_block[2] = 32'h43014281;
+    bram_block[3] = 32'h44014381;
+    bram_block[4] = 32'h45014481;
+    bram_block[5] = 32'h46014581;
+    bram_block[6] = 32'h47014681;
+    bram_block[7] = 32'h48014781;
+    bram_block[8] = 32'h49014881;
+    bram_block[9] = 32'h4A014981;
+    bram_block[10] = 32'h4B014A81;
+    bram_block[11] = 32'h4C014B81;
+    bram_block[12] = 32'h4D014C81;
+    bram_block[13] = 32'h4E014D81;
+    bram_block[14] = 32'h4F014E81;
+    bram_block[15] = 32'h02B74F81;
+    bram_block[16] = 32'h03370100;
+    bram_block[17] = 32'h03B70800;
+    bram_block[18] = 32'h8E030008;
+    bram_block[19] = 32'h00230002;
+    bram_block[20] = 32'h0E8501C3;
+    bram_block[21] = 32'hDAE30305;
+    bram_block[22] = 32'h0337FFD3;
+    bram_block[23] = 32'h00670800;
+    bram_block[24] = 32'h00000003;
+    bram_block[25] = 32'h00000000;
+    bram_block[26] = 32'h00000000;
+    bram_block[27] = 32'h00000000;
+    bram_block[28] = 32'h00000000;
+    bram_block[29] = 32'h00000000;
+    bram_block[30] = 32'h00000000;
+    bram_block[31] = 32'h00000000;
+  end
+
+  assign raddr = bram_addr[6:2];
+
+  always_ff @(posedge clock) begin
+    
+    rdata <= bram_block[raddr];
+
   end
 
   always_ff @(posedge clock) begin
 
-    raddr <= bram_addr;
-
     if (bram_valid == 1) begin
-
-      if (bram_wstrb[0] == 1)
-        bram_block[bram_addr[(bram_depth+1):2]][7:0] <= bram_wdata[7:0];
-      if (bram_wstrb[1] == 1)
-        bram_block[bram_addr[(bram_depth+1):2]][15:8] <= bram_wdata[15:8];
-      if (bram_wstrb[2] == 1)
-        bram_block[bram_addr[(bram_depth+1):2]][23:16] <= bram_wdata[23:16];
-      if (bram_wstrb[3] == 1)
-        bram_block[bram_addr[(bram_depth+1):2]][31:24] <= bram_wdata[31:24];
-
       ready <= 1;
-
     end else begin
-
       ready <= 0;
-
     end
 
   end
 
-  assign bram_rdata = bram_block[raddr[(bram_depth+1):2]];
+  assign bram_rdata = rdata;
   assign bram_ready = ready;
 
 
