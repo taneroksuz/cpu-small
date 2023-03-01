@@ -101,7 +101,7 @@ module csr
     csr_out.minstret = csr_machine_reg.minstret;
     csr_out.mepc = csr_machine_reg.mepc;
     csr_out.mcounteren = csr_machine_reg.mcounteren;
-    if (csr_machine_reg.mtvec[1:0] == 1 && interrupt == 1) begin
+    if (csr_machine_reg.mtvec[1:0] == 1 && csr_machine_reg.mcause[31] == 1) begin
       csr_out.mtvec = {(csr_machine_reg.mtvec[31:2] + {26'b0,csr_machine_reg.mcause[3:0]}),2'b0};
     end else begin
       csr_out.mtvec = {csr_machine_reg.mtvec[31:2],2'b0};
