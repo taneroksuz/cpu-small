@@ -6,6 +6,7 @@ module clic
 (
   input  logic reset,
   input  logic clock,
+  input  logic clock_irpt,
   input  logic [0  : 0] clic_valid,
   input  logic [0  : 0] clic_instr,
   input  logic [31 : 0] clic_addr,
@@ -109,19 +110,17 @@ module clic
   logic [7  : 0] prio [0:clic_interrupt-1];
   logic [7  : 0] level [0:clic_interrupt-1];
 
+  logic [7  : 0] prio_reg [0:clic_interrupt-1];
+  logic [7  : 0] level_reg [0:clic_interrupt-1];
+
   logic [11 : 0] max_id [0:clic_interrupt-1];
   logic [7  : 0] max_prio [0:clic_interrupt-1];
   logic [7  : 0] max_level [0:clic_interrupt-1];
 
   logic [11 : 0] max_id_reg [0:clic_interrupt-1];
-  logic [7  : 0] max_prio_reg [0:clic_interrupt-1];
-  logic [7  : 0] max_level_reg [0:clic_interrupt-1];
 
   logic [0  : 0] meip = 0;
   logic [11 : 0] meid = 0;
-
-  logic [31 : 0] count_clic = 0;
-  logic [0  : 0] clock_clic = 0;
 
   always_ff @(posedge clock) begin
     if (reset == 1) begin
@@ -294,15 +293,25 @@ module clic
     end
   end
 
+  always_ff @(posedge clock_irpt) begin
+    if (reset == 1) begin
+      prio_reg <= '{default:'0};
+      level_reg <= '{default:'0};
+    end else begin
+      prio_reg <= prio;
+      level_reg <= level;
+    end
+  end
+
   always_comb begin
     max_id = '{default:'0};
     max_prio = '{default:'0};
     max_level = '{default:'0};
     for (int i=1; i<clic_interrupt; i=i+1) begin
-      if (level[i] > max_level[i-1] || (level[i] == max_level[i-1] && prio[i] > max_prio[i-1])) begin
+      if (level_reg[i] > max_level[i-1] || (level_reg[i] == max_level[i-1] && prio_reg[i] > max_prio[i-1])) begin
         max_id[i] = i[11:0];
-        max_prio[i] = prio[i];
-        max_level[i] = level[i];
+        max_prio[i] = prio_reg[i];
+        max_level[i] = level_reg[i];
       end else begin
         max_id[i] = max_id[i-1];
         max_prio[i] = max_prio[i-1];
@@ -311,24 +320,11 @@ module clic
     end
   end
 
-  always_ff @(posedge clock) begin
-    if (count_clic == clk_divider_clic) begin
-      count_clic <= 0;
-      clock_clic <= ~clock_clic;
-    end else begin
-      count_clic <= count_clic + 1;
-    end
-  end
-
-  always_ff @(posedge clock_clic) begin
+  always_ff @(posedge clock_irpt) begin
     if (reset == 1) begin
       max_id_reg <= '{default:'0};
-      max_prio_reg <= '{default:'0};
-      max_level_reg <= '{default:'0};
     end else begin
       max_id_reg <= max_id;
-      max_prio_reg <= max_prio;
-      max_level_reg <= max_level;
     end
   end
 
@@ -337,11 +333,12 @@ module clic
       meip <= 0;
       meid <= 0;
     end else begin
-      meip <= 0;
-      meid <= 0;
       if (max_id_reg[clic_interrupt-1]>0) begin
         meip <= 1;
         meid <= max_id_reg[clic_interrupt-1];
+      end else begin
+        meip <= 0;
+        meid <= 0;
       end
     end
   end

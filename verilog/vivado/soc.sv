@@ -4,6 +4,7 @@ module soc
 (
   input  logic reset,
   input  logic clock,
+  input  logic clock_irpt,
   input  logic rx,
   output logic tx,
   input  logic [31 : 0] irpt,
@@ -352,6 +353,7 @@ module soc
   (
     .reset (reset),
     .clock (clock),
+    .clock_irpt (clock_irpt),
     .clic_valid (clic_valid),
     .clic_instr (clic_instr),
     .clic_addr (clic_addr),

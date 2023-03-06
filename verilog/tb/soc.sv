@@ -1,7 +1,8 @@
 module soc
 (
   input logic reset,
-  input logic clock
+  input logic clock,
+  input logic clock_irpt
 );
   timeunit 1ns;
   timeprecision 1ps;
@@ -295,6 +296,7 @@ module soc
   (
     .reset (reset),
     .clock (clock),
+    .clock_irpt (clock_irpt),
     .clic_valid (clic_valid),
     .clic_instr (clic_instr),
     .clic_addr (clic_addr),

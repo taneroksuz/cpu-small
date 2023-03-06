@@ -23,12 +23,10 @@ package configure;
   parameter avl_base_addr = 32'h80000000;
   parameter avl_top_addr  = 32'h90000000;
 
-  parameter clk_freq = 25000000; // 25MHz
-  parameter clic_freq = 6250000; // 6.25MHz
+  parameter clk_freq = 20000000; // 20MHz
   parameter rtc_freq = 32768; // 32768Hz
   parameter baudrate = 115200;
 
-  parameter clk_divider_clic = clk_freq/clic_freq/2-1;
   parameter clk_divider_rtc = clk_freq/rtc_freq-1;
   parameter clks_per_bit = clk_freq/baudrate-1;
 

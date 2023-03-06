@@ -31,13 +31,15 @@ int sc_main(int argc, char* argv[])
     dumpfile = filename.c_str();
   }
 
-  sc_clock clock ("clock", 1,SC_NS, 0.5, 0.5,SC_NS, false);
   sc_signal<bool> reset;
+  sc_clock clock ("clock", 1,SC_NS, 0.5, 0.0,SC_NS, true);
+  sc_clock clock_irpt ("clock_irpt", 4,SC_NS, 0.5, 0.0,SC_NS, true);
 
   Vsoc* soc = new Vsoc("soc");
 
-  soc->clock (clock);
   soc->reset (reset);
+  soc->clock (clock);
+  soc->clock_irpt (clock_irpt);
 
 #if VM_TRACE
   Verilated::traceEverOn(true);
