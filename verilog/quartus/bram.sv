@@ -41,11 +41,11 @@ module bram
     bram_block[15] = 32'h02B74F81;
     bram_block[16] = 32'h03370100;
     bram_block[17] = 32'h03B70800;
-    bram_block[18] = 32'h8E030008;
+    bram_block[18] = 32'hCE030008;
     bram_block[19] = 32'h00230002;
     bram_block[20] = 32'h0E8501C3;
-    bram_block[21] = 32'hDAE30305;
-    bram_block[22] = 32'h0337FFD3;
+    bram_block[21] = 32'hCAE30305;
+    bram_block[22] = 32'h0337FE7E;
     bram_block[23] = 32'h00670800;
     bram_block[24] = 32'h00000003;
     bram_block[25] = 32'h00000000;

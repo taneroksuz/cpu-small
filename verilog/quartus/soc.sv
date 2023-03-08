@@ -2,24 +2,31 @@ import configure::*;
 
 module soc
 (
-  input  logic reset,
-  input  logic clock,
-  input  logic clock_irpt,
-  input  logic rx,
-  output logic tx,
-  input  logic [31 : 0] irpt,
-  output logic [31 : 0] m_avl_address,
-  output logic [3  : 0] m_avl_byteenable,
-  output logic [0  : 0] m_avl_lock,
-  output logic [0  : 0] m_avl_read,
-  output logic [31 : 0] m_avl_writedata,
-  output logic [0  : 0] m_avl_write,
-  output logic [2  : 0] m_avl_burstcount,
-  input  logic [31 : 0] m_avl_readdata,
-  input  logic [1  : 0] m_avl_response,
-  input  logic [0  : 0] m_avl_waitrequest,
-  input  logic [0  : 0] m_avl_readdatavalid,
-  input  logic [0  : 0] m_avl_writeresponsevalid
+  input  reset,
+  input  clock,
+  input  clock_irpt,
+  input  rx,
+  output tx,
+  input  [31 : 0] irpt,
+  inout  [15 : 0] sram_d,
+  output [17 : 0] sram_a,
+  output [0  : 0] sram_lb_n,
+  output [0  : 0] sram_ub_n,
+  output [0  : 0] sram_ce_n,
+  output [0  : 0] sram_oe_n,
+  output [0  : 0] sram_we_n,
+  output [31 : 0] m_avl_address,
+  output [3  : 0] m_avl_byteenable,
+  output [0  : 0] m_avl_lock,
+  output [0  : 0] m_avl_read,
+  output [31 : 0] m_avl_writedata,
+  output [0  : 0] m_avl_write,
+  output [2  : 0] m_avl_burstcount,
+  input  [31 : 0] m_avl_readdata,
+  input  [1  : 0] m_avl_response,
+  input  [0  : 0] m_avl_waitrequest,
+  input  [0  : 0] m_avl_readdatavalid,
+  input  [0  : 0] m_avl_writeresponsevalid
 );
   timeunit 1ns;
   timeprecision 1ps;
@@ -90,6 +97,14 @@ module soc
   logic [31 : 0] clic_rdata;
   logic [0  : 0] clic_ready;
 
+  logic [0  : 0] sram_valid;
+  logic [0  : 0] sram_instr;
+  logic [31 : 0] sram_addr;
+  logic [31 : 0] sram_wdata;
+  logic [3  : 0] sram_wstrb;
+  logic [31 : 0] sram_rdata;
+  logic [0  : 0] sram_ready;
+
   logic [0  : 0] avl_valid;
   logic [0  : 0] avl_instr;
   logic [31 : 0] avl_addr;
@@ -117,6 +132,7 @@ module soc
     uart_valid = 0;
     clint_valid = 0;
     clic_valid = 0;
+    sram_valid = 0;
     avl_valid = 0;
 
     base_addr = 0;
@@ -129,8 +145,19 @@ module soc
           uart_valid = 0;
           clint_valid = 0;
           clic_valid = 0;
+          sram_valid = 0;
           avl_valid = memory_valid;
           base_addr = bram_base_addr;
+      end else if (memory_addr >= sram_base_addr &&
+        memory_addr < sram_top_addr) begin
+          mem_error = 0;
+          bram_valid = 0;
+          uart_valid = 0;
+          clint_valid = 0;
+          clic_valid = 0;
+          sram_valid = memory_valid;
+          avl_valid = 0;
+          base_addr = sram_base_addr;
       end else if (memory_addr >= clic_base_addr &&
         memory_addr < clic_top_addr) begin
           mem_error = 0;
@@ -138,6 +165,7 @@ module soc
           uart_valid = 0;
           clint_valid = 0;
           clic_valid = memory_valid;
+          sram_valid = 0;
           avl_valid = 0;
           base_addr = clic_base_addr;
       end else if (memory_addr >= clint_base_addr &&
@@ -147,6 +175,7 @@ module soc
           uart_valid = 0;
           clint_valid = memory_valid;
           clic_valid = 0;
+          sram_valid = 0;
           avl_valid = 0;
           base_addr = clint_base_addr;
       end else if (memory_addr >= uart_base_addr &&
@@ -156,6 +185,7 @@ module soc
           uart_valid = memory_valid;
           clint_valid = 0;
           clic_valid = 0;
+          sram_valid = 0;
           avl_valid = 0;
           base_addr = uart_base_addr;
       end else if (memory_addr >= bram_base_addr &&
@@ -165,6 +195,7 @@ module soc
           uart_valid = 0;
           clint_valid = 0;
           clic_valid = 0;
+          sram_valid = 0;
           avl_valid = 0;
           base_addr = bram_base_addr;
       end else begin
@@ -173,6 +204,7 @@ module soc
           uart_valid = 0;
           clint_valid = 0;
           clic_valid = 0;
+          sram_valid = 0;
           avl_valid = 0;
           base_addr = 0;
       end
@@ -200,6 +232,11 @@ module soc
     clic_wdata = memory_wdata;
     clic_wstrb = memory_wstrb;
 
+    sram_instr = memory_instr;
+    sram_addr = mem_addr;
+    sram_wdata = memory_wdata;
+    sram_wstrb = memory_wstrb;
+
     avl_instr = memory_instr;
     avl_addr = mem_addr;
     avl_wdata = memory_wdata;
@@ -221,6 +258,10 @@ module soc
       memory_rdata = clic_rdata;
       memory_error = 0;
       memory_ready = clic_ready;
+    end else if (sram_ready == 1) begin
+      memory_rdata = sram_rdata;
+      memory_error = 0;
+      memory_ready = sram_ready;
     end else if (avl_ready == 1) begin
       memory_rdata = avl_rdata;
       memory_error = 0;
@@ -343,6 +384,26 @@ module soc
     .clic_meip (meip),
     .clic_meid (meid),
     .clic_irpt (irpt)
+  );
+
+  sram sram_comp
+  (
+    .reset (reset),
+    .clock (clock),
+    .sram_valid (sram_valid),
+    .sram_instr (sram_instr),
+    .sram_addr (sram_addr),
+    .sram_wdata (sram_wdata),
+    .sram_wstrb (sram_wstrb),
+    .sram_rdata (sram_rdata),
+    .sram_ready (sram_ready),
+    .sram_d (sram_d),
+    .sram_a (sram_a),
+    .sram_lb_n (sram_lb_n),
+    .sram_ub_n (sram_ub_n),
+    .sram_ce_n (sram_ce_n),
+    .sram_oe_n (sram_oe_n),
+    .sram_we_n (sram_we_n)
   );
 
   avl avl_comp
