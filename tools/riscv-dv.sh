@@ -10,6 +10,8 @@ fi
 sudo mkdir $INSTALL_PATH
 sudo chown -R $USER $INSTALL_PATH/
 
+sudo apt-get install -y python3-pip python3-setuptools
+
 if [ -d "riscv-dv" ]; then
   rm -rf riscv-dv
 fi

@@ -1,4 +1,5 @@
 #!/bin/bash
+set -e
 
 INST_PATH=/opt/verilator
 
@@ -9,7 +10,7 @@ fi
 sudo mkdir $INST_PATH
 sudo chown -R $USER $INST_PATH/
 
-sudo apt-get install git make autoconf g++ flex bison libfl-dev
+sudo apt-get install -y git make autoconf g++ flex bison libfl-dev help2man
 
 if [ -d "verilator" ]; then
   rm -rf verilator

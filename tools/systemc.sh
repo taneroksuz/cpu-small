@@ -1,4 +1,5 @@
 #!/bin/bash
+set -e
 
 INST_PATH=/opt/systemc
 
@@ -8,6 +9,8 @@ then
 fi
 sudo mkdir $INST_PATH
 sudo chown -R $USER $INST_PATH/
+
+sudo apt-get -y install build-essential
 
 if [ -d "systemc-2.3.3" ]; then
   rm -rf systemc-2.3.3
