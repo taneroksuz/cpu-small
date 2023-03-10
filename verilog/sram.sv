@@ -25,58 +25,80 @@ module sram
 
   function void transform
   (
-    input  logic [17 : 0] addr_in,
+    input  logic [31 : 0] addr_in,
     input  logic [31 : 0] data_in,
     input  logic [3  : 0] strb_in,
     output logic [17 : 0] addr_out,
     output logic [31 : 0] data_out,
     output logic [3  : 0] strb_out,
-    output logic [0  : 0] state_out
+    output logic [0  : 0] state_out,
+    output logic [0  : 0] ready_out,
+    output logic [0  : 0] wren_out,
+    output logic [0  : 0] rden_out
   );
     addr_out = 0;
-    data_out = 32'hZZZZZZZZ;
+    data_out = 0;
     strb_out = 0;
     state_out = 0;
+    ready_out = 0;
+    wren_out = 0;
+    rden_out = 0;
     if (|(strb_in[3:0]) == 0) begin
-      addr_out = addr_in;
-      data_out = 32'hZZZZZZZZ;
+      addr_out = addr_in[18:1];
+      data_out = 0;
       strb_out = 4'hF;
       state_out = 1;
+      ready_out = 0;
+      rden_out = 1;
     end else if (&(strb_in[3:0]) == 1) begin
-      addr_out = addr_in;
+      addr_out = addr_in[18:1];
       data_out = data_in;
       strb_out = 4'hF;
       state_out = 1;
+      ready_out = 0;
+      wren_out = 1;
     end else if (&(strb_in[1:0]) == 1) begin
-      addr_out = addr_in;
+      addr_out = addr_in[18:1];
       data_out = {16'h0,data_in[15:0]};
       strb_out = 4'h3;
       state_out = 0;
+      ready_out = 1;
+      wren_out = 1;
     end else if (&(strb_in[3:2]) == 1) begin
-      addr_out = addr_in;
+      addr_out = addr_in[18:1];
       data_out = {16'h0,data_in[31:16]};
       strb_out = 4'h3;
       state_out = 0;
+      ready_out = 1;
+      wren_out = 1;
     end else if (strb_in[0] == 1) begin
-      addr_out = addr_in;
+      addr_out = addr_in[18:1];
       data_out = {24'h0,data_in[7:0]};
       strb_out = 4'h1;
       state_out = 0;
+      ready_out = 1;
+      wren_out = 1;
     end else if (strb_in[1] == 1) begin
-      addr_out = addr_in;
+      addr_out = addr_in[18:1];
       data_out = {16'h0,data_in[15:8],8'h0};
       strb_out = 4'h2;
       state_out = 0;
+      ready_out = 1;
+      wren_out = 1;
     end else if (strb_in[2] == 1) begin
-      addr_out = addr_in;
+      addr_out = addr_in[18:1];
       data_out = {24'h0,data_in[23:16]};
       strb_out = 4'h1;
       state_out = 0;
+      ready_out = 1;
+      wren_out = 1;
     end else if (strb_in[3] == 1) begin
-      addr_out = addr_in;
+      addr_out = addr_in[18:1];
       data_out = {16'h0,data_in[31:24],8'h0};
       strb_out = 4'h2;
       state_out = 0;
+      ready_out = 1;
+      wren_out = 1;
     end
   endfunction
 
@@ -122,7 +144,7 @@ module sram
 
     v = r;
 
-    v.d = 16'hZZZZ;
+    v.d = 0;
     v.a = 0;
     v.lb = 0;
     v.ub = 0;
@@ -136,14 +158,12 @@ module sram
       0 : begin
         v.state = 0;
         v.addr = 0;
-        v.data = 32'hZZZZZZZZ;
+        v.data = 0;
         v.strb = 0;
         v.wren = 0;
         v.rden = 0;
         if (sram_valid == 1) begin
-          transform(sram_addr[18:1],sram_wdata,sram_wstrb,v.addr,v.data,v.strb,v.state);
-          v.wren = |(sram_wstrb);
-          v.rden = ~(|(sram_wstrb));
+          transform(sram_addr,sram_wdata,sram_wstrb,v.addr,v.data,v.strb,v.state,v.ready,v.wren,v.rden);
         end
         v.d = v.data[15:0];
         v.a = v.addr[17:0];
@@ -154,9 +174,6 @@ module sram
         v.we = v.wren;
         if (v.rden == 1) begin
           v.rdata[15:0] = sram_d;
-        end
-        if (v.wren == 1) begin
-          v.ready = ~v.state;
         end
       end
       1 : begin
@@ -176,7 +193,7 @@ module sram
       default : begin
         v.state = 0;
         v.addr = 0;
-        v.data = 32'hZZZZZZZZ;
+        v.data = 0;
         v.strb = 0;
         v.wren = 0;
         v.rden = 0;
