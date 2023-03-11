@@ -57,15 +57,19 @@ module fetchbuffer_ctrl
   timeunit 1ns;
   timeprecision 1ps;
 
+  localparam [fetchbuffer_depth-1 : 0] limit = {fetchbuffer_depth{1'b1}};
+
   typedef struct packed{
     logic [fetchbuffer_depth-1:0] wid;
     logic [fetchbuffer_depth-1:0] rid;
+    logic [fetchbuffer_depth-1:0] dif;
     logic [0:0] wren;
     logic [0:0] rden;
     logic [0:0] wen;
     logic [0:0] ren;
     logic [32:0] wval;
     logic [32:0] rval;
+    logic [0:0] pass;
     logic [0:0] spec;
     logic [0:0] valid;
     logic [1:0] mode;
@@ -73,26 +77,26 @@ module fetchbuffer_ctrl
     logic [31:0] rdata;
     logic [0:0] error;
     logic [0:0] ready;
-    logic [0:0] overflow;
   } reg_type;
 
   parameter reg_type init_reg = '{
     wid : 0,
     rid : 0,
+    dif : 0,
     wren : 0,
     rden : 0,
     wen : 0,
     ren : 0,
     wval : 0,
     rval : 0,
+    pass : 0,
     spec : 0,
     valid : 0,
     mode : m_mode,
     addr : 0,
     rdata : 0,
     error : 0,
-    ready : 0,
-    overflow : 0
+    ready : 0
   };
 
   reg_type r,rin;
@@ -104,9 +108,11 @@ module fetchbuffer_ctrl
 
     v.wen = 0;
     v.ren = 0;
+    v.pass = 0;
 
     v.valid = 1;
 
+    v.rdata = 0;
     v.error = 0;
     v.ready = 0;
 
@@ -131,22 +137,23 @@ module fetchbuffer_ctrl
       v.rden = 0;
       v.wid = 0;
       v.rid = 0;
-      v.overflow = 0;
+      v.dif = 0;
     end
 
     if (v.wren == 1) begin
-      if (v.overflow == 0) begin
+      if (v.dif < limit) begin
         v.wen = 1;
-      end else if (v.wid < v.rid) begin
-        v.wen = 1;
+        v.dif = v.dif + 1;
       end
     end
 
     if (v.rden == 1) begin
-      if (v.overflow == 1) begin
+      if (v.dif > 1) begin
         v.ren = 1;
-      end else if (v.rid < v.wid) begin
-        v.ren = 1;
+        v.dif = v.dif - 1;
+      end else if (v.dif == 1) begin
+        v.pass = 1;
+        v.dif = v.dif - 1;
       end
     end
 
@@ -164,30 +171,18 @@ module fetchbuffer_ctrl
       v.addr = v.addr + 4;
     end
 
-    if (v.ren == 1) begin
+    if (v.ren == 1 || v.pass == 1) begin
       v.rden = 0;
       v.rid = v.rid + 1;
-    end
-
-    if (v.wen == 1) begin
-      if (v.overflow == 0) begin
-        if (v.wid == 0) begin
-          v.overflow = 1;
-        end
-      end
-    end
-
-    if (v.ren == 1) begin
-      if (v.overflow == 1) begin
-        if (v.rid == 0) begin
-          v.overflow = 0;
-        end
-      end
     end
 
     if (v.ren == 1) begin
       v.rdata = v.rval[31:0];
       v.error = v.rval[32];
+      v.ready = 1;
+    end else if (v.pass == 1) begin
+      v.rdata = v.wval[31:0];
+      v.error = v.wval[32];
       v.ready = 1;
     end
 
