@@ -66,9 +66,7 @@ module fetchbuffer_ctrl
     logic [0:0] ren;
     logic [32:0] wval;
     logic [32:0] rval;
-    logic [0:0] init;
     logic [0:0] spec;
-    logic [0:0] busy;
     logic [0:0] valid;
     logic [1:0] mode;
     logic [31:0] addr;
@@ -87,9 +85,7 @@ module fetchbuffer_ctrl
     ren : 0,
     wval : 0,
     rval : 0,
-    init : 1,
     spec : 0,
-    busy : 0,
     valid : 0,
     mode : m_mode,
     addr : 0,
@@ -109,7 +105,7 @@ module fetchbuffer_ctrl
     v.wen = 0;
     v.ren = 0;
 
-    v.valid = 0;
+    v.valid = 1;
 
     v.error = 0;
     v.ready = 0;
@@ -117,9 +113,7 @@ module fetchbuffer_ctrl
     if (imem_out.mem_ready == 1) begin
       v.wren = 1;
       v.wval = {imem_out.mem_error,imem_out.mem_rdata};
-      v.addr = v.addr + ((v.busy == 0) ? 4 : 0);
       v.spec = 0;
-      v.busy = 0;
     end
 
     if (fetchbuffer_in.mem_valid == 1) begin
@@ -128,7 +122,6 @@ module fetchbuffer_ctrl
 
     if (fetchbuffer_in.mem_spec == 1) begin
       v.spec = 1;
-      v.busy = ~imem_out.mem_ready;
       v.mode = fetchbuffer_in.mem_mode;
       v.addr = {fetchbuffer_in.mem_addr[31:2],2'b00};
     end
@@ -168,6 +161,7 @@ module fetchbuffer_ctrl
     if (v.wen == 1) begin
       v.wren = 0;
       v.wid = v.wid + 1;
+      v.addr = v.addr + 4;
     end
 
     if (v.ren == 1) begin
@@ -195,10 +189,6 @@ module fetchbuffer_ctrl
       v.rdata = v.rval[31:0];
       v.error = v.rval[32];
       v.ready = 1;
-    end
-
-    if (v.wen == 1 || v.init == 1 || v.spec == 1) begin
-      v.valid = 1;
     end
 
     if (v.spec == 1) begin
