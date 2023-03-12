@@ -7,12 +7,14 @@ package fetch_wires;
   typedef struct packed{
     logic [0 : 0] wen;
     logic [fetchbuffer_depth-1 : 0] wid;
-    logic [fetchbuffer_depth-1 : 0] rid;
+    logic [fetchbuffer_depth-1 : 0] rid1;
+    logic [fetchbuffer_depth-1 : 0] rid2;
     logic [32 : 0] wval;
   } fetchbuffer_data_in_type;
 
   typedef struct packed{
-    logic [32 : 0] rval;
+    logic [32 : 0] rval1;
+    logic [32 : 0] rval2;
   } fetchbuffer_data_out_type;
 
 endpackage
@@ -33,7 +35,8 @@ module fetchbuffer_data
 
   logic [32 : 0] fetchbuffer_data_array[0:2**fetchbuffer_depth-1] = '{default:'0};
 
-  assign fetchbuffer_data_out.rval = fetchbuffer_data_array[fetchbuffer_data_in.rid];
+  assign fetchbuffer_data_out.rval1 = fetchbuffer_data_array[fetchbuffer_data_in.rid1];
+  assign fetchbuffer_data_out.rval2 = fetchbuffer_data_array[fetchbuffer_data_in.rid2];
 
   always_ff @(posedge clock) begin
     if (fetchbuffer_data_in.wen == 1) begin
@@ -57,19 +60,24 @@ module fetchbuffer_ctrl
   timeunit 1ns;
   timeprecision 1ps;
 
-  localparam [fetchbuffer_depth-1 : 0] limit = {fetchbuffer_depth{1'b1}};
+  localparam [fetchbuffer_depth : 0] limit = {{fetchbuffer_depth{1'b1}},1'b0};
 
   typedef struct packed{
     logic [fetchbuffer_depth-1:0] wid;
-    logic [fetchbuffer_depth-1:0] rid;
-    logic [fetchbuffer_depth-1:0] dif;
+    logic [fetchbuffer_depth-1:0] rid1;
+    logic [fetchbuffer_depth-1:0] rid2;
+    logic [fetchbuffer_depth:0] dif;
+    logic [fetchbuffer_depth:0] step;
     logic [0:0] wren;
     logic [0:0] rden;
     logic [0:0] wen;
-    logic [0:0] ren;
+    logic [0:0] ren1;
+    logic [0:0] ren2;
     logic [32:0] wval;
-    logic [32:0] rval;
+    logic [65:0] rval;
+    logic [0:0] comp;
     logic [0:0] pass;
+    logic [0:0] next;
     logic [0:0] spec;
     logic [0:0] valid;
     logic [1:0] mode;
@@ -81,15 +89,20 @@ module fetchbuffer_ctrl
 
   parameter reg_type init_reg = '{
     wid : 0,
-    rid : 0,
+    rid1 : 0,
+    rid2 : 1,
     dif : 0,
+    step : 0,
     wren : 0,
     rden : 0,
     wen : 0,
-    ren : 0,
+    ren1 : 0,
+    ren2 : 0,
     wval : 0,
     rval : 0,
+    comp : 0,
     pass : 0,
+    next : 0,
     spec : 0,
     valid : 0,
     mode : m_mode,
@@ -107,8 +120,10 @@ module fetchbuffer_ctrl
     v = r;
 
     v.wen = 0;
-    v.ren = 0;
-    v.pass = 0;
+    v.ren1 = 0;
+    v.ren2 = 0;
+    v.next = 0;
+    v.step = 0;
 
     v.valid = 1;
 
@@ -124,6 +139,7 @@ module fetchbuffer_ctrl
 
     if (fetchbuffer_in.mem_valid == 1) begin
       v.rden = 1;
+      v.comp = fetchbuffer_in.mem_addr[1];
     end
 
     if (fetchbuffer_in.mem_spec == 1) begin
@@ -136,24 +152,24 @@ module fetchbuffer_ctrl
       v.wren = 0;
       v.rden = 0;
       v.wid = 0;
-      v.rid = 0;
+      v.rid1 = 0;
+      v.rid2 = 1;
       v.dif = 0;
     end
 
     if (v.wren == 1) begin
       if (v.dif < limit) begin
         v.wen = 1;
-        v.dif = v.dif + 1;
+        v.dif = v.dif + 2;
       end
     end
 
     if (v.rden == 1) begin
-      if (v.dif > 1) begin
-        v.ren = 1;
-        v.dif = v.dif - 1;
-      end else if (v.dif == 1) begin
-        v.pass = 1;
-        v.dif = v.dif - 1;
+      if (v.dif > 2) begin
+        v.ren1 = 1;
+      end
+      if (v.dif > 4) begin
+        v.ren2 = 1;
       end
     end
 
@@ -161,9 +177,13 @@ module fetchbuffer_ctrl
     fetchbuffer_data_in.wid = v.wid;
     fetchbuffer_data_in.wval = v.wval;
 
-    fetchbuffer_data_in.rid = v.rid;
+    fetchbuffer_data_in.rid1 = v.rid1;
+    fetchbuffer_data_in.rid2 = v.rid2;
 
-    v.rval = fetchbuffer_data_out.rval;
+    v.rval[31:0] = fetchbuffer_data_out.rval1[31:0];
+    v.rval[63:32] = fetchbuffer_data_out.rval2[31:0];
+    v.rval[64] = fetchbuffer_data_out.rval1[32];
+    v.rval[65] = fetchbuffer_data_out.rval2[32];
 
     if (v.wen == 1) begin
       v.wren = 0;
@@ -171,23 +191,67 @@ module fetchbuffer_ctrl
       v.addr = v.addr + 4;
     end
 
-    if (v.ren == 1 || v.pass == 1) begin
-      v.rden = 0;
-      v.rid = v.rid + 1;
-    end
-
-    if (v.ren == 1) begin
-      v.rdata = v.rval[31:0];
-      v.error = v.rval[32];
-      v.ready = 1;
-    end else if (v.pass == 1) begin
-      v.rdata = v.wval[31:0];
-      v.error = v.wval[32];
-      v.ready = 1;
+    if (v.comp == 1) begin
+      if (v.ren2 == 1 && v.ren1 == 1) begin
+        v.rdata[31:16] = v.rval[47:32];
+        v.rdata[15:0] = v.rval[31:16];
+        v.error = v.rval[65] | v.rval[64];
+        v.ready = 1;
+      end else if  (v.ren1 == 1 && v.wen == 1) begin
+        v.rdata[31:16] = v.wval[15:0];
+        v.rdata[15:0] = v.rval[31:16];
+        v.error = v.rval[64] | v.wval[32];
+        v.ready = 1;
+      end else if (v.ren1 == 1) begin
+        v.rdata[15:0] = v.rval[31:16];
+        v.error = v.rval[64];
+        v.ready = ~(&(v.rdata[1:0]));
+      end else if  (v.wen == 1) begin
+        v.rdata[15:0] = v.wval[31:16];
+        v.error = v.wval[32];
+        v.ready = ~(&(v.rdata[1:0]));
+      end
+      if (v.ready == 1) begin
+        if (v.rdata[1:0] == 3) begin
+          v.next = 1;
+          v.step = 2;
+        end else begin
+          v.next = 1;
+          v.step = 1;
+        end
+      end
+    end else begin
+      if (v.ren1 == 1) begin
+        v.rdata = v.rval[31:0];
+        v.error = v.rval[64];
+        v.ready = 1;
+      end else if (v.wen == 1) begin
+        v.rdata = v.wval[31:0];
+        v.error = v.wval[32];
+        v.ready = 1;
+      end
+      if (v.ready == 1) begin
+        if (v.rdata[1:0] == 3) begin
+          v.next = 1;
+          v.step = 2;
+        end else begin
+          v.next = 0;
+          v.step = 1;
+        end
+      end
     end
 
     if (v.spec == 1) begin
       v.ready = 0;
+    end
+
+    if (v.ready == 1) begin
+      v.rden = 0;
+      if (v.next == 1) begin
+        v.rid1 = v.rid2;
+        v.rid2 = v.rid2 + 1;
+      end
+      v.dif = v.dif - v.step;
     end
 
     imem_in.mem_valid = v.valid;
