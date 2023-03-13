@@ -51,7 +51,7 @@ module bram
           $finish;
         end else begin
           $write("%c[1;31m",8'h1B);
-          $display("TEST STOPPED");
+          $display("TEST FAILED");
           $write("%c[0m",8'h1B);
           $finish;
         end
