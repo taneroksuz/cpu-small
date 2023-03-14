@@ -65,13 +65,11 @@ module soc
   logic [0  : 0] mem_error;
   logic [0  : 0] mem_ready;
 
-  logic [0  : 0] bram_valid;
-  logic [0  : 0] bram_instr;
-  logic [31 : 0] bram_addr;
-  logic [31 : 0] bram_wdata;
-  logic [3  : 0] bram_wstrb;
-  logic [31 : 0] bram_rdata;
-  logic [0  : 0] bram_ready;
+  logic [0  : 0] rom_valid;
+  logic [0  : 0] rom_instr;
+  logic [31 : 0] rom_addr;
+  logic [31 : 0] rom_rdata;
+  logic [0  : 0] rom_ready;
 
   logic [0  : 0] uart_valid;
   logic [0  : 0] uart_instr;
@@ -128,7 +126,7 @@ module soc
 
     mem_error = 0;
 
-    bram_valid = 0;
+    rom_valid = 0;
     uart_valid = 0;
     clint_valid = 0;
     clic_valid = 0;
@@ -141,17 +139,17 @@ module soc
       if (memory_addr >= avl_base_addr &&
         memory_addr < avl_top_addr) begin
           mem_error = 0;
-          bram_valid = 0;
+          rom_valid = 0;
           uart_valid = 0;
           clint_valid = 0;
           clic_valid = 0;
           sram_valid = 0;
           avl_valid = memory_valid;
-          base_addr = bram_base_addr;
+          base_addr = avl_base_addr;
       end else if (memory_addr >= sram_base_addr &&
         memory_addr < sram_top_addr) begin
           mem_error = 0;
-          bram_valid = 0;
+          rom_valid = 0;
           uart_valid = 0;
           clint_valid = 0;
           clic_valid = 0;
@@ -161,7 +159,7 @@ module soc
       end else if (memory_addr >= clic_base_addr &&
         memory_addr < clic_top_addr) begin
           mem_error = 0;
-          bram_valid = 0;
+          rom_valid = 0;
           uart_valid = 0;
           clint_valid = 0;
           clic_valid = memory_valid;
@@ -171,7 +169,7 @@ module soc
       end else if (memory_addr >= clint_base_addr &&
         memory_addr < clint_top_addr) begin
           mem_error = 0;
-          bram_valid = 0;
+          rom_valid = 0;
           uart_valid = 0;
           clint_valid = memory_valid;
           clic_valid = 0;
@@ -181,26 +179,26 @@ module soc
       end else if (memory_addr >= uart_base_addr &&
         memory_addr < uart_top_addr) begin
           mem_error = 0;
-          bram_valid = 0;
+          rom_valid = 0;
           uart_valid = memory_valid;
           clint_valid = 0;
           clic_valid = 0;
           sram_valid = 0;
           avl_valid = 0;
           base_addr = uart_base_addr;
-      end else if (memory_addr >= bram_base_addr &&
-        memory_addr < bram_top_addr) begin
+      end else if (memory_addr >= rom_base_addr &&
+        memory_addr < rom_top_addr) begin
           mem_error = 0;
-          bram_valid = memory_valid;
+          rom_valid = memory_valid;
           uart_valid = 0;
           clint_valid = 0;
           clic_valid = 0;
           sram_valid = 0;
           avl_valid = 0;
-          base_addr = bram_base_addr;
+          base_addr = rom_base_addr;
       end else begin
           mem_error = 1;
-          bram_valid = 0;
+          rom_valid = 0;
           uart_valid = 0;
           clint_valid = 0;
           clic_valid = 0;
@@ -212,10 +210,8 @@ module soc
 
     mem_addr = memory_addr - base_addr;
 
-    bram_instr = memory_instr;
-    bram_addr = mem_addr;
-    bram_wdata = memory_wdata;
-    bram_wstrb = memory_wstrb;
+    rom_instr = memory_instr;
+    rom_addr = mem_addr;
 
     uart_instr = memory_instr;
     uart_addr = mem_addr;
@@ -242,10 +238,10 @@ module soc
     avl_wdata = memory_wdata;
     avl_wstrb = memory_wstrb;
 
-    if (bram_ready == 1) begin
-      memory_rdata = bram_rdata;
+    if (rom_ready == 1) begin
+      memory_rdata = rom_rdata;
       memory_error = 0;
-      memory_ready = bram_ready;
+      memory_ready = rom_ready;
     end else if (uart_ready == 1) begin
       memory_rdata = uart_rdata;
       memory_error = 0;
@@ -325,17 +321,15 @@ module soc
     .mtime (mtime)
   );
 
-  bram bram_comp
+  rom rom_comp
   (
     .reset (reset),
     .clock (clock),
-    .bram_valid (bram_valid),
-    .bram_instr (bram_instr),
-    .bram_addr (bram_addr),
-    .bram_wdata (bram_wdata),
-    .bram_wstrb (bram_wstrb),
-    .bram_rdata (bram_rdata),
-    .bram_ready (bram_ready)
+    .rom_valid (rom_valid),
+    .rom_instr (rom_instr),
+    .rom_addr (rom_addr),
+    .rom_rdata (rom_rdata),
+    .rom_ready (rom_ready)
   );
 
   uart uart_comp

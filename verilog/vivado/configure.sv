@@ -8,8 +8,8 @@ package configure;
 
   parameter pmp_region = 4;
 
-  parameter bram_base_addr = 32'h0;
-  parameter bram_top_addr  = 32'h80;
+  parameter rom_base_addr = 32'h0;
+  parameter rom_top_addr  = 32'h80;
 
   parameter uart_base_addr = 32'h1000000;
   parameter uart_top_addr  = 32'h1000004;
