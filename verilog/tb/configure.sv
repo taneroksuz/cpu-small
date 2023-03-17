@@ -4,9 +4,9 @@ package configure;
 
   parameter mul_performance = 1;
 
-  parameter fetchbuffer_depth = 4;
+  parameter fetchbuffer_depth = 16;
 
-  parameter bram_depth = 2**18;
+  parameter bram_depth = 262144;
 
   parameter pmp_region = 4;
 

@@ -8,13 +8,15 @@ package fetch_wires;
 
   typedef struct packed{
     logic [0 : 0] wen;
-    logic [depth-1 : 0] wid;
-    logic [depth-1 : 0] rid;
-    logic [32 : 0] wval;
+    logic [depth-1 : 0] waddr;
+    logic [depth-1 : 0] raddr1;
+    logic [depth-1 : 0] raddr2;
+    logic [63 : 0] wdata;
   } fetchbuffer_data_in_type;
 
   typedef struct packed{
-    logic [32 : 0] rval;
+    logic [63 : 0] rdata1;
+    logic [63 : 0] rdata2;
   } fetchbuffer_data_out_type;
 
 endpackage
@@ -33,13 +35,14 @@ module fetchbuffer_data
   timeunit 1ns;
   timeprecision 1ps;
 
-  logic [32 : 0] fetchbuffer_data_array[0:fetchbuffer_depth-1] = '{default:'0};
+  logic [63 : 0] fetchbuffer_data_array[0:fetchbuffer_depth-1] = '{default:'0};
 
-  assign fetchbuffer_data_out.rval = fetchbuffer_data_array[fetchbuffer_data_in.rid];
+  assign fetchbuffer_data_out.rdata1 = fetchbuffer_data_array[fetchbuffer_data_in.raddr1];
+  assign fetchbuffer_data_out.rdata2 = fetchbuffer_data_array[fetchbuffer_data_in.raddr2];
 
   always_ff @(posedge clock) begin
     if (fetchbuffer_data_in.wen == 1) begin
-      fetchbuffer_data_array[fetchbuffer_data_in.wid] <= fetchbuffer_data_in.wval;
+      fetchbuffer_data_array[fetchbuffer_data_in.waddr] <= fetchbuffer_data_in.wdata;
     end
   end
 
@@ -60,50 +63,68 @@ module fetchbuffer_ctrl
   timeprecision 1ps;
 
   localparam depth = $clog2(fetchbuffer_depth-1);
-  localparam limit = (fetchbuffer_depth-1) << 1;
+  localparam limit = 2*fetchbuffer_depth-2;
 
   typedef struct packed{
+    logic [depth+1:0] incr;
+    logic [depth+1:0] step;
     logic [depth-1:0] wid;
-    logic [depth-1:0] rid;
-    logic [depth:0] count;
-    logic [depth:0] step;
+    logic [depth-1:0] rid1;
+    logic [depth-1:0] rid2;
+    logic [63:0] wdata;
+    logic [63:0] rdata1;
+    logic [63:0] rdata2;
     logic [0:0] wren;
-    logic [0:0] rden;
-    logic [0:0] wen;
-    logic [0:0] ren;
-    logic [32:0] wval;
-    logic [65:0] rval;
-    logic [0:0] comp;
-    logic [0:0] valid;
-    logic [0:0] spec;
-    logic [0:0] fence;
-    logic [1:0] mode;
+    logic [0:0] rden1;
+    logic [0:0] rden2;
+    logic [0:0] wrden1;
+    logic [0:0] wrden2;
+    logic [31:0] paddr;
+    logic [31:0] paddrn;
     logic [31:0] addr;
+    logic [0:0] pfence;
+    logic [0:0] fence;
+    logic [0:0] pvalid;
+    logic [0:0] valid;
+    logic [0:0] comp;
+    logic [0:0] pspec;
+    logic [1:0] mode;
+    logic [1:0] pmode;
     logic [31:0] rdata;
     logic [0:0] error;
     logic [0:0] ready;
+    logic [0:0] stall;
   } reg_type;
 
   parameter reg_type init_reg = '{
-    wid : 0,
-    rid : 0,
-    count : 0,
+    incr : 0,
     step : 0,
+    wid : 0,
+    rid1 : 0,
+    rid2 : 0,
+    wdata : 0,
+    rdata1 : 0,
+    rdata2 : 0,
     wren : 0,
-    rden : 0,
-    wen : 0,
-    ren : 0,
-    wval : 0,
-    rval : 0,
-    comp : 0,
-    valid : 0,
-    spec : 0,
-    fence : 0,
-    mode : m_mode,
+    rden1 : 0,
+    rden2 : 0,
+    wrden1 : 0,
+    wrden2 : 0,
+    paddr : 0,
+    paddrn : 0,
     addr : 0,
+    pfence : 0,
+    fence : 0,
+    pvalid : 0,
+    valid : 0,
+    comp : 0,
+    pspec : 0,
+    mode : m_mode,
+    pmode : 0,
     rdata : 0,
     error : 0,
-    ready : 0
+    ready : 0,
+    stall : 0
   };
 
   reg_type r,rin;
@@ -113,113 +134,170 @@ module fetchbuffer_ctrl
 
     v = r;
 
-    v.wen = 0;
-    v.ren = 0;
+    v.pvalid = 0;
 
-    v.step = 0;
+    v.pfence = 0;
+    v.pspec = 0;
+    v.pmode = 0;
 
     v.valid = 1;
-    v.fence = 0;
 
     v.rdata = 0;
     v.error = 0;
     v.ready = 0;
 
-    if (imem_out.mem_ready == 1) begin
+    v.rden1 = 0;
+    v.rden2 = 0;
+
+    v.rdata1 = 0;
+    v.rdata2 = 0;
+
+    v.wren = 0;
+
+    v.wrden1 = 0;
+    v.wrden2 = 0;
+
+    v.comp = 0;
+
+    v.step = 0;
+
+    if (v.fence == 1) begin
+      if (v.wid == -1) begin
+        v.wren = 0;
+        v.wid = 0;
+        v.wdata = 0;
+        v.fence = 0;
+      end else begin 
+        v.wren = 1;
+        v.wid = v.wid + 1;
+        v.wdata = 0;
+        v.fence = 1;
+      end
+    end else if (imem_out.mem_error == 1) begin
       v.wren = 1;
-      v.wval = {imem_out.mem_error,imem_out.mem_rdata};
-      v.spec = 0;
+      v.wid = v.addr[(depth+1):2];
+      v.wdata = {1'b1,v.wren,v.addr[31:2],imem_out.mem_rdata};
+    end else if (imem_out.mem_ready == 1) begin
+      v.wren = 1;
+      v.wid = v.addr[(depth+1):2];
+      v.wdata = {1'b0,v.wren,v.addr[31:2],imem_out.mem_rdata};
+    end
+
+    if (v.wren == 1 && v.wdata[63] == 0) begin
+      if (v.incr < limit) begin
+        v.incr = v.incr + 2;
+        v.addr = v.addr + 4;
+      end else begin
+        v.valid = 0;
+      end
     end
 
     if (fetchbuffer_in.mem_valid == 1) begin
-      v.rden = 1;
-      v.comp = fetchbuffer_in.mem_addr[1];
+      v.pvalid = fetchbuffer_in.mem_valid;
+      v.pfence = fetchbuffer_in.mem_fence;
+      v.pspec = fetchbuffer_in.mem_spec;
+      v.pmode = fetchbuffer_in.mem_mode;
+      v.paddr = fetchbuffer_in.mem_addr;
+      v.paddrn = v.paddr + 4;
     end
 
-    if (fetchbuffer_in.mem_spec == 1) begin
-      v.spec = 1;
-      v.mode = fetchbuffer_in.mem_mode;
-      v.addr = {fetchbuffer_in.mem_addr[31:2],2'b00};
-    end
+    v.rid1 = v.paddr[depth+1:2];
+    v.rid2 = v.paddrn[depth+1:2];
 
-    if (fetchbuffer_in.mem_fence == 1) begin
+    if (v.pfence == 1) begin
+      v.wren = 1;
+      v.wid = 0;
+      v.wdata = 0;
       v.fence = 1;
     end
 
-    if (v.spec == 1 || v.fence == 1) begin
-      v.wren = 0;
-      v.rden = 0;
-      v.wid = 0;
-      v.rid = 0;
-      v.count = 0;
+    fetchbuffer_data_in.wen = v.wren;
+    fetchbuffer_data_in.waddr = v.wid;
+    fetchbuffer_data_in.wdata = v.wdata;
+
+    fetchbuffer_data_in.raddr1 = v.rid1;
+    fetchbuffer_data_in.raddr2 = v.rid2;
+
+    v.rdata1 = fetchbuffer_data_out.rdata1;
+    v.rdata2 = fetchbuffer_data_out.rdata2;
+
+    if (v.rdata1[62] == 1 && |(v.rdata1[61:32] ^ v.paddr[31:2]) == 0) begin
+      v.rden1 = 1;
+    end
+    if (v.rdata2[62] == 1 && |(v.rdata2[61:32] ^ v.paddrn[31:2]) == 0) begin
+      v.rden2 = 1;
     end
 
-    if (v.wren == 1) begin
-      if (v.count < limit) begin
-        v.wen = 1;
-        v.count = v.count + 2;
+    if (|(v.wdata[61:32] ^ v.paddr[31:2]) == 0) begin
+      v.wrden1 = v.wren;
+    end
+    if (|(v.wdata[61:32] ^ v.paddrn[31:2]) == 0) begin
+      v.wrden2 = v.wren;
+    end
+
+    if (v.pvalid == 1) begin
+      if (v.paddr[1:1] == 0) begin
+        if (v.wrden1 == 1) begin
+          v.rdata = v.wdata[31:0];
+          v.error = v.wdata[63];
+          v.ready = 1;
+        end else if (v.rden1 == 1) begin
+          v.rdata = v.rdata1[31:0];
+          v.error = v.rdata1[63];
+          v.ready = 1;
+        end
+      end else if (v.paddr[1:1] == 1) begin
+        if (v.wrden1 == 1) begin
+          v.rdata[15:0] = v.wdata[31:16];
+          if (&(v.rdata[1:0]) == 0) begin
+            v.error = v.wdata[63];
+            v.ready = 1;
+          end
+          v.comp = 1;
+        end else if (v.rden1 == 1) begin
+          v.rdata[15:0] = v.rdata1[31:16];
+          if (&(v.rdata[1:0]) == 0) begin
+            v.error = v.rdata1[63];
+            v.ready = 1;
+          end
+          v.comp = 1;
+        end
+        if (v.comp == 1) begin
+          if (v.wrden2 == 1) begin
+            v.rdata[31:16] = v.wdata[15:0];
+            v.error = v.wdata[63];
+            v.ready = 1;
+          end else if (v.rden2 == 1) begin
+            v.rdata[31:16] = v.rdata2[15:0];
+            v.error = v.rdata2[63];
+            v.ready = 1;
+          end
+        end
+      end
+      if (v.error == 0) begin
+        if (&(v.rdata[1:0]) == 0) begin
+          v.rdata[31:16] = 0;
+          v.step = 1;
+        end else if (&(v.rdata[1:0]) == 1) begin
+          v.step = 2;
+        end
+        if (v.step <= v.incr) begin
+          v.incr = v.incr - v.step;
+        end
       end
     end
 
-    fetchbuffer_data_in.wen = v.wen;
-    fetchbuffer_data_in.wid = v.wid;
-    fetchbuffer_data_in.wval = v.wval;
-
-    fetchbuffer_data_in.rid = v.rid;
-
-    v.rval[65] = v.rval[64];
-    v.rval[63:32] = v.rval[31:0];
-    v.rval[64] = fetchbuffer_data_out.rval[32];
-    v.rval[31:0] = fetchbuffer_data_out.rval[31:0];
-
-    if (v.wen == 1) begin
-      v.wren = 0;
-      v.wid = v.wid + 1;
-      v.addr = v.addr + 4;
-    end
-
-    if (v.comp == 1) begin
-      if (v.count > 4) begin
-        v.rdata[15:0] = v.rval[47:32];
-        v.error = v.rval[65];
-        v.ready = 1;
-      end else if (v.count > 2) begin
-        v.rdata[15:0] = v.rval[31:16];
-        v.error = v.rval[64];
-        v.ready = 1;
-      end
-      if (v.count > 3) begin
-        v.rdata[31:16] = v.rval[15:0];
-        v.error = v.error | v.rval[64];
-        v.ready = 1;
-      end else if (v.count > 1) begin
-        v.rdata[31:16] = v.wval[15:0];
-        v.error = v.error | v.wval[32];
-        v.ready = v.ready | ~(&(v.rdata[1:0]));
-      end
-    end else begin
-      if (v.count > 3) begin
-        v.rdata = v.rval[31:0];
-        v.error = v.rval[64];
-        v.ready = 1;
-      end else if (v.count > 1) begin
-        v.rdata = v.wval[31:0];
-        v.error = v.wval[32];
-        v.ready = 1;
-      end
-    end
-
-    if (v.spec == 1 || v.fence == 1) begin
+    if (v.fence == 1) begin
+      v.addr = r.paddr;
+      v.incr = 0;
+      v.valid = 0;
       v.ready = 0;
     end
 
-    if (v.ready == 1) begin
-      v.rden = 0;
-      v.step = v.rdata[1:0] == 3 ? 2 : 1;
-      v.count = v.count - v.step;
-      if (v.step == 2 || (v.step == 1 && v.comp == 1)) begin
-        v.rid = v.rid + 1;
-      end
+    if (v.pspec == 1) begin
+      v.mode = v.pmode;
+      v.addr = {v.paddr[31:2],2'b0};
+      v.error = 0;
     end
 
     imem_in.mem_valid = v.valid;
