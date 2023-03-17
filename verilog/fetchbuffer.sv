@@ -4,17 +4,17 @@ package fetch_wires;
 
   import configure::*;
 
+  localparam depth = $clog2(fetchbuffer_depth-1);
+
   typedef struct packed{
     logic [0 : 0] wen;
-    logic [fetchbuffer_depth-1 : 0] wid;
-    logic [fetchbuffer_depth-1 : 0] rid1;
-    logic [fetchbuffer_depth-1 : 0] rid2;
+    logic [depth-1 : 0] wid;
+    logic [depth-1 : 0] rid;
     logic [32 : 0] wval;
   } fetchbuffer_data_in_type;
 
   typedef struct packed{
-    logic [32 : 0] rval1;
-    logic [32 : 0] rval2;
+    logic [32 : 0] rval;
   } fetchbuffer_data_out_type;
 
 endpackage
@@ -33,10 +33,9 @@ module fetchbuffer_data
   timeunit 1ns;
   timeprecision 1ps;
 
-  logic [32 : 0] fetchbuffer_data_array[0:2**fetchbuffer_depth-1] = '{default:'0};
+  logic [32 : 0] fetchbuffer_data_array[0:fetchbuffer_depth-1] = '{default:'0};
 
-  assign fetchbuffer_data_out.rval1 = fetchbuffer_data_array[fetchbuffer_data_in.rid1];
-  assign fetchbuffer_data_out.rval2 = fetchbuffer_data_array[fetchbuffer_data_in.rid2];
+  assign fetchbuffer_data_out.rval = fetchbuffer_data_array[fetchbuffer_data_in.rid];
 
   always_ff @(posedge clock) begin
     if (fetchbuffer_data_in.wen == 1) begin
@@ -60,22 +59,20 @@ module fetchbuffer_ctrl
   timeunit 1ns;
   timeprecision 1ps;
 
-  localparam [fetchbuffer_depth : 0] limit = {{fetchbuffer_depth{1'b1}},1'b0};
+  localparam depth = $clog2(fetchbuffer_depth-1);
+  localparam limit = (fetchbuffer_depth-1) << 1;
 
   typedef struct packed{
-    logic [fetchbuffer_depth-1:0] wid;
-    logic [fetchbuffer_depth-1:0] rid1;
-    logic [fetchbuffer_depth-1:0] rid2;
-    logic [fetchbuffer_depth:0] count;
-    logic [fetchbuffer_depth:0] step;
+    logic [depth-1:0] wid;
+    logic [depth-1:0] rid;
+    logic [depth:0] count;
+    logic [depth:0] step;
     logic [0:0] wren;
     logic [0:0] rden;
     logic [0:0] wen;
-    logic [0:0] ren1;
-    logic [0:0] ren2;
+    logic [0:0] ren;
     logic [32:0] wval;
-    logic [32:0] rval1;
-    logic [32:0] rval2;
+    logic [65:0] rval;
     logic [0:0] comp;
     logic [0:0] valid;
     logic [0:0] spec;
@@ -89,18 +86,15 @@ module fetchbuffer_ctrl
 
   parameter reg_type init_reg = '{
     wid : 0,
-    rid1 : 0,
-    rid2 : 1,
+    rid : 0,
     count : 0,
     step : 0,
     wren : 0,
     rden : 0,
     wen : 0,
-    ren1 : 0,
-    ren2 : 0,
+    ren : 0,
     wval : 0,
-    rval1 : 0,
-    rval2 : 0,
+    rval : 0,
     comp : 0,
     valid : 0,
     spec : 0,
@@ -120,8 +114,7 @@ module fetchbuffer_ctrl
     v = r;
 
     v.wen = 0;
-    v.ren1 = 0;
-    v.ren2 = 0;
+    v.ren = 0;
 
     v.step = 0;
 
@@ -157,8 +150,7 @@ module fetchbuffer_ctrl
       v.wren = 0;
       v.rden = 0;
       v.wid = 0;
-      v.rid1 = 0;
-      v.rid2 = 1;
+      v.rid = 0;
       v.count = 0;
     end
 
@@ -173,11 +165,12 @@ module fetchbuffer_ctrl
     fetchbuffer_data_in.wid = v.wid;
     fetchbuffer_data_in.wval = v.wval;
 
-    fetchbuffer_data_in.rid1 = v.rid1;
-    fetchbuffer_data_in.rid2 = v.rid2;
+    fetchbuffer_data_in.rid = v.rid;
 
-    v.rval1 = fetchbuffer_data_out.rval1;
-    v.rval2 = fetchbuffer_data_out.rval2;
+    v.rval[65] = v.rval[64];
+    v.rval[63:32] = v.rval[31:0];
+    v.rval[64] = fetchbuffer_data_out.rval[32];
+    v.rval[31:0] = fetchbuffer_data_out.rval[31:0];
 
     if (v.wen == 1) begin
       v.wren = 0;
@@ -187,17 +180,17 @@ module fetchbuffer_ctrl
 
     if (v.comp == 1) begin
       if (v.count > 4) begin
-        v.rdata[15:0] = v.rval2[31:16];
-        v.error = v.rval2[32];
+        v.rdata[15:0] = v.rval[47:32];
+        v.error = v.rval[65];
         v.ready = 1;
       end else if (v.count > 2) begin
-        v.rdata[15:0] = v.rval1[31:16];
-        v.error = v.rval1[32];
+        v.rdata[15:0] = v.rval[31:16];
+        v.error = v.rval[64];
         v.ready = 1;
       end
       if (v.count > 3) begin
-        v.rdata[31:16] = v.rval1[15:0];
-        v.error = v.error | v.rval1[32];
+        v.rdata[31:16] = v.rval[15:0];
+        v.error = v.error | v.rval[64];
         v.ready = 1;
       end else if (v.count > 1) begin
         v.rdata[31:16] = v.wval[15:0];
@@ -206,8 +199,8 @@ module fetchbuffer_ctrl
       end
     end else begin
       if (v.count > 3) begin
-        v.rdata = v.rval1[31:0];
-        v.error = v.rval1[32];
+        v.rdata = v.rval[31:0];
+        v.error = v.rval[64];
         v.ready = 1;
       end else if (v.count > 1) begin
         v.rdata = v.wval[31:0];
@@ -225,8 +218,7 @@ module fetchbuffer_ctrl
       v.step = v.rdata[1:0] == 3 ? 2 : 1;
       v.count = v.count - v.step;
       if (v.step == 2 || (v.step == 1 && v.comp == 1)) begin
-        v.rid2 = v.rid1;
-        v.rid1 = v.rid1 + 1;
+        v.rid = v.rid + 1;
       end
     end
 

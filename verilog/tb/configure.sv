@@ -6,7 +6,7 @@ package configure;
 
   parameter fetchbuffer_depth = 4;
 
-  parameter bram_depth = 18;
+  parameter bram_depth = 2**18;
 
   parameter pmp_region = 4;
 

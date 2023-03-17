@@ -15,7 +15,9 @@ module bram
 	timeunit 1ns;
 	timeprecision 1ps;
 
-  logic [31 : 0] bram_block[0:2**bram_depth-1];
+  localparam depth = $clog2(bram_depth-1);
+
+  logic [31 : 0] bram_block[0:bram_depth-1];
 
   logic [31 : 0] sig_b[0:0] = '{default:'0};
   logic [31 : 0] sig_e[0:0] = '{default:'0};
@@ -85,13 +87,13 @@ module bram
       check(bram_addr,bram_wdata,bram_wstrb);
 
       if (bram_wstrb[0] == 1)
-        bram_block[bram_addr[(bram_depth+1):2]][7:0] <= bram_wdata[7:0];
+        bram_block[bram_addr[(depth+1):2]][7:0] <= bram_wdata[7:0];
       if (bram_wstrb[1] == 1)
-        bram_block[bram_addr[(bram_depth+1):2]][15:8] <= bram_wdata[15:8];
+        bram_block[bram_addr[(depth+1):2]][15:8] <= bram_wdata[15:8];
       if (bram_wstrb[2] == 1)
-        bram_block[bram_addr[(bram_depth+1):2]][23:16] <= bram_wdata[23:16];
+        bram_block[bram_addr[(depth+1):2]][23:16] <= bram_wdata[23:16];
       if (bram_wstrb[3] == 1)
-        bram_block[bram_addr[(bram_depth+1):2]][31:24] <= bram_wdata[31:24];
+        bram_block[bram_addr[(depth+1):2]][31:24] <= bram_wdata[31:24];
 
       ready <= 1;
 
@@ -103,7 +105,7 @@ module bram
 
   end
 
-  assign bram_rdata = bram_block[raddr[(bram_depth+1):2]];
+  assign bram_rdata = bram_block[raddr[(depth+1):2]];
   assign bram_ready = ready;
 
 
