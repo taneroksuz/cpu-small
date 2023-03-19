@@ -31,6 +31,9 @@ module bram
   logic [31 : 0] raddr;
   logic [0  : 0] ready;
 
+  logic [0  : 0] count = 0;
+  logic [0  : 0] cycle = 0;
+
   task check;
     input logic [31 : 0] addr;
     input logic [31 : 0] wdata;
@@ -81,25 +84,31 @@ module bram
   always_ff @(posedge clock) begin
 
     raddr <= bram_addr;
+    ready <= 0;
 
     if (bram_valid == 1) begin
 
-      check(bram_addr,bram_wdata,bram_wstrb);
+      if (count == cycle) begin
 
-      if (bram_wstrb[0] == 1)
-        bram_block[bram_addr[(depth+1):2]][7:0] <= bram_wdata[7:0];
-      if (bram_wstrb[1] == 1)
-        bram_block[bram_addr[(depth+1):2]][15:8] <= bram_wdata[15:8];
-      if (bram_wstrb[2] == 1)
-        bram_block[bram_addr[(depth+1):2]][23:16] <= bram_wdata[23:16];
-      if (bram_wstrb[3] == 1)
-        bram_block[bram_addr[(depth+1):2]][31:24] <= bram_wdata[31:24];
+        check(bram_addr,bram_wdata,bram_wstrb);
 
-      ready <= 1;
+        if (bram_wstrb[0] == 1)
+          bram_block[bram_addr[(depth+1):2]][7:0] <= bram_wdata[7:0];
+        if (bram_wstrb[1] == 1)
+          bram_block[bram_addr[(depth+1):2]][15:8] <= bram_wdata[15:8];
+        if (bram_wstrb[2] == 1)
+          bram_block[bram_addr[(depth+1):2]][23:16] <= bram_wdata[23:16];
+        if (bram_wstrb[3] == 1)
+          bram_block[bram_addr[(depth+1):2]][31:24] <= bram_wdata[31:24];
 
-    end else begin
+        ready <= 1;
+        count <= 0;
 
-      ready <= 0;
+      end else begin
+
+        count <= count + 1;
+
+      end
 
     end
 

@@ -66,9 +66,9 @@ module fetchbuffer_ctrl
   localparam limit = 2*fetchbuffer_depth-2;
 
   localparam [1:0] idle = 0;
-  localparam [1:0] aktiv = 1;
-  localparam [1:0] over = 2;
-  localparam [1:0] clear = 3;
+  localparam [1:0] active = 1;
+  localparam [1:0] control = 2;
+  localparam [1:0] flush = 3;
 
   typedef struct packed{
     logic [depth+1:0] count;
@@ -170,35 +170,33 @@ module fetchbuffer_ctrl
     v.comp = 0;
     v.step = 0;
 
-    if (fetchbuffer_in.mem_valid == 1) begin
-      v.pvalid = fetchbuffer_in.mem_valid;
-      v.pfence = fetchbuffer_in.mem_fence;
-      v.pspec = fetchbuffer_in.mem_spec;
-      v.pmode = fetchbuffer_in.mem_mode;
-      v.paddr = fetchbuffer_in.mem_addr;
-      v.paddrn = v.paddr + 4;
-    end
-
     case(r.state)
       idle : begin
-        v.state = aktiv;
+        v.state = active;
       end
-      aktiv : begin
-        if (fetchbuffer_in.mem_fence == 1) begin
-          v.state = over;
-          v.halt = 1;
-        end else if (fetchbuffer_in.mem_spec == 1) begin
-          v.state = over;
-        end else if (fetchbuffer_in.mem_valid == 1) begin
-          v.state = aktiv;
+      active : begin
+        if (fetchbuffer_in.mem_valid == 1) begin
+          v.pvalid = fetchbuffer_in.mem_valid;
+          v.pfence = fetchbuffer_in.mem_fence;
+          v.pspec = fetchbuffer_in.mem_spec;
+          v.pmode = fetchbuffer_in.mem_mode;
+          v.paddr = fetchbuffer_in.mem_addr;
+          v.paddrn = v.paddr + 4;
+        end
+        if (v.pfence == 1) begin
+          v.state = control;
+        end else if (v.pspec == 1) begin
+          v.state = control;
+        end else if (v.pvalid == 1) begin
+          v.state = active;
         end
       end
-      over : begin
+      control : begin
         v.halt = 1;
       end
-      clear : begin
+      flush : begin
         if (&(v.wid) == 1) begin
-          v.state = aktiv;
+          v.state = active;
           v.fence = 1;
           v.wren = 0;
           v.wid = 0;
@@ -217,14 +215,14 @@ module fetchbuffer_ctrl
     endcase
 
     if (v.valid == 0 || imem_out.mem_ready == 1) begin
-      if (v.state == over) begin
+      if (v.state == control) begin
         if (v.pfence == 1) begin
-          v.state = clear;
+          v.state = flush;
           v.wren = 1;
           v.wid = 0;
           v.wdata = 0;
         end else if (v.pspec == 1) begin
-          v.state = aktiv;
+          v.state = active;
           v.spec = 1;
           v.count = 0;
         end
@@ -232,7 +230,7 @@ module fetchbuffer_ctrl
     end
 
     if (imem_out.mem_ready == 1) begin
-      if (v.state == aktiv) begin
+      if (v.state == active) begin
         v.wren = 1;
         v.wid = v.addr[(depth+1):2];
         v.wdata = {imem_out.mem_error,v.wren,v.addr[31:2],imem_out.mem_rdata};
