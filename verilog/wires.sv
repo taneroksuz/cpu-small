@@ -285,7 +285,6 @@ package wires;
     logic [0  : 0] branch;
     logic [0  : 0] load;
     logic [0  : 0] store;
-    logic [0  : 0] fence;
     bcu_op_type bcu_op;
     lsu_op_type lsu_op;
     logic [0  : 0] valid;
@@ -316,6 +315,7 @@ package wires;
     logic [0  : 0] ecall;
     logic [0  : 0] ebreak;
     logic [0  : 0] mret;
+    logic [0  : 0] fence;
     logic [0  : 0] wfi;
     logic [0  : 0] valid;
   } postdecoder_out_type;
@@ -403,7 +403,6 @@ package wires;
     logic [0  : 0] branch;
     logic [0  : 0] load;
     logic [0  : 0] store;
-    logic [0  : 0] fence;
     logic [0  : 0] ebreak;
     logic [0  : 0] valid;
     logic [0  : 0] invalid;
@@ -440,7 +439,6 @@ package wires;
     logic [0  : 0] branch;
     logic [0  : 0] load;
     logic [0  : 0] store;
-    logic [0  : 0] fence;
     logic [0  : 0] ebreak;
     logic [0  : 0] valid;
     logic [0  : 0] invalid;
@@ -481,7 +479,6 @@ package wires;
     branch : 0,
     load : 0,
     store : 0,
-    fence : 0,
     ebreak : 0,
     valid : 0,
     invalid : 1,
@@ -504,6 +501,9 @@ package wires;
   };
 
   typedef struct packed{
+    logic [0  : 0] mret;
+    logic [0  : 0] fence;
+    logic [0  : 0] exception;
     logic [0  : 0] stall;
     logic [0  : 0] clear;
   } execute_out_type;
@@ -536,6 +536,7 @@ package wires;
     logic [0  : 0] ecall;
     logic [0  : 0] ebreak;
     logic [0  : 0] mret;
+    logic [0  : 0] fence;
     logic [0  : 0] wfi;
     logic [0  : 0] jump;
     logic [0  : 0] valid;
@@ -593,6 +594,7 @@ package wires;
     ecall : 0,
     ebreak : 0,
     mret : 0,
+    fence : 0,
     wfi : 0,
     jump : 0,
     valid : 0,

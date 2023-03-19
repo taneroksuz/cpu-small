@@ -40,6 +40,7 @@ module postdecoder
   logic [0  : 0] ecall;
   logic [0  : 0] ebreak;
   logic [0  : 0] mret;
+  logic [0  : 0] fence;
   logic [0  : 0] wfi;
   logic [0  : 0] valid;
 
@@ -90,6 +91,7 @@ module postdecoder
     ecall = 0;
     ebreak = 0;
     mret = 0;
+    fence = 0;
     wfi = 0;
     valid = 1;
 
@@ -246,6 +248,13 @@ module postdecoder
           csrreg = 1;
         end
       end
+      opcode_fence : begin
+        if (funct3 == 0) begin
+          fence = 1;
+        end else if (funct3 == 1) begin
+          fence = 1;
+        end
+      end
       default : valid = 0;
     endcase;
 
@@ -280,6 +289,7 @@ module postdecoder
     postdecoder_out.ecall = ecall;
     postdecoder_out.ebreak = ebreak;
     postdecoder_out.mret = mret;
+    postdecoder_out.fence = fence;
     postdecoder_out.wfi = wfi;
     postdecoder_out.valid = valid;
 

@@ -81,6 +81,7 @@ module execute_stage
     v.mult = 0;
     v.ecall = 0;
     v.mret = 0;
+    v.fence = 0;
     v.wfi = 0;
 
     v.div_op = init_div_op;
@@ -121,6 +122,7 @@ module execute_stage
       v.ecall = postdecoder_out.ecall;
       v.ebreak = postdecoder_out.ebreak;
       v.mret = postdecoder_out.mret;
+      v.fence = postdecoder_out.fence;
       v.wfi = postdecoder_out.wfi;
       v.valid = postdecoder_out.valid;
       v.invalid = 0;
@@ -251,6 +253,7 @@ module execute_stage
       v.ecall = 0;
       v.ebreak = 0;
       v.mret = 0;
+      v.fence = 0;
       v.wfi = 0;
       v.invalid = 1;
       v.exception = 0;
@@ -318,9 +321,15 @@ module execute_stage
 
     rin = v;
 
+    y.mret = v.mret;
+    y.fence = v.fence;
+    y.exception = v.exception;
     y.stall = v.stall;
     y.clear = v.clear;
 
+    q.mret = r.mret;
+    q.fence = r.fence;
+    q.exception = r.exception;
     q.stall = r.stall;
     q.clear = r.clear;
 

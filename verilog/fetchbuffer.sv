@@ -94,6 +94,7 @@ module fetchbuffer_ctrl
     logic [0:0] spec;
     logic [0:0] pvalid;
     logic [0:0] valid;
+    logic [0:0] halt;
     logic [0:0] comp;
     logic [1:0] mode;
     logic [1:0] pmode;
@@ -127,6 +128,7 @@ module fetchbuffer_ctrl
     spec : 0,
     pvalid : 0,
     valid : 0,
+    halt : 0,
     comp : 0,
     mode : m_mode,
     pmode : 0,
@@ -143,9 +145,10 @@ module fetchbuffer_ctrl
 
     v = r;
 
-    v.valid = 1;
     v.fence = 0;
     v.spec = 0;
+
+    v.halt = 0;
 
     v.pvalid = 0;
 
@@ -183,11 +186,15 @@ module fetchbuffer_ctrl
       aktiv : begin
         if (fetchbuffer_in.mem_fence == 1) begin
           v.state = over;
+          v.halt = 1;
         end else if (fetchbuffer_in.mem_spec == 1) begin
           v.state = over;
         end else if (fetchbuffer_in.mem_valid == 1) begin
           v.state = aktiv;
         end
+      end
+      over : begin
+        v.halt = 1;
       end
       clear : begin
         if (&(v.wid) == 1) begin
@@ -198,6 +205,7 @@ module fetchbuffer_ctrl
           v.wdata = 0;
           v.count = 0;
         end else begin
+          v.halt = 1;
           v.wren = 1;
           v.wid = v.wid + 1;
           v.wdata = 0;
@@ -208,7 +216,7 @@ module fetchbuffer_ctrl
       end
     endcase
 
-    if (imem_out.mem_ready == 1) begin
+    if (v.valid == 0 || imem_out.mem_ready == 1) begin
       if (v.state == over) begin
         if (v.pfence == 1) begin
           v.state = clear;
@@ -220,7 +228,11 @@ module fetchbuffer_ctrl
           v.spec = 1;
           v.count = 0;
         end
-      end else if (v.state == aktiv) begin
+      end
+    end
+
+    if (imem_out.mem_ready == 1) begin
+      if (v.state == aktiv) begin
         v.wren = 1;
         v.wid = v.addr[(depth+1):2];
         v.wdata = {imem_out.mem_error,v.wren,v.addr[31:2],imem_out.mem_rdata};
@@ -308,19 +320,19 @@ module fetchbuffer_ctrl
       end
     end
 
-    if (v.count >= limit) begin
+    if (v.count < limit) begin
+      v.valid = 1;
+    end else begin
       v.valid = 0;
     end
 
-    if (v.pfence == 1) begin
+    if (v.halt == 1) begin
       v.valid = 0;
-    end
-
-    if (v.pspec == 1) begin
-      v.valid = 0;
+      v.ready = 0;
     end
 
     if (v.spec == 1) begin
+      v.valid = 1;
       v.mode = v.pmode;
       v.addr = {v.paddr[31:2],2'b0};
     end

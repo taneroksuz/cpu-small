@@ -37,7 +37,7 @@ module fetch_stage
 
     v = r;
 
-    v.valid = ~(a.e.stall | d.e.clear) | d.f.fence;
+    v.valid = ~(a.e.stall | d.e.clear) | a.e.fence;
     v.stall = v.stall | d.e.stall | d.e.clear;
 
     v.spec = 0;
@@ -57,7 +57,7 @@ module fetch_stage
     end
 
     fetchbuffer_in.mem_valid = v.valid;
-    fetchbuffer_in.mem_fence = d.f.fence;
+    fetchbuffer_in.mem_fence = a.e.fence;
     fetchbuffer_in.mem_spec = v.spec;
     fetchbuffer_in.mem_instr = 1;
     fetchbuffer_in.mem_mode = v.mode;
@@ -95,7 +95,6 @@ module fetch_stage
     v.branch = 0;
     v.load = 0;
     v.store = 0;
-    v.fence = 0;
     v.alu_op = 0;
     v.bcu_op = 0;
     v.lsu_op = 0;
@@ -116,7 +115,6 @@ module fetch_stage
       v.branch = predecoder_out.branch;
       v.load = predecoder_out.load;
       v.store = predecoder_out.store;
-      v.fence = predecoder_out.fence;
       v.bcu_op = predecoder_out.bcu_op;
       v.lsu_op = predecoder_out.lsu_op;
       v.valid = predecoder_out.valid;
@@ -183,14 +181,13 @@ module fetch_stage
     v.ecause = agu_out.ecause;
     v.etval = agu_out.etval;
 
-    if (v.stall == 1) begin
+    if ((v.stall | a.e.mret | a.e.exception) == 1) begin
       v.wren = 0;
       v.jal = 0;
       v.jalr = 0;
       v.branch = 0;
       v.load = 0;
       v.store = 0;
-      v.fence = 0;
       v.ebreak = 0;
       v.jump = 0;
       v.invalid = 1;
@@ -247,7 +244,6 @@ module fetch_stage
     y.branch = v.branch;
     y.load = v.load;
     y.store = v.store;
-    y.fence = v.fence;
     y.ebreak = v.ebreak;
     y.valid = v.valid;
     y.invalid = v.invalid;
@@ -281,7 +277,6 @@ module fetch_stage
     q.branch = r.branch;
     q.load = r.load;
     q.store = r.store;
-    q.fence = r.fence;
     q.ebreak = r.ebreak;
     q.valid = r.valid;
     q.invalid = r.invalid;
