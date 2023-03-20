@@ -26,6 +26,6 @@ simulate:
 	sim/run.sh
 
 send:
-	load/transfer.sh
+	serial/transfer.sh
 
 all: generate simulate
