@@ -5,6 +5,7 @@ module ddr2
 (
   input  logic reset,
   input  logic clock,
+  input  logic clock_ddr2,
   input  logic [0  : 0] dmem_valid,
   input  logic [0  : 0] dmem_instr,
   input  logic [31 : 0] dmem_addr,
