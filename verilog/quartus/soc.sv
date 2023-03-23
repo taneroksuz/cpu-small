@@ -8,7 +8,7 @@ module soc
   input  rx,
   output tx,
   input  [31 : 0] irpt,
-  inout  [15 : 0] sram_d,
+  inout  [15 : 0] sram_dq,
   output [17 : 0] sram_a,
   output [0  : 0] sram_lb_n,
   output [0  : 0] sram_ub_n,
@@ -95,13 +95,13 @@ module soc
   logic [31 : 0] clic_rdata;
   logic [0  : 0] clic_ready;
 
-  logic [0  : 0] sram_valid;
-  logic [0  : 0] sram_instr;
-  logic [31 : 0] sram_addr;
-  logic [31 : 0] sram_wdata;
-  logic [3  : 0] sram_wstrb;
-  logic [31 : 0] sram_rdata;
-  logic [0  : 0] sram_ready;
+  logic [0  : 0] smem_valid;
+  logic [0  : 0] smem_instr;
+  logic [31 : 0] smem_addr;
+  logic [31 : 0] smem_wdata;
+  logic [3  : 0] smem_wstrb;
+  logic [31 : 0] smem_rdata;
+  logic [0  : 0] smem_ready;
 
   logic [0  : 0] avl_valid;
   logic [0  : 0] avl_instr;
@@ -130,7 +130,7 @@ module soc
     uart_valid = 0;
     clint_valid = 0;
     clic_valid = 0;
-    sram_valid = 0;
+    smem_valid = 0;
     avl_valid = 0;
 
     base_addr = 0;
@@ -143,19 +143,19 @@ module soc
           uart_valid = 0;
           clint_valid = 0;
           clic_valid = 0;
-          sram_valid = 0;
+          smem_valid = 0;
           avl_valid = memory_valid;
           base_addr = avl_base_addr;
-      end else if (memory_addr >= sram_base_addr &&
-        memory_addr < sram_top_addr) begin
+      end else if (memory_addr >= smem_base_addr &&
+        memory_addr < smem_top_addr) begin
           mem_error = 0;
           rom_valid = 0;
           uart_valid = 0;
           clint_valid = 0;
           clic_valid = 0;
-          sram_valid = memory_valid;
+          smem_valid = memory_valid;
           avl_valid = 0;
-          base_addr = sram_base_addr;
+          base_addr = smem_base_addr;
       end else if (memory_addr >= clic_base_addr &&
         memory_addr < clic_top_addr) begin
           mem_error = 0;
@@ -163,7 +163,7 @@ module soc
           uart_valid = 0;
           clint_valid = 0;
           clic_valid = memory_valid;
-          sram_valid = 0;
+          smem_valid = 0;
           avl_valid = 0;
           base_addr = clic_base_addr;
       end else if (memory_addr >= clint_base_addr &&
@@ -173,7 +173,7 @@ module soc
           uart_valid = 0;
           clint_valid = memory_valid;
           clic_valid = 0;
-          sram_valid = 0;
+          smem_valid = 0;
           avl_valid = 0;
           base_addr = clint_base_addr;
       end else if (memory_addr >= uart_base_addr &&
@@ -183,7 +183,7 @@ module soc
           uart_valid = memory_valid;
           clint_valid = 0;
           clic_valid = 0;
-          sram_valid = 0;
+          smem_valid = 0;
           avl_valid = 0;
           base_addr = uart_base_addr;
       end else if (memory_addr >= rom_base_addr &&
@@ -193,7 +193,7 @@ module soc
           uart_valid = 0;
           clint_valid = 0;
           clic_valid = 0;
-          sram_valid = 0;
+          smem_valid = 0;
           avl_valid = 0;
           base_addr = rom_base_addr;
       end else begin
@@ -202,7 +202,7 @@ module soc
           uart_valid = 0;
           clint_valid = 0;
           clic_valid = 0;
-          sram_valid = 0;
+          smem_valid = 0;
           avl_valid = 0;
           base_addr = 0;
       end
@@ -228,10 +228,10 @@ module soc
     clic_wdata = memory_wdata;
     clic_wstrb = memory_wstrb;
 
-    sram_instr = memory_instr;
-    sram_addr = mem_addr;
-    sram_wdata = memory_wdata;
-    sram_wstrb = memory_wstrb;
+    smem_instr = memory_instr;
+    smem_addr = mem_addr;
+    smem_wdata = memory_wdata;
+    smem_wstrb = memory_wstrb;
 
     avl_instr = memory_instr;
     avl_addr = mem_addr;
@@ -254,10 +254,10 @@ module soc
       memory_rdata = clic_rdata;
       memory_error = 0;
       memory_ready = clic_ready;
-    end else if (sram_ready == 1) begin
-      memory_rdata = sram_rdata;
+    end else if (smem_ready == 1) begin
+      memory_rdata = smem_rdata;
       memory_error = 0;
-      memory_ready = sram_ready;
+      memory_ready = smem_ready;
     end else if (avl_ready == 1) begin
       memory_rdata = avl_rdata;
       memory_error = 0;
@@ -384,14 +384,14 @@ module soc
   (
     .reset (reset),
     .clock (clock),
-    .sram_valid (sram_valid),
-    .sram_instr (sram_instr),
-    .sram_addr (sram_addr),
-    .sram_wdata (sram_wdata),
-    .sram_wstrb (sram_wstrb),
-    .sram_rdata (sram_rdata),
-    .sram_ready (sram_ready),
-    .sram_d (sram_d),
+    .smem_valid (smem_valid),
+    .smem_instr (smem_instr),
+    .smem_addr (smem_addr),
+    .smem_wdata (smem_wdata),
+    .smem_wstrb (smem_wstrb),
+    .smem_rdata (smem_rdata),
+    .smem_ready (smem_ready),
+    .sram_dq (sram_dq),
     .sram_a (sram_a),
     .sram_lb_n (sram_lb_n),
     .sram_ub_n (sram_ub_n),
