@@ -184,8 +184,10 @@ module fetchbuffer_ctrl
           v.paddrn = v.paddr + 4;
         end
         if (v.pfence == 1) begin
+          v.pvalid = 0;
           v.state = control;
         end else if (v.pspec == 1) begin
+          v.pvalid = 0;
           v.state = control;
         end else if (v.pvalid == 1) begin
           v.state = active;
