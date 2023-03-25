@@ -7,9 +7,12 @@ import serial
 
 if __name__ == '__main__':
 
-    if len(sys.argv) < 2:
-        print('Expected usage: {0} <port>'.format(sys.argv[0]))
+    if len(sys.argv) < 3:
+        print('Expected usage: {0} <port> <filename>'.format(sys.argv[0]))
         sys.exit(1)
+
+    fb = open(sys.argv[2], 'rb')
+    ba = bytearray(fb.read())
 
     ser = serial.Serial(
         port=sys.argv[1],
@@ -27,6 +30,8 @@ if __name__ == '__main__':
 
     ser.open()
     ser.isOpen()
+    
+    ser.write(ba)
 
     while(1):
         line = ser.readline()
