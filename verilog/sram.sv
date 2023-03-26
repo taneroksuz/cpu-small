@@ -44,14 +44,14 @@ module sram
     wren_out = 0;
     rden_out = 0;
     if (|(strb_in[3:0]) == 0) begin
-      addr_out = addr_in[18:1];
+      addr_out = {addr_in[18:2],1'b0};
       data_out = 0;
       strb_out = 4'hF;
       state_out = 1;
       ready_out = 0;
       rden_out = 1;
     end else if (&(strb_in[3:0]) == 1) begin
-      addr_out = addr_in[18:1];
+      addr_out = {addr_in[18:2],1'b0};
       data_out = data_in;
       strb_out = 4'hF;
       state_out = 1;
