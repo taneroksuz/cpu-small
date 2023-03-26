@@ -355,7 +355,7 @@ module fetchbuffer_ctrl
   end
 
   always_ff @(posedge clock) begin
-    if (reset == 1) begin
+    if (reset == 0) begin
       r <= init_reg;
     end else begin
       r <= rin;

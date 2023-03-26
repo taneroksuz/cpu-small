@@ -204,7 +204,7 @@ module soc
   end
 
   always_ff @(posedge clock) begin
-    if (reset == 1) begin
+    if (reset == 0) begin
       mem_ready <= 0;
     end else begin
       mem_ready <= mem_error;

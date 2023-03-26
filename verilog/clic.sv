@@ -123,7 +123,7 @@ module clic
   logic [11 : 0] meid = 0;
 
   always_ff @(posedge clock) begin
-    if (reset == 1) begin
+    if (reset == 0) begin
       rdata_cfg <= 0;
       ready_cfg <= 0;
     end else begin
@@ -147,7 +147,7 @@ module clic
   end
 
   always_ff @(posedge clock) begin
-    if (reset == 1) begin
+    if (reset == 0) begin
       rdata_info <= 0;
       ready_info <= 0;
     end else begin
@@ -169,7 +169,7 @@ module clic
   end
 
   always_ff @(posedge clock) begin
-    if (reset == 1) begin
+    if (reset == 0) begin
       rdata_trig <= 0;
       ready_trig <= 0;
     end else begin
@@ -191,7 +191,7 @@ module clic
   end
 
   always_ff @(posedge clock) begin
-    if (reset == 1) begin
+    if (reset == 0) begin
       rdata_irpt <= 0;
       ready_irpt <= 0;
     end else begin
@@ -248,7 +248,7 @@ module clic
   end
 
   always_ff @(posedge clock) begin
-    if (reset == 1) begin
+    if (reset == 0) begin
       clic_irpt_reg <= '{default:'0};
     end else begin
       for (int i=0; i<clic_interrupt; i=i+1) begin
@@ -294,7 +294,7 @@ module clic
   end
 
   always_ff @(posedge clock_irpt) begin
-    if (reset == 1) begin
+    if (reset == 0) begin
       prio_reg <= '{default:'0};
       level_reg <= '{default:'0};
     end else begin
@@ -321,7 +321,7 @@ module clic
   end
 
   always_ff @(posedge clock_irpt) begin
-    if (reset == 1) begin
+    if (reset == 0) begin
       max_id_reg <= '{default:'0};
     end else begin
       max_id_reg <= max_id;
@@ -329,7 +329,7 @@ module clic
   end
 
   always_ff @(posedge clock) begin
-    if (reset == 1) begin
+    if (reset == 0) begin
       meip <= 0;
       meid <= 0;
     end else begin

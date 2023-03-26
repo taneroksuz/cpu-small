@@ -9,20 +9,6 @@ module soc
   input  logic rx,
   output logic tx,
   input  logic [31 : 0] irpt,
-  output logic [12 : 0] ddr2_addr,
-  output logic [2  : 0] ddr2_ba,
-  output logic [0  : 0] ddr2_ras_n,
-  output logic [0  : 0] ddr2_cas_n,
-  output logic [0  : 0] ddr2_we_n,
-  output logic [0  : 0] ddr2_ck_p,
-  output logic [0  : 0] ddr2_ck_n,
-  output logic [0  : 0] ddr2_cke,
-  output logic [0  : 0] ddr2_cs_n,
-  output logic [1  : 0] ddr2_dm,
-  output logic [0  : 0] ddr2_odt,
-  inout  logic [15 : 0] ddr2_dq,
-  inout  logic [1  : 0] ddr2_dqs_p,
-  inout  logic [1  : 0] ddr2_dqs_n,
   output logic [31 : 0] m_axi_awaddr,
   output logic [7  : 0] m_axi_awlen,
   output logic [2  : 0] m_axi_awsize,
@@ -124,14 +110,6 @@ module soc
   logic [31 : 0] clic_rdata;
   logic [0  : 0] clic_ready;
 
-  logic [0  : 0] dmem_valid;
-  logic [0  : 0] dmem_instr;
-  logic [31 : 0] dmem_addr;
-  logic [31 : 0] dmem_wdata;
-  logic [3  : 0] dmem_wstrb;
-  logic [31 : 0] dmem_rdata;
-  logic [0  : 0] dmem_ready;
-
   logic [0  : 0] axi_valid;
   logic [0  : 0] axi_instr;
   logic [31 : 0] axi_addr;
@@ -159,7 +137,6 @@ module soc
     uart_valid = 0;
     clint_valid = 0;
     clic_valid = 0;
-    dmem_valid = 0;
     axi_valid = 0;
 
     base_addr = 0;
@@ -172,19 +149,8 @@ module soc
           uart_valid = 0;
           clint_valid = 0;
           clic_valid = 0;
-          dmem_valid = 0;
           axi_valid = memory_valid;
           base_addr = axi_base_addr;
-      end else if (memory_addr >= dmem_base_addr &&
-        memory_addr < dmem_top_addr) begin
-          mem_error = 0;
-          rom_valid = 0;
-          uart_valid = 0;
-          clint_valid = 0;
-          clic_valid = 0;
-          dmem_valid = memory_valid;
-          axi_valid = 0;
-          base_addr = dmem_base_addr;
       end else if (memory_addr >= clic_base_addr &&
         memory_addr < clic_top_addr) begin
           mem_error = 0;
@@ -192,7 +158,6 @@ module soc
           uart_valid = 0;
           clint_valid = 0;
           clic_valid = memory_valid;
-          dmem_valid = 0;
           axi_valid = 0;
           base_addr = clic_base_addr;
       end else if (memory_addr >= clint_base_addr &&
@@ -202,7 +167,6 @@ module soc
           uart_valid = 0;
           clint_valid = memory_valid;
           clic_valid = 0;
-          dmem_valid = 0;
           axi_valid = 0;
           base_addr = clint_base_addr;
       end else if (memory_addr >= uart_base_addr &&
@@ -212,7 +176,6 @@ module soc
           uart_valid = memory_valid;
           clint_valid = 0;
           clic_valid = 0;
-          dmem_valid = 0;
           axi_valid = 0;
           base_addr = uart_base_addr;
       end else if (memory_addr >= rom_base_addr &&
@@ -222,7 +185,6 @@ module soc
           uart_valid = 0;
           clint_valid = 0;
           clic_valid = 0;
-          dmem_valid = 0;
           axi_valid = 0;
           base_addr = rom_base_addr;
       end else begin
@@ -231,7 +193,6 @@ module soc
           uart_valid = 0;
           clint_valid = 0;
           clic_valid = 0;
-          dmem_valid = 0;
           axi_valid = 0;
           base_addr = 0;
       end
@@ -257,11 +218,6 @@ module soc
     clic_wdata = memory_wdata;
     clic_wstrb = memory_wstrb;
 
-    dmem_instr = memory_instr;
-    dmem_addr = mem_addr;
-    dmem_wdata = memory_wdata;
-    dmem_wstrb = memory_wstrb;
-
     axi_instr = memory_instr;
     axi_addr = mem_addr;
     axi_wdata = memory_wdata;
@@ -283,10 +239,6 @@ module soc
       memory_rdata = clic_rdata;
       memory_error = 0;
       memory_ready = clic_ready;
-    end else if (dmem_ready == 1) begin
-      memory_rdata = dmem_rdata;
-      memory_error = 0;
-      memory_ready = dmem_ready;
     end else if  (axi_ready == 1) begin
       memory_rdata = axi_rdata;
       memory_error = 0;
@@ -304,7 +256,7 @@ module soc
   end
 
   always_ff @(posedge clock) begin
-    if (reset == 1) begin
+    if (reset == 0) begin
       mem_ready <= 0;
     end else begin
       mem_ready <= mem_error;
@@ -407,34 +359,6 @@ module soc
     .clic_meip (meip),
     .clic_meid (meid),
     .clic_irpt (irpt)
-  );
-
-  ddr2 ddr2_comp
-  (
-    .reset (reset),
-    .clock (clock),
-    .clock_ddr2 (clock_ddr2),
-    .dmem_valid (dmem_valid),
-    .dmem_instr (dmem_instr),
-    .dmem_addr (dmem_addr),
-    .dmem_wdata (dmem_wdata),
-    .dmem_wstrb (dmem_wstrb),
-    .dmem_rdata (dmem_rdata),
-    .dmem_ready (dmem_ready),
-    .ddr2_addr (ddr2_addr),
-    .ddr2_ba (ddr2_ba),
-    .ddr2_ras_n (ddr2_ras_n),
-    .ddr2_cas_n (ddr2_cas_n),
-    .ddr2_we_n (ddr2_we_n),
-    .ddr2_ck_p (ddr2_ck_p),
-    .ddr2_ck_n (ddr2_ck_n),
-    .ddr2_cke (ddr2_cke),
-    .ddr2_cs_n (ddr2_cs_n),
-    .ddr2_dm (ddr2_dm),
-    .ddr2_odt (ddr2_odt),
-    .ddr2_dq (ddr2_dq),
-    .ddr2_dqs_p (ddr2_dqs_p),
-    .ddr2_dqs_n (ddr2_dqs_n)
   );
 
   axi axi_comp

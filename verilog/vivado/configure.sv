@@ -20,9 +20,6 @@ package configure;
   parameter clic_base_addr = 32'h3000000;
   parameter clic_top_addr  = 32'h3005000;
 
-  parameter dmem_base_addr = 32'h08000000;
-  parameter dmem_top_addr  = 32'h10000000;
-
   parameter axi_base_addr = 32'h80000000;
   parameter axi_top_addr  = 32'h90000000;
 

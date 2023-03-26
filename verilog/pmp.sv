@@ -48,7 +48,7 @@ module pmp
   logic [31 : 0] highaddr;
 
   always_ff @(posedge clock) begin
-    if (reset == 1) begin
+    if (reset == 0) begin
       csr_pmpcfg <= '{default:init_csr_pmpcfg};
       csr_pmpaddr <= '{default:'0};
     end else begin
