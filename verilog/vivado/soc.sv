@@ -5,7 +5,6 @@ module soc
   input  logic reset,
   input  logic clock,
   input  logic clock_irpt,
-  input  logic clock_ddr2,
   input  logic rx,
   output logic tx,
   input  logic [31 : 0] irpt,
