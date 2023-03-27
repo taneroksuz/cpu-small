@@ -85,13 +85,11 @@ module fetchbuffer_ctrl
     logic [0:0] rden2;
     logic [0:0] wrden1;
     logic [0:0] wrden2;
-    logic [31:0] paddr;
-    logic [31:0] paddrn;
+    logic [31:0] paddr1;
+    logic [31:0] paddr2;
     logic [31:0] addr;
     logic [0:0] pfence;
-    logic [0:0] fence;
     logic [0:0] pspec;
-    logic [0:0] spec;
     logic [0:0] pvalid;
     logic [0:0] valid;
     logic [0:0] halt;
@@ -119,13 +117,11 @@ module fetchbuffer_ctrl
     rden2 : 0,
     wrden1 : 0,
     wrden2 : 0,
-    paddr : 0,
-    paddrn : 0,
+    paddr1 : 0,
+    paddr2 : 0,
     addr : 0,
     pfence : 0,
-    fence : 0,
     pspec : 0,
-    spec : 0,
     pvalid : 0,
     valid : 0,
     halt : 0,
@@ -144,9 +140,6 @@ module fetchbuffer_ctrl
   always_comb begin
 
     v = r;
-
-    v.fence = 0;
-    v.spec = 0;
 
     v.halt = 0;
 
@@ -180,15 +173,17 @@ module fetchbuffer_ctrl
           v.pfence = fetchbuffer_in.mem_fence;
           v.pspec = fetchbuffer_in.mem_spec;
           v.pmode = fetchbuffer_in.mem_mode;
-          v.paddr = fetchbuffer_in.mem_addr;
-          v.paddrn = v.paddr + 4;
+          v.paddr1 = fetchbuffer_in.mem_addr;
+          v.paddr2 = v.paddr1 + 4;
         end
         if (v.pfence == 1) begin
-          v.pvalid = 0;
           v.state = control;
+          v.halt = 1;
+          v.count = 0;
         end else if (v.pspec == 1) begin
-          v.pvalid = 0;
           v.state = control;
+          v.halt = 1;
+          v.count = 0;
         end else if (v.pvalid == 1) begin
           v.state = active;
         end
@@ -199,11 +194,9 @@ module fetchbuffer_ctrl
       flush : begin
         if (&(v.wid) == 1) begin
           v.state = active;
-          v.fence = 1;
           v.wren = 0;
           v.wid = 0;
           v.wdata = 0;
-          v.count = 0;
         end else begin
           v.halt = 1;
           v.wren = 1;
@@ -216,21 +209,6 @@ module fetchbuffer_ctrl
       end
     endcase
 
-    if (v.valid == 0 || imem_out.mem_ready == 1) begin
-      if (v.state == control) begin
-        if (v.pfence == 1) begin
-          v.state = flush;
-          v.wren = 1;
-          v.wid = 0;
-          v.wdata = 0;
-        end else if (v.pspec == 1) begin
-          v.state = active;
-          v.spec = 1;
-          v.count = 0;
-        end
-      end
-    end
-
     if (imem_out.mem_ready == 1) begin
       if (v.state == active) begin
         v.wren = 1;
@@ -241,8 +219,26 @@ module fetchbuffer_ctrl
       end
     end
 
-    v.rid1 = v.paddr[depth+1:2];
-    v.rid2 = v.paddrn[depth+1:2];
+    if (imem_out.mem_ready == 1) begin
+      if (v.state == control) begin
+        if (v.pfence == 1) begin
+          v.state = flush;
+          v.pfence = 0;
+          v.wren = 1;
+          v.wid = 0;
+          v.wdata = 0;
+        end else if (v.pspec == 1) begin
+          v.state = active;
+          v.pspec = 0;
+          v.halt = 0;
+          v.mode = v.pmode;
+          v.addr = {v.paddr1[31:2],2'b0};
+        end
+      end
+    end
+
+    v.rid1 = v.paddr1[depth+1:2];
+    v.rid2 = v.paddr2[depth+1:2];
 
     fetchbuffer_data_in.wen = v.wren;
     fetchbuffer_data_in.waddr = v.wid;
@@ -254,22 +250,22 @@ module fetchbuffer_ctrl
     v.rdata1 = fetchbuffer_data_out.rdata1;
     v.rdata2 = fetchbuffer_data_out.rdata2;
 
-    if (v.rdata1[62] == 1 && |(v.rdata1[61:32] ^ v.paddr[31:2]) == 0) begin
+    if (v.rdata1[62] == 1 && |(v.rdata1[61:32] ^ v.paddr1[31:2]) == 0) begin
       v.rden1 = 1;
     end
-    if (v.rdata2[62] == 1 && |(v.rdata2[61:32] ^ v.paddrn[31:2]) == 0) begin
+    if (v.rdata2[62] == 1 && |(v.rdata2[61:32] ^ v.paddr2[31:2]) == 0) begin
       v.rden2 = 1;
     end
 
-    if (|(v.wdata[61:32] ^ v.paddr[31:2]) == 0) begin
+    if (|(v.wdata[61:32] ^ v.paddr1[31:2]) == 0) begin
       v.wrden1 = v.wren;
     end
-    if (|(v.wdata[61:32] ^ v.paddrn[31:2]) == 0) begin
+    if (|(v.wdata[61:32] ^ v.paddr2[31:2]) == 0) begin
       v.wrden2 = v.wren;
     end
 
     if (v.pvalid == 1) begin
-      if (v.paddr[1:1] == 0) begin
+      if (v.paddr1[1:1] == 0) begin
         if (v.wrden1 == 1) begin
           v.rdata = v.wdata[31:0];
           v.error = v.wdata[63];
@@ -279,7 +275,7 @@ module fetchbuffer_ctrl
           v.error = v.rdata1[63];
           v.ready = 1;
         end
-      end else if (v.paddr[1:1] == 1) begin
+      end else if (v.paddr1[1:1] == 1) begin
         if (v.wrden1 == 1) begin
           v.rdata[15:0] = v.wdata[31:16];
           if (&(v.rdata[1:0]) == 0) begin
@@ -329,12 +325,6 @@ module fetchbuffer_ctrl
     if (v.halt == 1) begin
       v.valid = 0;
       v.ready = 0;
-    end
-
-    if (v.spec == 1) begin
-      v.valid = 1;
-      v.mode = v.pmode;
-      v.addr = {v.paddr[31:2],2'b0};
     end
 
     imem_in.mem_valid = v.valid;

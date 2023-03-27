@@ -31,8 +31,8 @@ module bram
   logic [31 : 0] raddr;
   logic [0  : 0] ready;
 
-  logic [0  : 0] count = 0;
-  logic [0  : 0] cycle = 0;
+  logic [31 : 0] count = 0;
+  logic [31 : 0] cycle = 0;
 
   task check;
     input logic [31 : 0] addr;

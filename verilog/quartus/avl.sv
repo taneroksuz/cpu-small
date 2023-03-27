@@ -75,7 +75,7 @@ module avl
             write = 1;
             byteenable = avl_wstrb;
           end
-          address = avl_addr;
+          address = {avl_addr[31:2],2'b0};
           writedata = avl_wdata;
         end
       end
@@ -84,7 +84,7 @@ module avl
           state = idle;
           rdata = m_avl_readdata;
           ready = 1;
-        end else if (m_avl_waitrequest == 0) begin
+        end else if (m_avl_waitrequest == 1) begin
           address = address_reg;
           byteenable = byteenable_reg;
           read = read_reg;
@@ -93,10 +93,10 @@ module avl
         end
       end
       store : begin
-        if (m_avl_writeresponsevalid == 1) begin
+        if (m_avl_waitrequest == 0) begin
           state = idle;
           ready = 1;
-        end else if (m_avl_waitrequest == 0) begin
+        end else if (m_avl_waitrequest == 1) begin
           address = address_reg;
           byteenable = byteenable_reg;
           read = read_reg;
