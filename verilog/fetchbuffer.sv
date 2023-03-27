@@ -191,6 +191,11 @@ module fetchbuffer_ctrl
         end
       end
       control : begin
+        if (fetchbuffer_in.mem_spec == 1) begin
+          v.pmode = fetchbuffer_in.mem_mode;
+          v.paddr1 = fetchbuffer_in.mem_addr;
+          v.paddr2 = v.paddr1 + 4;
+        end
         v.halt = 1;
       end
       flush : begin
