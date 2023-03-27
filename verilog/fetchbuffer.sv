@@ -93,6 +93,7 @@ module fetchbuffer_ctrl
     logic [0:0] pvalid;
     logic [0:0] valid;
     logic [0:0] halt;
+    logic [0:0] full;
     logic [0:0] comp;
     logic [1:0] mode;
     logic [1:0] pmode;
@@ -125,6 +126,7 @@ module fetchbuffer_ctrl
     pvalid : 0,
     valid : 0,
     halt : 0,
+    full : 0,
     comp : 0,
     mode : m_mode,
     pmode : 0,
@@ -219,7 +221,7 @@ module fetchbuffer_ctrl
       end
     end
 
-    if (imem_out.mem_ready == 1) begin
+    if (v.full == 1 || imem_out.mem_ready == 1) begin
       if (v.state == control) begin
         if (v.pfence == 1) begin
           v.state = flush;
@@ -317,8 +319,10 @@ module fetchbuffer_ctrl
     end
 
     if (v.count < limit) begin
+      v.full = 0;
       v.valid = 1;
     end else begin
+      v.full = 1;
       v.valid = 0;
     end
 
