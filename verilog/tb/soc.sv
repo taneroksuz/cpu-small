@@ -1,9 +1,5 @@
-module soc
-(
-  input logic reset,
-  input logic clock,
-  input logic clock_irpt
-);
+module soc;
+
   timeunit 1ns;
   timeprecision 1ps;
 
@@ -87,6 +83,20 @@ module soc
   logic [31 : 0] base_addr;
 
   logic [31 : 0] host[0:0] = '{default:'0};
+
+	logic reset = 0;
+	logic clock = 0;
+	logic clock_irpt = 0;
+
+	initial begin
+		$timeformat(-9,0,"ns",0);
+		#10ns reset = 1;
+	end
+
+	always begin
+		#1ns clock=~clock;
+		#4ns clock_irpt=~clock_irpt;
+	end
 
   initial begin
     $readmemh("host.dat", host);
