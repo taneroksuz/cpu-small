@@ -11,12 +11,12 @@ package fetch_wires;
     logic [depth-1 : 0] waddr;
     logic [depth-1 : 0] raddr1;
     logic [depth-1 : 0] raddr2;
-    logic [63 : 0] wdata;
+    logic [62 : 0] wdata;
   } fetchbuffer_data_in_type;
 
   typedef struct packed{
-    logic [63 : 0] rdata1;
-    logic [63 : 0] rdata2;
+    logic [62 : 0] rdata1;
+    logic [62 : 0] rdata2;
   } fetchbuffer_data_out_type;
 
 endpackage
@@ -35,7 +35,7 @@ module fetchbuffer_data
   timeunit 1ns;
   timeprecision 1ps;
 
-  logic [63 : 0] fetchbuffer_data_array[0:fetchbuffer_depth-1] = '{default:'0};
+  logic [62 : 0] fetchbuffer_data_array[0:fetchbuffer_depth-1] = '{default:'0};
 
   assign fetchbuffer_data_out.rdata1 = fetchbuffer_data_array[fetchbuffer_data_in.raddr1];
   assign fetchbuffer_data_out.rdata2 = fetchbuffer_data_array[fetchbuffer_data_in.raddr2];
@@ -71,15 +71,16 @@ module fetchbuffer_ctrl
   localparam [1:0] flush = 3;
 
   typedef struct packed{
+    logic [fetchbuffer_depth-1:0] enable;
     logic [depth+1:0] count;
     logic [depth+1:0] step;
     logic [depth-1:0] wid;
     logic [depth-1:0] rid1;
     logic [depth-1:0] rid2;
     logic [1:0] state;
-    logic [63:0] wdata;
-    logic [63:0] rdata1;
-    logic [63:0] rdata2;
+    logic [62:0] wdata;
+    logic [62:0] rdata1;
+    logic [62:0] rdata2;
     logic [0:0] wren;
     logic [0:0] rden1;
     logic [0:0] rden2;
@@ -104,6 +105,7 @@ module fetchbuffer_ctrl
   } reg_type;
 
   parameter reg_type init_reg = '{
+    enable : 0,
     count : 0,
     step : 0,
     wid : 0,
@@ -180,9 +182,11 @@ module fetchbuffer_ctrl
         end
         if (v.pfence == 1) begin
           v.state = control;
+          v.enable = 0;
           v.count = 0;
         end else if (v.pspec == 1) begin
           v.state = control;
+          v.enable = 0;
           v.count = 0;
         end else if (v.pvalid == 1) begin
           v.state = active;
@@ -218,7 +222,8 @@ module fetchbuffer_ctrl
       if (v.state == active) begin
         v.wren = 1;
         v.wid = v.addr[(depth+1):2];
-        v.wdata = {imem_out.mem_error,v.wren,v.addr[31:2],imem_out.mem_rdata};
+        v.enable[v.wid] = 1;
+        v.wdata = {imem_out.mem_error,v.addr[31:2],imem_out.mem_rdata};
         v.addr = v.addr + 4;
         v.count = v.count + 2;
       end
@@ -255,10 +260,10 @@ module fetchbuffer_ctrl
     v.rdata1 = fetchbuffer_data_out.rdata1;
     v.rdata2 = fetchbuffer_data_out.rdata2;
 
-    if (v.rdata1[62] == 1 && |(v.rdata1[61:32] ^ v.paddr1[31:2]) == 0) begin
+    if (v.enable[v.rid1] == 1 && |(v.rdata1[61:32] ^ v.paddr1[31:2]) == 0) begin
       v.rden1 = 1;
     end
-    if (v.rdata2[62] == 1 && |(v.rdata2[61:32] ^ v.paddr2[31:2]) == 0) begin
+    if (v.enable[v.rid2] == 1 && |(v.rdata2[61:32] ^ v.paddr2[31:2]) == 0) begin
       v.rden2 = 1;
     end
 
@@ -273,25 +278,25 @@ module fetchbuffer_ctrl
       if (v.paddr1[1:1] == 0) begin
         if (v.wrden1 == 1) begin
           v.rdata = v.wdata[31:0];
-          v.error = v.wdata[63];
+          v.error = v.wdata[62];
           v.ready = 1;
         end else if (v.rden1 == 1) begin
           v.rdata = v.rdata1[31:0];
-          v.error = v.rdata1[63];
+          v.error = v.rdata1[62];
           v.ready = 1;
         end
       end else if (v.paddr1[1:1] == 1) begin
         if (v.wrden1 == 1) begin
           v.rdata[15:0] = v.wdata[31:16];
           if (&(v.rdata[1:0]) == 0) begin
-            v.error = v.wdata[63];
+            v.error = v.wdata[62];
             v.ready = 1;
           end
           v.comp = 1;
         end else if (v.rden1 == 1) begin
           v.rdata[15:0] = v.rdata1[31:16];
           if (&(v.rdata[1:0]) == 0) begin
-            v.error = v.rdata1[63];
+            v.error = v.rdata1[62];
             v.ready = 1;
           end
           v.comp = 1;
@@ -299,11 +304,11 @@ module fetchbuffer_ctrl
         if (v.comp == 1) begin
           if (v.wrden2 == 1) begin
             v.rdata[31:16] = v.wdata[15:0];
-            v.error = v.wdata[63];
+            v.error = v.wdata[62];
             v.ready = 1;
           end else if (v.rden2 == 1) begin
             v.rdata[31:16] = v.rdata2[15:0];
-            v.error = v.rdata2[63];
+            v.error = v.rdata2[62];
             v.ready = 1;
           end
         end
