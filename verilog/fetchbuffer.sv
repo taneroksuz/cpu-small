@@ -180,11 +180,9 @@ module fetchbuffer_ctrl
         end
         if (v.pfence == 1) begin
           v.state = control;
-          v.halt = 1;
           v.count = 0;
         end else if (v.pspec == 1) begin
           v.state = control;
-          v.halt = 1;
           v.count = 0;
         end else if (v.pvalid == 1) begin
           v.state = active;
@@ -310,7 +308,7 @@ module fetchbuffer_ctrl
           end
         end
       end
-      if (v.error == 0) begin
+      if (v.ready == 1) begin
         if (&(v.rdata[1:0]) == 0) begin
           v.rdata[31:16] = 0;
           v.step = 1;

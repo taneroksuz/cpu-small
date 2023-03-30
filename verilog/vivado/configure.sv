@@ -23,7 +23,7 @@ package configure;
   parameter axi_base_addr = 32'h80000000;
   parameter axi_top_addr  = 32'h90000000;
 
-  parameter clk_freq = 20000000; // 20MHz
+  parameter clk_freq = 15000000; // 15MHz
   parameter rtc_freq = 32768; // 32768Hz
   parameter baudrate = 115200;
 

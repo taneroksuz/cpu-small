@@ -97,6 +97,10 @@ module clic
   logic [0  : 0] clic_int_ie [0:clic_interrupt-1];
   logic [7  : 0] clic_int_ctl [0:clic_interrupt-1];
 
+  logic [0  : 0] clic_int_ip_reg [0:clic_interrupt-1];
+  logic [0  : 0] clic_int_ie_reg [0:clic_interrupt-1];
+  logic [7  : 0] clic_int_ctl_reg [0:clic_interrupt-1];
+
   logic [31 : 0] rdata_cfg = 0;
   logic [31 : 0] rdata_info = 0;
   logic [31 : 0] rdata_trig = 0;
@@ -250,9 +254,15 @@ module clic
   always_ff @(posedge clock) begin
     if (reset == 0) begin
       clic_irpt_reg <= '{default:'0};
+      clic_int_ip_reg <= '{default:'0};
+      clic_int_ie_reg <= '{default:'0};
+      clic_int_ctl_reg <= '{default:'0};
     end else begin
       for (int i=0; i<clic_interrupt; i=i+1) begin
         clic_irpt_reg[i] <= clic_irpt[i];
+        clic_int_ip_reg[i] <= clic_int_ip[i];
+        clic_int_ie_reg[i] <= clic_int_ie[i];
+        clic_int_ctl_reg[i] <= clic_int_ctl[i];
       end
     end
   end
@@ -267,7 +277,7 @@ module clic
           if (j<clic_info.num_intctlbit) begin
             level[i][j] = 1;
           end else begin
-            level[i][j] = clic_int_ctl[i][j];
+            level[i][j] = clic_int_ctl_reg[i][j];
           end
         end
       end else if (clic_cfg.nlbits < clic_info.num_intctlbit) begin
@@ -275,21 +285,21 @@ module clic
           if (j<clic_info.num_intctlbit) begin
             prio[i][j] = 1;
           end else begin
-            prio[i][j] = clic_int_ctl[i][j];
+            prio[i][j] = clic_int_ctl_reg[i][j];
           end
         end
         for (int j=0; j<8; j=j+1) begin
           if (j<clic_cfg.nlbits) begin
             level[i][j] = 1;
           end else begin
-            level[i][j] = clic_int_ctl[i][j];
+            level[i][j] = clic_int_ctl_reg[i][j];
           end
         end
       end
-      prio[i] = {8{clic_int_ip[i][0]}} & prio[i];
-      prio[i] = {8{clic_int_ie[i][0]}} & prio[i];
-      level[i] = {8{clic_int_ip[i][0]}} & level[i];
-      level[i] = {8{clic_int_ie[i][0]}} & level[i];
+      prio[i] = {8{clic_int_ip_reg[i][0]}} & prio[i];
+      prio[i] = {8{clic_int_ie_reg[i][0]}} & prio[i];
+      level[i] = {8{clic_int_ip_reg[i][0]}} & level[i];
+      level[i] = {8{clic_int_ie_reg[i][0]}} & level[i];
     end
   end
 
