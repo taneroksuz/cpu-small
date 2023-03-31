@@ -30,7 +30,7 @@ int main(int argc, char** argv, char** env)
 
     dut->clock ^= 1;
 
-    if (sim_time%4)
+    if (sim_time%4 == 0)
       dut->clock_irpt ^= 1;
 
     dut->eval();
