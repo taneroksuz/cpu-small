@@ -68,7 +68,6 @@ module fetchbuffer_ctrl
   localparam [1:0] idle = 0;
   localparam [1:0] active = 1;
   localparam [1:0] control = 2;
-  localparam [1:0] flush = 3;
 
   typedef struct packed{
     logic [fetchbuffer_depth-1:0] enable;
@@ -200,19 +199,6 @@ module fetchbuffer_ctrl
         end
         v.halt = 1;
       end
-      flush : begin
-        if (&(v.wid) == 1) begin
-          v.state = active;
-          v.wren = 0;
-          v.wid = 0;
-          v.wdata = 0;
-        end else begin
-          v.halt = 1;
-          v.wren = 1;
-          v.wid = v.wid + 1;
-          v.wdata = 0;
-        end
-      end
       default : begin
 
       end
@@ -232,11 +218,11 @@ module fetchbuffer_ctrl
     if (v.full == 1 || imem_out.mem_ready == 1) begin
       if (v.state == control) begin
         if (v.pfence == 1) begin
-          v.state = flush;
+          v.state = active;
           v.pfence = 0;
-          v.wren = 1;
-          v.wid = 0;
-          v.wdata = 0;
+          v.halt = 0;
+          v.mode = v.pmode;
+          v.addr = {v.paddr1[31:2],2'b0};
         end else if (v.pspec == 1) begin
           v.state = active;
           v.pspec = 0;
