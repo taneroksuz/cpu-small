@@ -418,6 +418,7 @@ package wires;
     logic [0  : 0] exception;
     logic [3  : 0] ecause;
     logic [31 : 0] etval;
+    logic [0  : 0] stall;
   } fetch_out_type;
 
   typedef struct packed{

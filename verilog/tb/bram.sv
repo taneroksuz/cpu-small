@@ -32,7 +32,7 @@ module bram
   logic [0  : 0] ready;
 
   logic [31 : 0] count = 0;
-  logic [31 : 0] cycle = 10;
+  logic [31 : 0] cycle = 0;
 
   task check;
     input logic [31 : 0] addr;

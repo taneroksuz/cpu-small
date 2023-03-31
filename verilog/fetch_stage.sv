@@ -38,7 +38,7 @@ module fetch_stage
     v = r;
 
     v.valid = ~(a.e.stall | d.e.clear) | a.e.fence;
-    v.stall = v.stall | d.e.stall | d.e.clear;
+    v.stall = d.f.stall | d.e.stall | d.e.clear;
 
     v.spec = 0;
     v.mode = csr_out.mode;
@@ -256,6 +256,7 @@ module fetch_stage
     y.exception = v.exception;
     y.ecause = v.ecause;
     y.etval = v.etval;
+    y.stall = v.stall;
 
     q.pc = r.pc;
     q.imm = r.imm;
@@ -289,6 +290,7 @@ module fetch_stage
     q.exception = r.exception;
     q.ecause = r.ecause;
     q.etval = r.etval;
+    q.stall = r.stall;
 
   end
 
