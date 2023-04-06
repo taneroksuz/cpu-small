@@ -1,14 +1,14 @@
 #!/bin/bash
 set -e
 
-INSTALL_PATH=/opt/csmith
+PREFIX=/opt/csmith
 
-if [ -d "$INSTALL_PATH" ]
+if [ -d "$PREFIX" ]
 then
-  sudo rm -rf $INSTALL_PATH
+  sudo rm -rf $PREFIX
 fi
-sudo mkdir $INSTALL_PATH
-sudo chown -R $USER $INSTALL_PATH/
+sudo mkdir $PREFIX
+sudo chown -R $USER:$USER $PREFIX/
 
 sudo apt-get -y install build-essential m4
 
@@ -24,7 +24,7 @@ tar xf csmith-2.3.0.tar.gz
 
 cd csmith-2.3.0
 
-./configure --prefix=$INSTALL_PATH
+./configure --prefix=$PREFIX
 
 make -j$(nproc)
 make install
