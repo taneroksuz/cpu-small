@@ -191,9 +191,19 @@ module fetchbuffer_ctrl
         end
       end
       fence : begin
+        if (fetchbuffer_in.mem_spec == 1) begin
+          v.pmode = fetchbuffer_in.mem_mode;
+          v.paddr1 = fetchbuffer_in.mem_addr;
+          v.paddr2 = v.paddr1 + 4;
+        end
         v.halt = 1;
       end
       spec : begin
+        if (fetchbuffer_in.mem_spec == 1) begin
+          v.pmode = fetchbuffer_in.mem_mode;
+          v.paddr1 = fetchbuffer_in.mem_addr;
+          v.paddr2 = v.paddr1 + 4;
+        end
         v.halt = 1;
       end
       default : begin
