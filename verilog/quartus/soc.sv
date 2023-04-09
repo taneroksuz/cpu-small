@@ -156,7 +156,8 @@ module soc
           clic_valid = 0;
           avl_valid = 0;
           base_addr = uart_base_addr;
-      end else if (memory_addr < rom_top_addr) begin
+      end else if (memory_addr >= rom_base_addr &&
+        memory_addr < rom_top_addr) begin
           mem_error = 0;
           rom_valid = memory_valid;
           uart_valid = 0;
