@@ -783,18 +783,6 @@ package wires;
   } csr_pmp_out_type;
 
   typedef struct packed{
-    logic [0  : 0] mem_valid;
-    logic [0  : 0] mem_instr;
-    logic [1  : 0] mem_mode;
-    logic [31 : 0] mem_addr;
-    logic [3  : 0] mem_wstrb;
-  } pmp_in_type;
-
-  typedef struct packed{
-    logic [0  : 0] mem_error;
-  } pmp_out_type;
-
-  typedef struct packed{
     logic [4  : 0] raddr1;
     logic [4  : 0] raddr2;
     logic [31 : 0] rdata1;

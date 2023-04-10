@@ -8,8 +8,10 @@ module pmp
   input logic clock,
   input csr_pmp_in_type csr_pmp_in,
   output csr_pmp_out_type csr_pmp_out,
-  input pmp_in_type pmp_in,
-  output pmp_out_type pmp_out
+  input mem_in_type imem_in,
+  output mem_out_type imem_out,
+  input mem_in_type dmem_in,
+  output mem_out_type dmem_out
 );
   timeunit 1ns;
   timeprecision 1ps;
@@ -39,13 +41,23 @@ module pmp
 
   logic [31 : 0] csr_pmpaddr [0:pmp_region-1];
 
-  logic [0  : 0] ok;
-  logic [0  : 0] pass;
-  logic [0  : 0] error;
+  logic [0  : 0] iok;
+  logic [0  : 0] ipass;
+  logic [0  : 0] ierror;
+  logic [0  : 0] iready;
 
-  logic [29 : 0] shifted;
-  logic [31 : 0] lowaddr;
-  logic [31 : 0] highaddr;
+  logic [29 : 0] ishifted;
+  logic [31 : 0] ilowaddr;
+  logic [31 : 0] ihighaddr;
+
+  logic [0  : 0] dok;
+  logic [0  : 0] dpass;
+  logic [0  : 0] derror;
+  logic [0  : 0] dready;
+
+  logic [29 : 0] dshifted;
+  logic [31 : 0] dlowaddr;
+  logic [31 : 0] dhighaddr;
 
   always_ff @(posedge clock) begin
     if (reset == 0) begin
@@ -125,66 +137,117 @@ module pmp
   end
 
   always_comb begin
-    error = 0;
-    pass = 0;
-    ok = 0;
-    shifted = 0;
-    lowaddr = 0;
-    highaddr = 0;
-    if (pmp_in.mem_valid == 1) begin
+    ierror = 0;
+    iready = 0;
+    ipass = 0;
+    iok = 0;
+    ishifted = 0;
+    ilowaddr = 0;
+    ihighaddr = 0;
+    if (imem_in.mem_valid == 1) begin
       for (int i=0; i<pmp_region; i=i+1) begin
-        if (pmp_in.mem_instr == 1) begin
+        if (imem_in.mem_instr == 1) begin
           if (csr_pmpcfg[i].L == 1 && csr_pmpcfg[i].X == 1) begin
-            ok = 1;
-          end else if (csr_pmpcfg[i].L == 0 && (csr_pmpcfg[i].X == 1 || pmp_in.mem_mode == m_mode)) begin
-            ok = 1;
-          end
-        end else if (pmp_in.mem_instr == 0) begin
-          if (|pmp_in.mem_wstrb == 1) begin
-            if (csr_pmpcfg[i].L == 1 && csr_pmpcfg[i].W == 1) begin
-              ok = 1;
-            end else if (csr_pmpcfg[i].L == 0 && (csr_pmpcfg[i].W == 1 || pmp_in.mem_mode == m_mode)) begin
-              ok = 1;
-            end
-          end else if (|pmp_in.mem_wstrb == 0) begin
-            if (csr_pmpcfg[i].L == 1 && csr_pmpcfg[i].R == 1) begin
-              ok = 1;
-            end else if (csr_pmpcfg[i].L == 0 && (csr_pmpcfg[i].R == 1 || pmp_in.mem_mode == m_mode)) begin
-              ok = 1;
-            end
+            iok = 1;
+          end else if (csr_pmpcfg[i].L == 0 && (csr_pmpcfg[i].X == 1 || imem_in.mem_mode == m_mode)) begin
+            iok = 1;
           end
         end
-        if (ok == 1) begin
+        if (iok == 1) begin
           if (csr_pmpcfg[i].A == OFF) begin
             continue;
           end if (csr_pmpcfg[i].A == TOR) begin
             if (i==0) begin
-              lowaddr = 0;
-              highaddr = csr_pmpaddr[0];
+              ilowaddr = 0;
+              ihighaddr = csr_pmpaddr[0];
             end else begin
-              lowaddr = csr_pmpaddr[i-1];
-              highaddr = csr_pmpaddr[i];
+              ilowaddr = csr_pmpaddr[i-1];
+              ihighaddr = csr_pmpaddr[i];
             end
-            highaddr = highaddr - 1;
+            ihighaddr = ihighaddr - 1;
           end else if (csr_pmpcfg[i].A == NA4) begin
-            lowaddr = {csr_pmpaddr[i][29:0],2'h0};
-            highaddr = {csr_pmpaddr[i][29:0],2'h3};
+            ilowaddr = {csr_pmpaddr[i][29:0],2'h0};
+            ihighaddr = {csr_pmpaddr[i][29:0],2'h3};
           end else if (csr_pmpcfg[i].A == NAPOT) begin
-            shifted = csr_pmpaddr[i][29:0] + 1;
-            lowaddr = {(csr_pmpaddr[i][29:0] & shifted),2'h0};
-            highaddr = {(csr_pmpaddr[i][29:0] | shifted),2'h3};
+            ishifted = csr_pmpaddr[i][29:0] + 1;
+            ilowaddr = {(csr_pmpaddr[i][29:0] & ishifted),2'h0};
+            ihighaddr = {(csr_pmpaddr[i][29:0] | ishifted),2'h3};
           end
-          if (lowaddr <= highaddr && pmp_in.mem_addr >= lowaddr && pmp_in.mem_addr <= highaddr) begin
-            pass = 1;
+          if (ilowaddr <= ihighaddr && imem_in.mem_addr >= ilowaddr && imem_in.mem_addr <= ihighaddr) begin
+            ipass = 1;
             break;
           end
         end
       end
-      if (pass == 0 && pmp_in.mem_mode != m_mode) begin
-        error = 1;
+      if (ipass == 0 && imem_in.mem_mode != m_mode) begin
+        ierror = 1;
+        iready = 1;
       end
     end
-    pmp_out.mem_error = error;
+    imem_out.mem_rdata = 0;
+    imem_out.mem_error = ierror;
+    imem_out.mem_ready = iready;
+  end
+
+  always_comb begin
+    derror = 0;
+    dready = 0;
+    dpass = 0;
+    dok = 0;
+    dshifted = 0;
+    dlowaddr = 0;
+    dhighaddr = 0;
+    if (dmem_in.mem_valid == 1) begin
+      for (int i=0; i<pmp_region; i=i+1) begin
+        if (dmem_in.mem_instr == 0) begin
+          if (|dmem_in.mem_wstrb == 1) begin
+            if (csr_pmpcfg[i].L == 1 && csr_pmpcfg[i].W == 1) begin
+              dok = 1;
+            end else if (csr_pmpcfg[i].L == 0 && (csr_pmpcfg[i].W == 1 || dmem_in.mem_mode == m_mode)) begin
+              dok = 1;
+            end
+          end else if (|dmem_in.mem_wstrb == 0) begin
+            if (csr_pmpcfg[i].L == 1 && csr_pmpcfg[i].R == 1) begin
+              dok = 1;
+            end else if (csr_pmpcfg[i].L == 0 && (csr_pmpcfg[i].R == 1 || dmem_in.mem_mode == m_mode)) begin
+              dok = 1;
+            end
+          end
+        end
+        if (dok == 1) begin
+          if (csr_pmpcfg[i].A == OFF) begin
+            continue;
+          end if (csr_pmpcfg[i].A == TOR) begin
+            if (i==0) begin
+              dlowaddr = 0;
+              dhighaddr = csr_pmpaddr[0];
+            end else begin
+              dlowaddr = csr_pmpaddr[i-1];
+              dhighaddr = csr_pmpaddr[i];
+            end
+            dhighaddr = dhighaddr - 1;
+          end else if (csr_pmpcfg[i].A == NA4) begin
+            dlowaddr = {csr_pmpaddr[i][29:0],2'h0};
+            dhighaddr = {csr_pmpaddr[i][29:0],2'h3};
+          end else if (csr_pmpcfg[i].A == NAPOT) begin
+            dshifted = csr_pmpaddr[i][29:0] + 1;
+            dlowaddr = {(csr_pmpaddr[i][29:0] & dshifted),2'h0};
+            dhighaddr = {(csr_pmpaddr[i][29:0] | dshifted),2'h3};
+          end
+          if (dlowaddr <= dhighaddr && dmem_in.mem_addr >= dlowaddr && dmem_in.mem_addr <= dhighaddr) begin
+            dpass = 1;
+            break;
+          end
+        end
+      end
+      if (dpass == 0 && dmem_in.mem_mode != m_mode) begin
+        derror = 1;
+        dready = 1;
+      end
+    end
+    dmem_out.mem_rdata = 0;
+    dmem_out.mem_error = derror;
+    dmem_out.mem_ready = dready;
   end
 
 endmodule
