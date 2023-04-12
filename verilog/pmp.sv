@@ -41,8 +41,8 @@ module pmp
 
   logic [31 : 0] csr_pmpaddr [0:pmp_region-1];
 
-  logic [0  : 0] iok;
   logic [0  : 0] ipass;
+  logic [0  : 0] icheck;
   logic [0  : 0] ierror;
   logic [0  : 0] iready;
 
@@ -50,8 +50,8 @@ module pmp
   logic [31 : 0] ilowaddr;
   logic [31 : 0] ihighaddr;
 
-  logic [0  : 0] dok;
   logic [0  : 0] dpass;
+  logic [0  : 0] dcheck;
   logic [0  : 0] derror;
   logic [0  : 0] dready;
 
@@ -137,10 +137,10 @@ module pmp
   end
 
   always_comb begin
+    ipass = 0;
+    icheck = 0;
     ierror = 0;
     iready = 0;
-    ipass = 0;
-    iok = 0;
     ishifted = 0;
     ilowaddr = 0;
     ihighaddr = 0;
@@ -148,12 +148,12 @@ module pmp
       for (int i=0; i<pmp_region; i=i+1) begin
         if (imem_in.mem_instr == 1) begin
           if (csr_pmpcfg[i].L == 1 && csr_pmpcfg[i].X == 1) begin
-            iok = 1;
+            icheck = 1;
           end else if (csr_pmpcfg[i].L == 0 && (csr_pmpcfg[i].X == 1 || imem_in.mem_mode == m_mode)) begin
-            iok = 1;
+            icheck = 1;
           end
         end
-        if (iok == 1) begin
+        if (icheck == 1) begin
           if (csr_pmpcfg[i].A == OFF) begin
             continue;
           end if (csr_pmpcfg[i].A == TOR) begin
@@ -193,7 +193,7 @@ module pmp
     derror = 0;
     dready = 0;
     dpass = 0;
-    dok = 0;
+    dcheck = 0;
     dshifted = 0;
     dlowaddr = 0;
     dhighaddr = 0;
@@ -202,19 +202,19 @@ module pmp
         if (dmem_in.mem_instr == 0) begin
           if (|dmem_in.mem_wstrb == 1) begin
             if (csr_pmpcfg[i].L == 1 && csr_pmpcfg[i].W == 1) begin
-              dok = 1;
+              dcheck = 1;
             end else if (csr_pmpcfg[i].L == 0 && (csr_pmpcfg[i].W == 1 || dmem_in.mem_mode == m_mode)) begin
-              dok = 1;
+              dcheck = 1;
             end
           end else if (|dmem_in.mem_wstrb == 0) begin
             if (csr_pmpcfg[i].L == 1 && csr_pmpcfg[i].R == 1) begin
-              dok = 1;
+              dcheck = 1;
             end else if (csr_pmpcfg[i].L == 0 && (csr_pmpcfg[i].R == 1 || dmem_in.mem_mode == m_mode)) begin
-              dok = 1;
+              dcheck = 1;
             end
           end
         end
-        if (dok == 1) begin
+        if (dcheck == 1) begin
           if (csr_pmpcfg[i].A == OFF) begin
             continue;
           end if (csr_pmpcfg[i].A == TOR) begin
