@@ -65,10 +65,10 @@ module ahb
         if (ahb_valid == 1) begin
           if (|ahb_wstrb == 0) begin
             state = load;
-            haddr = {ahb_haddr[31:2],2'b0};
+            haddr = {ahb_addr[31:2],2'b0};
           end else if (|ahb_wstrb == 1) begin
             state = store;
-            haddr = {ahb_haddr[31:2],2'b0};
+            haddr = {ahb_addr[31:2],2'b0};
             hwdata = ahb_wdata;
             hwstrb = ahb_wstrb;
             hwrite = 1;
