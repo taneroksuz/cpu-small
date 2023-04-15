@@ -2,24 +2,24 @@ import configure::*;
 
 module soc
 (
-  input  reset,
-  input  clock,
-  input  clock_irpt,
-  input  uart_rx,
-  output uart_tx,
-  input  [31 : 0] irpt,
-  output [31 : 0] m_avl_address,
-  output [3  : 0] m_avl_byteenable,
-  output [0  : 0] m_avl_lock,
-  output [0  : 0] m_avl_read,
-  output [31 : 0] m_avl_writedata,
-  output [0  : 0] m_avl_write,
-  output [2  : 0] m_avl_burstcount,
-  input  [31 : 0] m_avl_readdata,
-  input  [1  : 0] m_avl_response,
-  input  [0  : 0] m_avl_waitrequest,
-  input  [0  : 0] m_avl_readdatavalid,
-  input  [0  : 0] m_avl_writeresponsevalid
+  input  logic reset,
+  input  logic clock,
+  input  logic clock_irpt,
+  input  logic uart_rx,
+  output logic uart_tx,
+  input  logic [31 : 0] irpt,
+  output logic [31 : 0] m_avl_address,
+  output logic [3  : 0] m_avl_byteenable,
+  output logic [0  : 0] m_avl_lock,
+  output logic [0  : 0] m_avl_read,
+  output logic [31 : 0] m_avl_writedata,
+  output logic [0  : 0] m_avl_write,
+  output logic [2  : 0] m_avl_burstcount,
+  input  logic [31 : 0] m_avl_readdata,
+  input  logic [1  : 0] m_avl_response,
+  input  logic [0  : 0] m_avl_waitrequest,
+  input  logic [0  : 0] m_avl_readdatavalid,
+  input  logic [0  : 0] m_avl_writeresponsevalid
 );
   timeunit 1ns;
   timeprecision 1ps;
