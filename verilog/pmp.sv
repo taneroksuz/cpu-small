@@ -6,6 +6,8 @@ module pmp
 (
   input logic reset,
   input logic clock,
+  output logic pmp_ierror,
+  output logic pmp_derror,
   input csr_pmp_in_type csr_pmp_in,
   output csr_pmp_out_type csr_pmp_out,
   input mem_in_type imem_in,
@@ -46,6 +48,9 @@ module pmp
   logic [0  : 0] ierror;
   logic [0  : 0] iready;
 
+  logic [0  : 0] ierror_reg;
+  logic [0  : 0] iready_reg;
+
   logic [29 : 0] ishifted;
   logic [31 : 0] ilowaddr;
   logic [31 : 0] ihighaddr;
@@ -54,6 +59,9 @@ module pmp
   logic [0  : 0] dcheck;
   logic [0  : 0] derror;
   logic [0  : 0] dready;
+
+  logic [0  : 0] derror_reg;
+  logic [0  : 0] dready_reg;
 
   logic [29 : 0] dshifted;
   logic [31 : 0] dlowaddr;
@@ -184,16 +192,28 @@ module pmp
         iready = 1;
       end
     end
-    imem_out.mem_rdata = 0;
-    imem_out.mem_error = ierror;
-    imem_out.mem_ready = iready;
+    pmp_ierror = ierror;
   end
 
+  always_ff @(posedge clock) begin
+    if (reset == 0) begin
+      ierror_reg <= 0;
+      iready_reg <= 0;
+    end else begin
+      ierror_reg <= ierror;
+      iready_reg <= iready;
+    end
+  end
+
+  assign imem_out.mem_rdata = 0;
+  assign imem_out.mem_error = ierror_reg;
+  assign imem_out.mem_ready = iready_reg;
+
   always_comb begin
-    derror = 0;
-    dready = 0;
     dpass = 0;
     dcheck = 0;
+    derror = 0;
+    dready = 0;
     dshifted = 0;
     dlowaddr = 0;
     dhighaddr = 0;
@@ -245,9 +265,21 @@ module pmp
         dready = 1;
       end
     end
-    dmem_out.mem_rdata = 0;
-    dmem_out.mem_error = derror;
-    dmem_out.mem_ready = dready;
+    pmp_derror = derror;
   end
+
+  always_ff @(posedge clock) begin
+    if (reset == 0) begin
+      derror_reg <= 0;
+      dready_reg <= 0;
+    end else begin
+      derror_reg <= derror;
+      dready_reg <= dready;
+    end
+  end
+
+  assign dmem_out.mem_rdata = 0;
+  assign dmem_out.mem_error = derror_reg;
+  assign dmem_out.mem_ready = dready_reg;
 
 endmodule

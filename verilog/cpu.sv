@@ -50,6 +50,9 @@ module cpu
   timeunit 1ns;
   timeprecision 1ps;
 
+  logic pmp_ierror;
+  logic pmp_derror;
+
   agu_in_type agu_in;
   agu_out_type agu_out;
   alu_in_type alu_in;
@@ -226,6 +229,8 @@ module cpu
   (
     .reset (reset),
     .clock (clock),
+    .pmp_ierror (pmp_ierror),
+    .pmp_derror (pmp_derror),
     .csr_pmp_in (csr_pmp_in),
     .csr_pmp_out (csr_pmp_out),
     .imem_in (imem_in),
@@ -300,22 +305,54 @@ module cpu
     .q (execute_out_q)
   );
 
-  assign imemory_valid = imem_in.mem_valid;
-  assign imemory_instr = imem_in.mem_instr;
-  assign imemory_addr = imem_in.mem_addr;
-  assign imemory_wdata = imem_in.mem_wdata;
-  assign imemory_wstrb = imem_in.mem_wstrb;
-  assign imem_out.mem_rdata = imemory_rdata;
-  assign imem_out.mem_error = imemory_error;
-  assign imem_out.mem_ready = imemory_ready;
+  always_comb begin
+    if (pmp_ierror == 0) begin
+      imemory_valid = imem_in.mem_valid;
+      imemory_instr = imem_in.mem_instr;
+      imemory_addr = imem_in.mem_addr;
+      imemory_wdata = imem_in.mem_wdata;
+      imemory_wstrb = imem_in.mem_wstrb;
+    end else begin
+      imemory_valid = 0;
+      imemory_instr = 0;
+      imemory_addr = 0;
+      imemory_wdata = 0;
+      imemory_wstrb = 0;
+    end
+    if (ipmp_out.mem_error == 0) begin
+      imem_out.mem_rdata = imemory_rdata;
+      imem_out.mem_error = imemory_error;
+      imem_out.mem_ready = imemory_ready;
+    end else begin
+      imem_out.mem_rdata = ipmp_out.mem_rdata;
+      imem_out.mem_error = ipmp_out.mem_error;
+      imem_out.mem_ready = ipmp_out.mem_ready;
+    end
+  end
 
-  assign dmemory_valid = dmem_in.mem_valid;
-  assign dmemory_instr = dmem_in.mem_instr;
-  assign dmemory_addr = dmem_in.mem_addr;
-  assign dmemory_wdata = dmem_in.mem_wdata;
-  assign dmemory_wstrb = dmem_in.mem_wstrb;
-  assign dmem_out.mem_rdata = dmemory_rdata;
-  assign dmem_out.mem_error = dmemory_error;
-  assign dmem_out.mem_ready = dmemory_ready;
+  always_comb begin
+    if (pmp_derror == 0) begin
+      dmemory_valid = dmem_in.mem_valid;
+      dmemory_instr = dmem_in.mem_instr;
+      dmemory_addr = dmem_in.mem_addr;
+      dmemory_wdata = dmem_in.mem_wdata;
+      dmemory_wstrb = dmem_in.mem_wstrb;
+    end else begin
+      dmemory_valid = 0;
+      dmemory_instr = 0;
+      dmemory_addr = 0;
+      dmemory_wdata = 0;
+      dmemory_wstrb = 0;
+    end
+    if (dpmp_out.mem_error == 0) begin
+      dmem_out.mem_rdata = dmemory_rdata;
+      dmem_out.mem_error = dmemory_error;
+      dmem_out.mem_ready = dmemory_ready;
+    end else begin
+      dmem_out.mem_rdata = dpmp_out.mem_rdata;
+      dmem_out.mem_error = dpmp_out.mem_error;
+      dmem_out.mem_ready = dpmp_out.mem_ready;
+    end
+  end
 
 endmodule
