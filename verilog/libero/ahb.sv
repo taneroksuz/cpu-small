@@ -105,11 +105,11 @@ module ahb
   assign m_ahb_hwstrb = hwstrb_reg;
   assign m_ahb_hwrite = hwrite_reg;
 
-  assign m_ahb_hsize = 0;
-  assign m_ahb_hburst = 0;
-  assign m_ahb_hprot = 0;
-  assign m_ahb_htrans = 0;
-  assign m_ahb_hmastlock = 0;
+  assign m_ahb_hsize = 3'b000;
+  assign m_ahb_hburst = 3'b000;
+  assign m_ahb_hprot = 4'b0000;
+  assign m_ahb_htrans = 2'b00;
+  assign m_ahb_hmastlock = 1'b0;
 
   assign ahb_rdata = rdata_reg;
   assign ahb_ready = ready_reg;

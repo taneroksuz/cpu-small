@@ -15,10 +15,10 @@ module wb
   /////////////////////////////////
   output logic [31 : 0] m_wb_addr_o,
   output logic [31 : 0] m_wb_dat_o,
-  output logic [0  : 0] m_wb_sel_o,
+  output logic [3  : 0] m_wb_sel_o,
   output logic [0  : 0] m_wb_we_o,
   output logic [0  : 0] m_wb_cyc_o,
-  output logic [3  : 0] m_wb_stb_o,
+  output logic [0  : 0] m_wb_stb_o,
   output logic [0  : 0] m_wb_lock_o,
   /////////////////////////////////
   input  logic [31 : 0] m_wb_dat_i,
