@@ -10,20 +10,16 @@ module soc
   input  logic [31 : 0] irpt,
   output logic [31 : 0] m_wb_addr_o,
   output logic [31 : 0] m_wb_dat_o,
-  output logic [3  : 0] m_wb_stb_o,
-  output logic [0  : 0] m_wb_cyc_o,
-  output logic [0  : 0] m_wb_we_o,
-  output logic [0  : 0] m_wb_lock_o,
   output logic [0  : 0] m_wb_sel_o,
-  output logic [0  : 0] m_wb_tga_o,
-  output logic [0  : 0] m_wb_tgc_o,
-  output logic [0  : 0] m_wb_tgd_o,
+  output logic [0  : 0] m_wb_we_o,
+  output logic [0  : 0] m_wb_cyc_o,
+  output logic [3  : 0] m_wb_stb_o,
+  output logic [0  : 0] m_wb_lock_o,
   input  logic [31 : 0] m_wb_dat_i,
   input  logic [0  : 0] m_wb_ack_i,
   input  logic [0  : 0] m_wb_err_i,
-  input  logic [0  : 0] m_wb_stall_i,
   input  logic [0  : 0] m_wb_rty_i,
-  input  logic [0  : 0] m_wb_tgd_i
+  input  logic [0  : 0] m_wb_stall_i
 );
   timeunit 1ns;
   timeprecision 1ps;
@@ -412,20 +408,16 @@ module soc
     .wb_ready (wb_ready),
     .m_wb_addr_o (m_wb_addr_o),
     .m_wb_dat_o (m_wb_dat_o),
-    .m_wb_stb_o (m_wb_stb_o),
-    .m_wb_cyc_o (m_wb_cyc_o),
-    .m_wb_we_o (m_wb_we_o),
-    .m_wb_lock_o (m_wb_lock_o),
     .m_wb_sel_o (m_wb_sel_o),
-    .m_wb_tga_o (m_wb_tga_o),
-    .m_wb_tgc_o (m_wb_tgc_o),
-    .m_wb_tgd_o (m_wb_tgd_o),
+    .m_wb_we_o (m_wb_we_o),
+    .m_wb_cyc_o (m_wb_cyc_o),
+    .m_wb_stb_o (m_wb_stb_o),
+    .m_wb_lock_o (m_wb_lock_o),
     .m_wb_dat_i (m_wb_dat_i),
     .m_wb_ack_i (m_wb_ack_i),
     .m_wb_err_i (m_wb_err_i),
-    .m_wb_stall_i (m_wb_stall_i),
     .m_wb_rty_i (m_wb_rty_i),
-    .m_wb_tgd_i (m_wb_tgd_i)
+    .m_wb_stall_i (m_wb_stall_i)
   );
 
 endmodule
