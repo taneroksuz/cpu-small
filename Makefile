@@ -2,7 +2,6 @@ default: none
 
 export VERILATOR ?= /opt/verilator/bin/verilator
 export SYSTEMC ?= /opt/systemc
-export RISCVDV ?= /opt/riscv-dv
 export RISCV ?= /opt/rv32imc/bin/riscv32-unknown-elf-
 export OPTS ?= -O2 -fno-common -funroll-loops -finline-functions -falign-functions=16 -falign-jumps=4 -falign-loops=4 -finline-limit=1000 -fno-if-conversion2 -fselective-scheduling -fno-tree-dominator-opts
 export MARCH ?= rv32imc_zicsr_zifencei
@@ -14,8 +13,7 @@ export PYTHON ?= /usr/bin/python3
 export SERIAL ?= /dev/ttyUSB0
 export BASEDIR ?= $(shell dirname $(realpath $(firstword $(MAKEFILE_LIST))))
 export PLATFORM ?= tb# tb fpga
-export PROGRAM ?= dhrystone# aapg bootloader compliance coremark csmith dhrystone isa riscv-dv sram timer
-export AAPG ?= aapg
+export PROGRAM ?= dhrystone# bootloader compliance coremark csmith dhrystone isa sram timer
 export MAXTIME ?= 10000000
 export OFFSET ?= 0x100000
 export WAVE ?= off# "on" for saving dump file
