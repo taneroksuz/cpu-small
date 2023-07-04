@@ -5,7 +5,7 @@ Wolv Z0 CPU core supports currently only riscv32-imc instruction set architectur
 ## Dhrystone Benchmark ##
 | Cycles | Dhrystone/s/MHz | DMIPS/s/MHz | Iteration |
 | ------ | --------------- | ----------- | --------- |
-|    450 |            2222 |        1.26 |      1000 |
+|    346 |            2889 |        1.64 |      1000 |
 
 ## Coremark Benchmark ##
 | Cycles | Iteration/s/MHz | Iteration |
