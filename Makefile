@@ -12,11 +12,10 @@ export GCC ?= /usr/bin/gcc
 export PYTHON ?= /usr/bin/python3
 export SERIAL ?= /dev/ttyUSB0
 export BASEDIR ?= $(shell dirname $(realpath $(firstword $(MAKEFILE_LIST))))
-export PLATFORM ?= tb# tb fpga
 export PROGRAM ?= dhrystone# bootloader compliance coremark csmith dhrystone isa sram timer
 export MAXTIME ?= 10000000
 export OFFSET ?= 0x100000
-export WAVE ?= off# "on" for saving dump file
+export DUMP ?= off# "on" for saving dump file
 
 generate:
 	soft/compile.sh

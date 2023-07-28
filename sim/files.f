@@ -22,7 +22,8 @@
 ../../verilog/clint.sv
 ../../verilog/pmp.sv
 ../../verilog/clic.sv
+../../verilog/uart.sv
 ../../verilog/cpu.sv
 ../../verilog/tb/bram.sv
-../../verilog/tb/print.sv
+../../verilog/tb/rom.sv
 ../../verilog/tb/soc.sv

@@ -13,7 +13,7 @@ declare -A benchmark=([aapg]=1 [bootloader]=1 [coremark]=1 [csmith]=1 [dhrystone
 declare -A verification=([compliance]=1 [isa]=1)
 
 start=`date +%s`
-if [ "$WAVE" = 'on' ]
+if [ "$DUMP" = 'on' ]
 then
   ${VERILATOR} --cc -Wno-UNOPTFLAT -Wno-UNSIGNED --trace -trace-max-array 128 --trace-structs -f $BASEDIR/sim/files.f --top-module soc --exe $BASEDIR/sim/run.cpp 2>&1 > /dev/null
   make -s -j -C obj_dir/ -f Vsoc.mk Vsoc
