@@ -214,7 +214,7 @@ module fetchbuffer_ctrl
       if (v.state == active) begin
         v.wren = 1;
         v.wid = v.addr[(depth+1):2];
-        v.wdata = {imem_out.mem_error,v.addr[31:2],imem_out.mem_rdata};
+        v.wdata = {v.addr[31:2],imem_out.mem_error,imem_out.mem_rdata};
         v.enable[v.wid] = 1;
         v.addr = v.addr + 4;
         v.count = v.count + 2;
@@ -268,25 +268,25 @@ module fetchbuffer_ctrl
       if (v.paddr1[1:1] == 0) begin
         if (v.wrden1 == 1) begin
           v.rdata = v.wdata[31:0];
-          v.error = v.wdata[62];
+          v.error = v.wdata[32];
           v.ready = 1;
         end else if (v.rden1 == 1) begin
           v.rdata = v.rdata1[31:0];
-          v.error = v.rdata1[62];
+          v.error = v.rdata1[32];
           v.ready = 1;
         end
       end else if (v.paddr1[1:1] == 1) begin
         if (v.wrden1 == 1) begin
           v.rdata[15:0] = v.wdata[31:16];
           if (&(v.rdata[1:0]) == 0) begin
-            v.error = v.wdata[62];
+            v.error = v.wdata[32];
             v.ready = 1;
           end
           v.comp = 1;
         end else if (v.rden1 == 1) begin
           v.rdata[15:0] = v.rdata1[31:16];
           if (&(v.rdata[1:0]) == 0) begin
-            v.error = v.rdata1[62];
+            v.error = v.rdata1[32];
             v.ready = 1;
           end
           v.comp = 1;
@@ -294,11 +294,11 @@ module fetchbuffer_ctrl
         if (v.comp == 1) begin
           if (v.wrden2 == 1) begin
             v.rdata[31:16] = v.wdata[15:0];
-            v.error = v.wdata[62];
+            v.error = v.wdata[32];
             v.ready = 1;
           end else if (v.rden2 == 1) begin
             v.rdata[31:16] = v.rdata2[15:0];
-            v.error = v.rdata2[62];
+            v.error = v.rdata2[32];
             v.ready = 1;
           end
         end
