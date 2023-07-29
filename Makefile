@@ -1,6 +1,6 @@
 default: none
 
-export XVLOG ?= xvlog
+export XVLOG ?= xvlog # execute "source settings64.sh" in Vivado installation folder
 export XELAB ?= xelab
 export XSIM ?= xsim
 export RISCV ?= /opt/rv32imc/bin/riscv32-unknown-elf-
