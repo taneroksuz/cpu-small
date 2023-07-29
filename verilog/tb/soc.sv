@@ -152,6 +152,9 @@ module soc();
 
   always_ff @(posedge clock) begin
     if (counter == stoptime) begin
+      $write("%c[1;33m",8'h1B);
+      $display("TEST STOPPED");
+      $write("%c[0m",8'h1B);
       $finish;
     end else begin
       counter <= counter + 1;
