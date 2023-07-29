@@ -1,14 +1,13 @@
-module soc
-(
-  input  logic reset,
-  input  logic clock,
-  input  logic clock_irpt,
-  input  logic uart_rx,
-  output logic uart_tx
-);
+module soc();
 
   timeunit 1ns;
   timeprecision 1ps;
+
+  logic reset;
+  logic clock;
+  logic clock_irpt;
+  logic uart_rx;
+  logic uart_tx;
 
   logic [0  : 0] rvfi_valid;
   logic [63 : 0] rvfi_order;
@@ -115,8 +114,50 @@ module soc
 
   logic [31 : 0] host[0:0] = '{default:'0};
 
+  logic [31 : 0] stoptime = 1000;
+
   initial begin
     $readmemh("host.dat", host);
+  end
+
+  initial begin
+    string filename;
+    if ($value$plusargs("FILENAME=%s",filename)) begin
+      $dumpfile(filename);
+      $dumpvars(0, soc);
+    end
+  end
+
+  initial begin
+    string maxtime;
+    if ($value$plusargs("MAXTIME=%s",maxtime)) begin
+      stoptime = maxtime.atoi();
+    end
+  end
+
+  initial begin
+    reset = 0;
+    clock = 1;
+    clock_irpt = 1;
+    uart_rx = 1;
+  end
+
+  initial begin
+    #10 reset = 1;
+  end
+
+  always begin
+    #0.5 clock = ~clock;
+    #5 clock_irpt = ~clock_irpt;
+  end
+
+  always_comb begin
+    if ($stime > stoptime) begin
+      $finish;
+    end else begin
+      $display("Time: %t",$stime);
+      $display("Stoptime: %t",stoptime);
+    end
   end
 
   always_comb begin
