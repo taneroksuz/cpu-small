@@ -115,6 +115,7 @@ module soc();
   logic [31 : 0] host[0:0] = '{default:'0};
 
   logic [31 : 0] stoptime = 1000;
+  logic [31 : 0] counter = 0;
 
   initial begin
     $readmemh("host.dat", host);
@@ -149,12 +150,11 @@ module soc();
   always #0.5 clock = ~clock;
   always #5 clock_irpt = ~clock_irpt;
 
-  always_comb begin
-    if ($stime > stoptime) begin
+  always_ff @(posedge clock) begin
+    if (counter == stoptime) begin
       $finish;
     end else begin
-      $display("Time: %t",$stime);
-      $display("Stoptime: %t",stoptime);
+      counter <= counter + 1;
     end
   end
 
