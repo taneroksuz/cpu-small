@@ -176,42 +176,47 @@ module soc();
     if (memory_valid == 1) begin
       if (memory_addr == host[0]) begin
           mem_error = 0;
-          bram_valid = memory_valid;
+          rom_valid = 0;
           uart_valid = 0;
           clint_valid = 0;
           clic_valid = 0;
+          bram_valid = memory_valid;
           base_addr = bram_base_addr;
       end else if (memory_addr >= bram_base_addr &&
         memory_addr < bram_top_addr) begin
           mem_error = 0;
-          bram_valid = memory_valid;
+          rom_valid = 0;
           uart_valid = 0;
           clint_valid = 0;
           clic_valid = 0;
+          bram_valid = memory_valid;
           base_addr = bram_base_addr;
       end else if (memory_addr >= clic_base_addr &&
         memory_addr < clic_top_addr) begin
           mem_error = 0;
-          bram_valid = 0;
+          rom_valid = 0;
           uart_valid = 0;
           clint_valid = 0;
           clic_valid = memory_valid;
+          bram_valid = 0;
           base_addr = clic_base_addr;
       end else if (memory_addr >= clint_base_addr &&
         memory_addr < clint_top_addr) begin
           mem_error = 0;
-          bram_valid = 0;
+          rom_valid = 0;
           uart_valid = 0;
           clint_valid = memory_valid;
           clic_valid = 0;
+          bram_valid = 0;
           base_addr = clint_base_addr;
       end else if (memory_addr >= uart_base_addr &&
         memory_addr < uart_top_addr) begin
           mem_error = 0;
-          bram_valid = 0;
+          rom_valid = 0;
           uart_valid = memory_valid;
           clint_valid = 0;
           clic_valid = 0;
+          bram_valid = 0;
           base_addr = uart_base_addr;
       end else if (memory_addr >= rom_base_addr &&
         memory_addr < rom_top_addr) begin
@@ -224,10 +229,11 @@ module soc();
           base_addr = rom_base_addr;
       end else begin
           mem_error = 1;
-          bram_valid = 0;
+          rom_valid = 0;
           uart_valid = 0;
           clint_valid = 0;
           clic_valid = 0;
+          bram_valid = 0;
           base_addr = 0;
       end
     end
