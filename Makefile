@@ -3,7 +3,6 @@ default: none
 export XVLOG ?= xvlog
 export XELAB ?= xelab
 export XSIM ?= xsim
-export SYSTEMC ?= /opt/systemc
 export RISCV ?= /opt/rv32imc/bin/riscv32-unknown-elf-
 export OPTS ?= -O3 -fno-common -funroll-loops -finline-functions -falign-functions=16 -falign-jumps=4 -falign-loops=4 -finline-limit=1000
 export MARCH ?= rv32imc_zicsr_zifencei
