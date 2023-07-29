@@ -146,10 +146,8 @@ module soc();
     #10 reset = 1;
   end
 
-  always begin
-    #0.5 clock = ~clock;
-    #5 clock_irpt = ~clock_irpt;
-  end
+  always #0.5 clock = ~clock;
+  always #5 clock_irpt = ~clock_irpt;
 
   always_comb begin
     if ($stime > stoptime) begin
