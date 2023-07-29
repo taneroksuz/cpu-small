@@ -181,7 +181,7 @@ module soc();
           clint_valid = 0;
           clic_valid = 0;
           bram_valid = memory_valid;
-          base_addr = bram_base_addr;
+          base_addr = 0;
       end else if (memory_addr >= bram_base_addr &&
         memory_addr < bram_top_addr) begin
           mem_error = 0;
