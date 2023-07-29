@@ -114,7 +114,7 @@ module soc();
 
   logic [31 : 0] host[0:0] = '{default:'0};
 
-  logic [31 : 0] stoptime = 1000;
+  logic [31 : 0] stoptime = 10000000;
   logic [31 : 0] counter = 0;
 
   initial begin
