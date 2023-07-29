@@ -8,8 +8,6 @@ module soc();
   logic reset;
   logic clock;
   logic clock_irpt;
-  logic uart_rx;
-  logic uart_tx;
 
   logic [0  : 0] rvfi_valid;
   logic [63 : 0] rvfi_order;
@@ -69,13 +67,13 @@ module soc();
   logic [31 : 0] rom_rdata;
   logic [0  : 0] rom_ready;
 
-  logic [0  : 0] uart_valid;
-  logic [0  : 0] uart_instr;
-  logic [31 : 0] uart_addr;
-  logic [31 : 0] uart_wdata;
-  logic [3  : 0] uart_wstrb;
-  logic [31 : 0] uart_rdata;
-  logic [0  : 0] uart_ready;
+  logic [0  : 0] print_valid;
+  logic [0  : 0] print_instr;
+  logic [31 : 0] print_addr;
+  logic [31 : 0] print_wdata;
+  logic [3  : 0] print_wstrb;
+  logic [31 : 0] print_rdata;
+  logic [0  : 0] print_ready;
 
   logic [0  : 0] clint_valid;
   logic [0  : 0] clint_instr;
@@ -142,7 +140,6 @@ module soc();
     reset = 0;
     clock = 1;
     clock_irpt = 1;
-    uart_rx = 1;
   end
 
   initial begin
@@ -168,7 +165,7 @@ module soc();
     mem_error = 0;
 
     rom_valid = 0;
-    uart_valid = 0;
+    print_valid = 0;
     clint_valid = 0;
     clic_valid = 0;
     bram_valid = 0;
@@ -179,7 +176,7 @@ module soc();
       if (memory_addr == host[0]) begin
           mem_error = 0;
           rom_valid = 0;
-          uart_valid = 0;
+          print_valid = 0;
           clint_valid = 0;
           clic_valid = 0;
           bram_valid = memory_valid;
@@ -188,7 +185,7 @@ module soc();
         memory_addr < bram_top_addr) begin
           mem_error = 0;
           rom_valid = 0;
-          uart_valid = 0;
+          print_valid = 0;
           clint_valid = 0;
           clic_valid = 0;
           bram_valid = memory_valid;
@@ -197,7 +194,7 @@ module soc();
         memory_addr < clic_top_addr) begin
           mem_error = 0;
           rom_valid = 0;
-          uart_valid = 0;
+          print_valid = 0;
           clint_valid = 0;
           clic_valid = memory_valid;
           bram_valid = 0;
@@ -206,25 +203,25 @@ module soc();
         memory_addr < clint_top_addr) begin
           mem_error = 0;
           rom_valid = 0;
-          uart_valid = 0;
+          print_valid = 0;
           clint_valid = memory_valid;
           clic_valid = 0;
           bram_valid = 0;
           base_addr = clint_base_addr;
-      end else if (memory_addr >= uart_base_addr &&
-        memory_addr < uart_top_addr) begin
+      end else if (memory_addr >= print_base_addr &&
+        memory_addr < print_top_addr) begin
           mem_error = 0;
           rom_valid = 0;
-          uart_valid = memory_valid;
+          print_valid = memory_valid;
           clint_valid = 0;
           clic_valid = 0;
           bram_valid = 0;
-          base_addr = uart_base_addr;
+          base_addr = print_base_addr;
       end else if (memory_addr >= rom_base_addr &&
         memory_addr < rom_top_addr) begin
           mem_error = 0;
           rom_valid = memory_valid;
-          uart_valid = 0;
+          print_valid = 0;
           clint_valid = 0;
           clic_valid = 0;
           bram_valid = 0;
@@ -232,7 +229,7 @@ module soc();
       end else begin
           mem_error = 1;
           rom_valid = 0;
-          uart_valid = 0;
+          print_valid = 0;
           clint_valid = 0;
           clic_valid = 0;
           bram_valid = 0;
@@ -245,10 +242,10 @@ module soc();
     rom_instr = memory_instr;
     rom_addr = mem_addr;
 
-    uart_instr = memory_instr;
-    uart_addr = mem_addr;
-    uart_wdata = memory_wdata;
-    uart_wstrb = memory_wstrb;
+    print_instr = memory_instr;
+    print_addr = mem_addr;
+    print_wdata = memory_wdata;
+    print_wstrb = memory_wstrb;
 
     clint_instr = memory_instr;
     clint_addr = mem_addr;
@@ -269,10 +266,10 @@ module soc();
       memory_rdata = rom_rdata;
       memory_error = 0;
       memory_ready = rom_ready;
-    end else if (uart_ready == 1) begin
-      memory_rdata = uart_rdata;
+    end else if (print_ready == 1) begin
+      memory_rdata = print_rdata;
       memory_error = 0;
-      memory_ready = uart_ready;
+      memory_ready = print_ready;
     end else if (clint_ready == 1) begin
       memory_rdata = clint_rdata;
       memory_error = 0;
@@ -393,19 +390,17 @@ module soc();
     .rom_ready (rom_ready)
   );
 
-  uart uart_comp
+  print print_comp
   (
     .reset (reset),
     .clock (clock),
-    .uart_valid (uart_valid),
-    .uart_instr (uart_instr),
-    .uart_addr (uart_addr),
-    .uart_wdata (uart_wdata),
-    .uart_wstrb (uart_wstrb),
-    .uart_rdata (uart_rdata),
-    .uart_ready (uart_ready),
-    .uart_rx (uart_rx),
-    .uart_tx (uart_tx)
+    .print_valid (print_valid),
+    .print_instr (print_instr),
+    .print_addr (print_addr),
+    .print_wdata (print_wdata),
+    .print_wstrb (print_wstrb),
+    .print_rdata (print_rdata),
+    .print_ready (print_ready)
   );
 
   clint clint_comp
