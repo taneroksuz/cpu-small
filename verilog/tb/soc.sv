@@ -117,6 +117,8 @@ module soc();
   logic [31 : 0] stoptime = 10000000;
   logic [31 : 0] counter = 0;
 
+  integer reg_file;
+
   initial begin
     $readmemh("host.dat", host);
   end
@@ -148,6 +150,19 @@ module soc();
 
   always #0.5 clock = ~clock;
   always #2 clock_irpt = ~clock_irpt;
+
+  initial begin
+    reg_file = $fopen("register.txt","w");
+    for (int i=0; i<stoptime; i=i+1) begin
+      @(posedge clock);
+      if (soc.cpu_comp.register_comp.register_win.wren == 1) begin
+        $fwrite(reg_file,"period = %t\t",$time);
+        $fwrite(reg_file,"waddr = %d\t",soc.cpu_comp.register_comp.register_win.waddr);
+        $fwrite(reg_file,"wdata = %x\n",soc.cpu_comp.register_comp.register_win.wdata);
+      end
+    end
+    $fclose(reg_file); 
+  end
 
   always_ff @(posedge clock) begin
     if (counter == stoptime) begin
