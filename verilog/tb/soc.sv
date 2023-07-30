@@ -156,9 +156,9 @@ module soc();
     for (int i=0; i<stoptime; i=i+1) begin
       @(posedge clock);
       if (soc.cpu_comp.register_comp.register_win.wren == 1) begin
-        $fwrite(reg_file,"period = %t\t",$time);
-        $fwrite(reg_file,"waddr = %d\t",soc.cpu_comp.register_comp.register_win.waddr);
-        $fwrite(reg_file,"wdata = %x\n",soc.cpu_comp.register_comp.register_win.wdata);
+        $fwrite(reg_file,"PERIOD = %t\t",$time);
+        $fwrite(reg_file,"WADDR = %d\t",soc.cpu_comp.register_comp.register_win.waddr);
+        $fwrite(reg_file,"WDATA = %x\n",soc.cpu_comp.register_comp.register_win.wdata);
       end
     end
     $fclose(reg_file); 
