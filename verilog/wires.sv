@@ -488,7 +488,6 @@ package wires;
 
   parameter fetch_reg_type init_fetch_reg = '{
     addr : 0,
-    instr : 0,
     rdata : 0,
     error : 0,
     ready : 0,
