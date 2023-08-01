@@ -361,6 +361,24 @@ package wires;
     logic [31 : 0] rdata2;
   } register_out_type;
 
+  typedef struct packed{
+    logic [31 : 0] pc;
+    logic [31 : 0] rdata;
+    logic [0  : 0] error;
+    logic [0  : 0] ready;
+    logic [0  : 0] align;
+    logic [0  : 0] clear;
+    logic [0  : 0] stall;
+  } buffer_in_type;
+
+  typedef struct packed{
+    logic [31 : 0] pc;
+    logic [31 : 0] instr;
+    logic [0  : 0] miss;
+    logic [0  : 0] done;
+    logic [0  : 0] stall;
+  } buffer_out_type;
+
  typedef struct packed {
     logic [0  : 0] rvfi_valid;
     logic [63 : 0] rvfi_order;
@@ -422,6 +440,16 @@ package wires;
   } fetch_out_type;
 
   typedef struct packed{
+    logic [31 : 0] addr;
+    logic [31 : 0] rdata;
+    logic [0  : 0] error;
+    logic [0  : 0] ready;
+    logic [0  : 0] fence;
+    logic [0  : 0] spec;
+    logic [1  : 0] mode;
+    logic [0  : 0] miss;
+    logic [0  : 0] done;
+    logic [1  : 0] state;
     logic [31 : 0] pc;
     logic [31 : 0] imm;
     logic [31 : 0] instr;
@@ -452,9 +480,6 @@ package wires;
     alu_op_type alu_op;
     bcu_op_type bcu_op;
     lsu_op_type lsu_op;
-    logic [0  : 0] spec;
-    logic [1  : 0] mode;
-    logic [0  : 0] error;
     logic [0  : 0] exception;
     logic [3  : 0] ecause;
     logic [31 : 0] etval;
@@ -462,6 +487,17 @@ package wires;
   } fetch_reg_type;
 
   parameter fetch_reg_type init_fetch_reg = '{
+    addr : 0,
+    instr : 0,
+    rdata : 0,
+    error : 0,
+    ready : 0,
+    fence : 0,
+    spec : 0,
+    mode : m_mode,
+    miss : 0,
+    done : 0,
+    state : 0,
     pc : 0,
     imm : 0,
     instr : 0,
@@ -492,9 +528,6 @@ package wires;
     alu_op : init_alu_op,
     bcu_op : init_bcu_op,
     lsu_op : init_lsu_op,
-    spec : 0,
-    mode : m_mode,
-    error : 0,
     exception : 0,
     ecause : 0,
     etval : 0,
@@ -502,6 +535,7 @@ package wires;
   };
 
   typedef struct packed{
+    logic [31 : 0] npc;
     logic [0  : 0] mret;
     logic [0  : 0] fence;
     logic [0  : 0] exception;

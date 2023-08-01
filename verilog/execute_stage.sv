@@ -321,12 +321,14 @@ module execute_stage
 
     rin = v;
 
+    y.npc = v.npc;
     y.mret = v.mret;
     y.fence = v.fence;
     y.exception = v.exception;
     y.stall = v.stall;
     y.clear = v.clear;
 
+    q.npc = r.npc;
     q.mret = r.mret;
     q.fence = r.fence;
     q.exception = r.exception;

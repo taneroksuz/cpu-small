@@ -19,8 +19,10 @@ module fetch_stage
   input forwarding_out_type forwarding_out,
   output forwarding_register_in_type forwarding_rin,
   input csr_out_type csr_out,
-  input mem_out_type fetchbuffer_out,
-  output mem_in_type fetchbuffer_in,
+  input mem_out_type imem_out,
+  output mem_in_type imem_in,
+  input buffer_out_type buffer_out,
+  output buffer_in_type buffer_in,
   output mem_in_type dmem_in,
   input fetch_in_type a,
   input fetch_in_type d,
@@ -30,6 +32,11 @@ module fetch_stage
   timeunit 1ns;
   timeprecision 1ps;
 
+  localparam [1:0] idle = 0;
+  localparam [1:0] busy = 1;
+  localparam [1:0] ctrl = 2;
+  localparam [1:0] inv = 3;
+
   fetch_reg_type r,rin;
   fetch_reg_type v;
 
@@ -37,47 +44,127 @@ module fetch_stage
 
     v = r;
 
-    v.valid = ~(a.e.stall | d.e.clear) | a.e.fence;
-    v.stall = d.f.stall | d.e.stall | d.e.clear;
+    v.valid = 0;
+    v.stall = buffer_out.stall;
 
+    v.fence = 0;
     v.spec = 0;
     v.mode = csr_out.mode;
 
+    v.rdata = imem_out.mem_rdata;
+    v.error = imem_out.mem_error;
+    v.ready = imem_out.mem_ready;
+
+    case(v.state)
+      idle : begin
+        v.stall = 1;
+      end
+      busy : begin
+        if (v.ready == 0) begin
+          v.stall = 1;
+        end
+      end
+      ctrl : begin
+        v.stall = 1;
+      end
+      inv : begin
+        v.stall = 1;
+      end
+      default : begin
+      end
+    endcase
+
     if (csr_out.trap == 1) begin
+      v.fence = 0;
       v.spec = 1;
-      v.pc = csr_out.mtvec;
+      v.addr = csr_out.mtvec;
     end else if (csr_out.mret == 1) begin
+      v.fence = 0;
       v.spec = 1;
-      v.pc = csr_out.mepc;
+      v.addr = csr_out.mepc;
     end else if (d.f.jump == 1) begin
+      v.fence = 0;
       v.spec = 1;
-      v.pc = v.address;
+      v.addr = d.f.address;
+    end else if (a.e.fence == 1) begin
+      v.fence = 1;
+      v.spec = 1;
+      v.addr = a.e.npc;
     end else if (v.stall == 0) begin
-      v.pc = v.pc + ((v.instr[1:0] == 2'b11) ? 4 : 2);
+      v.fence = 0;
+      v.spec = 0;
+      v.addr = v.addr + 4;
     end
 
-    fetchbuffer_in.mem_valid = v.valid;
-    fetchbuffer_in.mem_fence = a.e.fence;
-    fetchbuffer_in.mem_spec = v.spec;
-    fetchbuffer_in.mem_instr = 1;
-    fetchbuffer_in.mem_mode = v.mode;
-    fetchbuffer_in.mem_addr = v.pc;
-    fetchbuffer_in.mem_wdata = 0;
-    fetchbuffer_in.mem_wstrb = 0;
+    case(v.state)
+      idle : begin
+        if (d.e.clear == 0) begin
+          v.state = busy;
+          v.valid = 1;
+        end
+      end
+      busy : begin
+        if (v.ready == 1) begin
+          v.state = busy;
+          v.valid = 1;
+        end else if (v.spec == 1) begin
+          v.state = ctrl;
+          v.valid = 0;
+        end else if (v.fence == 1) begin
+          v.state = inv;
+          v.valid = 0;
+        end else begin
+          v.state = busy;
+          v.valid = 0;
+        end
+      end
+      ctrl : begin
+        if (v.ready == 1) begin
+          v.state = busy;
+          v.valid = 1;
+        end else begin
+          v.state = ctrl;
+          v.valid = 0;
+        end
+        v.ready = 0;
+      end
+      inv : begin
+        if (v.ready == 1) begin
+          v.state = busy;
+          v.valid = 1;
+        end else begin
+          v.state = inv;
+          v.valid = 0;
+        end
+        v.ready = 0;
+      end
+      default : begin
+      end
+    endcase
 
-    if (fetchbuffer_out.mem_error == 1) begin
-      v.instr = nop_instr;
-      v.error = 1;
-      v.stall = 0;
-    end else if (fetchbuffer_out.mem_ready == 1) begin
-      v.instr = fetchbuffer_out.mem_rdata;
-      v.error = 0;
-      v.stall = 0;
-    end else begin
-      v.instr = nop_instr;
-      v.error = 0;
-      v.stall = 1;
-    end
+    buffer_in.pc = {r.addr[31:2],2'b00};
+    buffer_in.rdata = v.rdata;
+    buffer_in.error = v.error;
+    buffer_in.ready = v.ready;
+    buffer_in.align = v.addr[1];
+    buffer_in.clear = v.spec;
+    buffer_in.stall = a.e.stall;
+
+    imem_in.mem_valid = v.valid;
+    imem_in.mem_fence = v.fence;
+    imem_in.mem_spec = v.spec;
+    imem_in.mem_instr = 1;
+    imem_in.mem_mode = v.mode;
+    imem_in.mem_addr = v.addr;
+    imem_in.mem_wdata = 0;
+    imem_in.mem_wstrb = 0;
+
+    v.pc = buffer_out.pc;
+    v.instr = buffer_out.instr;
+    v.miss = buffer_out.miss;
+    v.done = buffer_out.done;
+
+    v.stall = 0;
 
     v.waddr = v.instr[11:7];
     v.raddr1 = v.instr[19:15];
@@ -207,7 +294,7 @@ module fetch_stage
       end
     end
 
-    if (v.error == 1) begin
+    if (v.miss == 1) begin
       v.exception = 1;
       v.ecause = except_instr_access_fault;
       v.etval = r.pc;
