@@ -1,8 +1,12 @@
 default: none
 
-export XVLOG ?= xvlog # execute "source settings64.sh" in Vivado installation folder
+export TOOL ?= vivado# questa verilator vivado
+export XVLOG ?= xvlog# please set Vivado bin folder into PATH variable
 export XELAB ?= xelab
 export XSIM ?= xsim
+export VLOG ?= vlog# please set Questa bin folder into PATH variable
+export VSIM ?= vsim
+export VERILATOR ?= /opt/verilator/bin/verilator
 export RISCV ?= /opt/rv32imc/bin/riscv32-unknown-elf-
 export OPTS ?= -O3 -fno-common -funroll-loops -finline-functions -falign-functions=16 -falign-jumps=4 -falign-loops=4 -finline-limit=1000
 export MARCH ?= rv32imc_zicsr_zifencei
