@@ -82,14 +82,14 @@ module fetch_stage
       v.fence = 0;
       v.spec = 1;
       v.addr = csr_out.mepc;
-    end else if (d.f.jump == 1) begin
+    end else if (d.f.instr.op.jump == 1) begin
       v.fence = 0;
       v.spec = 1;
-      v.addr = d.f.address;
-    end else if (a.e.fence == 1) begin
+      v.addr = d.f.instr.address;
+    end else if (a.e.instr.op.fence == 1) begin
       v.fence = 1;
       v.spec = 1;
-      v.addr = a.e.npc;
+      v.addr = a.e.instr.npc;
     end else if (v.stall == 0) begin
       v.fence = 0;
       v.spec = 0;
@@ -159,225 +159,159 @@ module fetch_stage
     imem_in.mem_wdata = 0;
     imem_in.mem_wstrb = 0;
 
-    v.pc = buffer_out.pc;
-    v.instr = buffer_out.instr;
+    v.instr.pc = buffer_out.pc;
+    v.instr.instr = buffer_out.instr;
     v.miss = buffer_out.miss;
     v.done = buffer_out.done;
 
     v.stall = 0;
+    v.clear = csr_out.trap | csr_out.mret | d.e.clear;
 
-    v.waddr = v.instr[11:7];
-    v.raddr1 = v.instr[19:15];
-    v.raddr2 = v.instr[24:20];
-    v.caddr = v.instr[31:20];
+    v.instr.waddr = v.instr.instr[11:7];
+    v.instr.raddr1 = v.instr.instr[19:15];
+    v.instr.raddr2 = v.instr.instr[24:20];
+    v.instr.caddr = v.instr.instr[31:20];
 
-    v.imm = 0;
-    v.wren = 0;
-    v.rden1 = 0;
-    v.rden2 = 0;
-    v.lui = 0;
-    v.auipc = 0;
-    v.jal = 0;
-    v.jalr = 0;
-    v.branch = 0;
-    v.load = 0;
-    v.store = 0;
-    v.alu_op = 0;
-    v.bcu_op = 0;
-    v.lsu_op = 0;
-    v.ebreak = 0;
-    v.valid = 0;
-    v.invalid = 1;
+    v.instr.imm = 0;
+    v.instr.alu_op = 0;
+    v.instr.bcu_op = 0;
+    v.instr.lsu_op = 0;
+    v.instr.op.wren = 0;
+    v.instr.op.rden1 = 0;
+    v.instr.op.rden2 = 0;
+    v.instr.op.lui = 0;
+    v.instr.op.auipc = 0;
+    v.instr.op.jal = 0;
+    v.instr.op.jalr = 0;
+    v.instr.op.branch = 0;
+    v.instr.op.load = 0;
+    v.instr.op.store = 0;
+    v.instr.op.ebreak = 0;
+    v.instr.op.valid = 0;
 
-    predecoder_in.instr = v.instr;
+    predecoder_in.instr = v.instr.instr;
 
     if (predecoder_out.valid == 1) begin
-      v.imm = predecoder_out.imm;
-      v.wren = predecoder_out.wren;
-      v.rden1 = predecoder_out.rden1;
-      v.rden2 = predecoder_out.rden2;
-      v.auipc = predecoder_out.auipc;
-      v.jal = predecoder_out.jal;
-      v.jalr = predecoder_out.jalr;
-      v.branch = predecoder_out.branch;
-      v.load = predecoder_out.load;
-      v.store = predecoder_out.store;
-      v.bcu_op = predecoder_out.bcu_op;
-      v.lsu_op = predecoder_out.lsu_op;
-      v.valid = predecoder_out.valid;
-      v.invalid = 0;
+      v.instr.imm = predecoder_out.imm;
+      v.instr.bcu_op = predecoder_out.bcu_op;
+      v.instr.lsu_op = predecoder_out.lsu_op;
+      v.instr.op.wren = predecoder_out.wren;
+      v.instr.op.rden1 = predecoder_out.rden1;
+      v.instr.op.rden2 = predecoder_out.rden2;
+      v.instr.op.auipc = predecoder_out.auipc;
+      v.instr.op.jal = predecoder_out.jal;
+      v.instr.op.jalr = predecoder_out.jalr;
+      v.instr.op.branch = predecoder_out.branch;
+      v.instr.op.load = predecoder_out.load;
+      v.instr.op.store = predecoder_out.store;
+      v.instr.op.valid = predecoder_out.valid;
     end
 
-    compress_in.instr = v.instr;
+    compress_in.instr = v.instr.instr;
 
     if (compress_out.valid == 1) begin
-      v.imm = compress_out.imm;
-      v.waddr = compress_out.waddr;
-      v.raddr1 = compress_out.raddr1;
-      v.raddr2 = compress_out.raddr2;
-      v.wren = compress_out.wren;
-      v.rden1 = compress_out.rden1;
-      v.rden2 = compress_out.rden2;
-      v.lui = compress_out.lui;
-      v.jal = compress_out.jal;
-      v.jalr = compress_out.jalr;
-      v.branch = compress_out.branch;
-      v.load = compress_out.load;
-      v.store = compress_out.store;
-      v.alu_op = compress_out.alu_op;
-      v.bcu_op = compress_out.bcu_op;
-      v.lsu_op = compress_out.lsu_op;
-      v.ebreak = compress_out.ebreak;
-      v.valid = compress_out.valid;
-      v.invalid = 0;
+      v.instr.imm = compress_out.imm;
+      v.instr.waddr = compress_out.waddr;
+      v.instr.raddr1 = compress_out.raddr1;
+      v.instr.raddr2 = compress_out.raddr2;
+      v.instr.alu_op = compress_out.alu_op;
+      v.instr.bcu_op = compress_out.bcu_op;
+      v.instr.lsu_op = compress_out.lsu_op;
+      v.instr.op.wren = compress_out.wren;
+      v.instr.op.rden1 = compress_out.rden1;
+      v.instr.op.rden2 = compress_out.rden2;
+      v.instr.op.lui = compress_out.lui;
+      v.instr.op.jal = compress_out.jal;
+      v.instr.op.jalr = compress_out.jalr;
+      v.instr.op.branch = compress_out.branch;
+      v.instr.op.load = compress_out.load;
+      v.instr.op.store = compress_out.store;
+      v.instr.op.ebreak = compress_out.ebreak;
+      v.instr.op.valid = compress_out.valid;
     end
 
-    register_rin.raddr1 = v.raddr1;
-    register_rin.raddr2 = v.raddr2;
+    register_rin.raddr1 = v.instr.raddr1;
+    register_rin.raddr2 = v.instr.raddr2;
 
-    forwarding_rin.raddr1 = v.raddr1;
-    forwarding_rin.raddr2 = v.raddr2;
+    forwarding_rin.raddr1 = v.instr.raddr1;
+    forwarding_rin.raddr2 = v.instr.raddr2;
     forwarding_rin.rdata1 = register_out.rdata1;
     forwarding_rin.rdata2 = register_out.rdata2;
 
-    v.rdata1 = forwarding_out.data1;
-    v.rdata2 = forwarding_out.data2;
+    v.instr.rdata1 = forwarding_out.data1;
+    v.instr.rdata2 = forwarding_out.data2;
 
-    v.sdata = v.rdata2;
+    v.instr.sdata = v.instr.rdata2;
 
-    bcu_in.rdata1 = v.rdata1;
-    bcu_in.rdata2 = v.rdata2;
-    bcu_in.bcu_op = v.bcu_op;
+    bcu_in.rdata1 = v.instr.rdata1;
+    bcu_in.rdata2 = v.instr.rdata2;
+    bcu_in.bcu_op = v.instr.bcu_op;
 
-    v.jump = v.jal | v.jalr | bcu_out.branch;
+    v.instr.op.jump = v.instr.op.jal | v.instr.op.jalr | bcu_out.branch;
 
-    agu_in.rdata1 = v.rdata1;
-    agu_in.imm = v.imm;
-    agu_in.pc = v.pc;
-    agu_in.auipc = v.auipc;
-    agu_in.jal = v.jal;
-    agu_in.jalr = v.jalr;
-    agu_in.branch = v.branch;
-    agu_in.load = v.load;
-    agu_in.store = v.store;
-    agu_in.lsu_op = v.lsu_op;
+    agu_in.rdata1 = v.instr.rdata1;
+    agu_in.imm = v.instr.imm;
+    agu_in.pc = v.instr.pc;
+    agu_in.lsu_op = v.instr.lsu_op;
+    agu_in.auipc = v.instr.op.auipc;
+    agu_in.jal = v.instr.op.jal;
+    agu_in.jalr = v.instr.op.jalr;
+    agu_in.branch = v.instr.op.branch;
+    agu_in.load = v.instr.op.load;
+    agu_in.store = v.instr.op.store;
 
-    v.address = agu_out.address;
-    v.byteenable = agu_out.byteenable;
-    v.exception = agu_out.exception;
-    v.ecause = agu_out.ecause;
-    v.etval = agu_out.etval;
+    v.instr.address = agu_out.address;
+    v.instr.byteenable = agu_out.byteenable;
+    v.instr.ecause = agu_out.ecause;
+    v.instr.etval = agu_out.etval;
+    v.instr.op.exception = agu_out.exception;
 
-    if ((v.stall | a.e.mret | a.e.exception) == 1) begin
-      v.wren = 0;
-      v.jal = 0;
-      v.jalr = 0;
-      v.branch = 0;
-      v.load = 0;
-      v.store = 0;
-      v.ebreak = 0;
-      v.jump = 0;
-      v.invalid = 1;
+    if ((v.stall | v.clear) == 1) begin
+      v.instr.op = init_instruction;
     end
 
-    if (v.exception == 1) begin
-      if (v.load == 1) begin
-        v.load = 0;
-        v.wren = 0;
-      end else if (v.store == 1) begin
-        v.store = 0;
-      end else if (v.jump == 1) begin
-        v.jump = 0;
-        v.wren = 0;
+    if (v.clear == 1) begin
+      v.stall = 0;
+    end
+
+    if (v.instr.op.exception == 1) begin
+      if (v.instr.op.load == 1) begin
+        v.instr.op.load = 0;
+        v.instr.op.wren = 0;
+      end else if (v.instr.op.store == 1) begin
+        v.instr.op.store = 0;
+      end else if (v.instr.op.jump == 1) begin
+        v.instr.op.jump = 0;
+        v.instr.op.wren = 0;
       end else begin
-        v.exception = 0;
+        v.instr.op.exception = 0;
       end
     end
 
     if (v.miss == 1) begin
-      v.exception = 1;
-      v.ecause = except_instr_access_fault;
-      v.etval = r.pc;
+      v.instr.op.exception = 1;
+      v.instr.ecause = except_instr_access_fault;
+      v.instr.etval = r.instr.pc;
     end
 
-    dmem_in.mem_valid = v.load | v.store;
-    dmem_in.mem_fence = 0;
+    dmem_in.mem_valid = v.instr.op.load | v.instr.op.store;
+    dmem_in.mem_fence = v.instr.op.fence;
     dmem_in.mem_spec = 0;
     dmem_in.mem_instr = 0;
     dmem_in.mem_mode = v.mode;
-    dmem_in.mem_addr = v.address;
-    dmem_in.mem_wdata = store_data(v.sdata,v.lsu_op.lsu_sb,v.lsu_op.lsu_sh,v.lsu_op.lsu_sw);
-    dmem_in.mem_wstrb = (v.load == 1) ? 4'h0 : v.byteenable;
+    dmem_in.mem_addr = v.instr.address;
+    dmem_in.mem_wdata = store_data(v.instr.sdata,v.instr.lsu_op.lsu_sb,v.instr.lsu_op.lsu_sh,v.instr.lsu_op.lsu_sw);
+    dmem_in.mem_wstrb = (v.instr.op.load == 1) ? 4'h0 : v.instr.byteenable;
 
     rin = v;
 
-    y.pc = v.pc;
-    y.imm = v.imm;
     y.instr = v.instr;
-    y.rdata1 = v.rdata1;
-    y.rdata2 = v.rdata2;
-    y.sdata = v.sdata;
-    y.wren = v.wren;
-    y.rden1 = v.rden1;
-    y.rden2 = v.rden2;
-    y.waddr = v.waddr;
-    y.raddr1 = v.raddr1;
-    y.raddr2 = v.raddr2;
-    y.caddr = v.caddr;
-    y.lui = v.lui;
-    y.auipc = v.auipc;
-    y.jal = v.jal;
-    y.jalr = v.jalr;
-    y.branch = v.branch;
-    y.load = v.load;
-    y.store = v.store;
-    y.ebreak = v.ebreak;
-    y.valid = v.valid;
-    y.invalid = v.invalid;
-    y.jump = v.jump;
-    y.address = v.address;
-    y.byteenable = v.byteenable;
-    y.alu_op = v.alu_op;
-    y.bcu_op = v.bcu_op;
-    y.lsu_op = v.lsu_op;
-    y.exception = v.exception;
-    y.ecause = v.ecause;
-    y.etval = v.etval;
     y.stall = v.stall;
+    y.clear = v.clear;
 
-    q.pc = r.pc;
-    q.imm = r.imm;
     q.instr = r.instr;
-    q.rdata1 = r.rdata1;
-    q.rdata2 = r.rdata2;
-    q.sdata = r.sdata;
-    q.wren = r.wren;
-    q.rden1 = r.rden1;
-    q.rden2 = r.rden2;
-    q.waddr = r.waddr;
-    q.raddr1 = r.raddr1;
-    q.raddr2 = r.raddr2;
-    q.caddr = r.caddr;
-    q.lui = r.lui;
-    q.auipc = r.auipc;
-    q.jal = r.jal;
-    q.jalr = r.jalr;
-    q.branch = r.branch;
-    q.load = r.load;
-    q.store = r.store;
-    q.ebreak = r.ebreak;
-    q.valid = r.valid;
-    q.invalid = r.invalid;
-    q.jump = r.jump;
-    q.address = r.address;
-    q.byteenable = r.byteenable;
-    q.alu_op = r.alu_op;
-    q.bcu_op = r.bcu_op;
-    q.lsu_op = r.lsu_op;
-    q.exception = r.exception;
-    q.ecause = r.ecause;
-    q.etval = r.etval;
     q.stall = r.stall;
+    q.clear = r.clear;
 
   end
 
