@@ -131,7 +131,7 @@ module execute_stage
     csr_pmp_in.crden = v.instr.op.crden;
     csr_pmp_in.craddr = v.instr.caddr;
 
-    v.instr.cdata = csr_pmp_out.cready == 1 ? csr_pmp_out.crdata : csr_out.crdata;
+    v.instr.crdata = csr_pmp_out.cready == 1 ? csr_pmp_out.crdata : csr_out.crdata;
 
     alu_in.rdata1 = v.instr.rdata1;
     alu_in.rdata2 = v.instr.rdata2;
@@ -141,13 +141,13 @@ module execute_stage
 
     v.instr.wdata = alu_out.res;
 
-    csr_alu_in.cdata = v.instr.cdata;
+    csr_alu_in.cdata = v.instr.crdata;
     csr_alu_in.rdata1 = v.instr.rdata1;
     csr_alu_in.imm = v.instr.imm;
     csr_alu_in.sel = v.instr.op.rden1;
     csr_alu_in.csr_op = v.instr.csr_op;
 
-    v.instr.cdata = csr_alu_out.cdata;
+    v.instr.cwdata = csr_alu_out.cdata;
 
     div_in.rdata1 = v.instr.rdata1;
     div_in.rdata2 = v.instr.rdata2;
@@ -180,7 +180,7 @@ module execute_stage
     end else if (v.instr.op.jalr == 1) begin
       v.instr.wdata = v.instr.npc;
     end else if (v.instr.op.crden == 1) begin
-      v.instr.wdata = v.instr.cdata;
+      v.instr.wdata = v.instr.crdata;
     end else if (v.instr.op.mult == 1) begin
       v.instr.wdata = v.instr.mdata;
     end else if (v.instr.op.division == 1) begin
@@ -230,11 +230,11 @@ module execute_stage
     csr_in.valid = v.instr.op.valid;
     csr_in.cwren = v.instr.op.cwren;
     csr_in.cwaddr = v.instr.caddr;
-    csr_in.cwdata = v.instr.cdata;
+    csr_in.cwdata = v.instr.cwdata;
 
     csr_pmp_in.cwren = v.instr.op.cwren;
     csr_pmp_in.cwaddr = v.instr.caddr;
-    csr_pmp_in.cwdata = v.instr.cdata;
+    csr_pmp_in.cwdata = v.instr.cwdata;
     csr_pmp_in.mode = v.mode;
 
     csr_in.mret = v.instr.op.mret;

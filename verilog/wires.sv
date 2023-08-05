@@ -477,7 +477,8 @@ package wires;
     logic [2  : 0] rm;
     logic [31 : 0] rdata1;
     logic [31 : 0] rdata2;
-    logic [31 : 0] cdata;
+    logic [31 : 0] crdata;
+    logic [31 : 0] cwdata;
     logic [31 : 0] mdata;
     logic [31 : 0] wdata;
     logic [31 : 0] ldata;
@@ -514,7 +515,8 @@ package wires;
     rm : 0,
     rdata1 : 0,
     rdata2 : 0,
-    cdata : 0,
+    crdata : 0,
+    cwdata : 0,
     mdata : 0,
     wdata : 0,
     sdata : 0,

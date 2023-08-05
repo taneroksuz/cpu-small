@@ -267,7 +267,7 @@ module fetch_stage
     v.instr.op.exception = agu_out.exception;
 
     if ((v.stall | v.clear) == 1) begin
-      v.instr.op = init_instruction;
+      v.instr.op = init_operation;
     end
 
     if (v.clear == 1) begin
