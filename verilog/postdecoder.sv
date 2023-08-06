@@ -34,7 +34,7 @@ module postdecoder
 
   logic [0  : 0] lui;
   logic [0  : 0] nop;
-  logic [0  : 0] csrreg;
+  logic [0  : 0] csreg;
   logic [0  : 0] division;
   logic [0  : 0] mult;
   logic [0  : 0] ecall;
@@ -85,7 +85,7 @@ module postdecoder
 
     lui = 0;
     nop = 0;
-    csrreg = 0;
+    csreg = 0;
     division = 0;
     mult = 0;
     ecall = 0;
@@ -213,39 +213,39 @@ module postdecoder
           cwren = 1;
           crden = nonzero_waddr;
           csr_op.csrrw = 1;
-          csrreg = 1;
+          csreg = 1;
         end else if (funct3 == 2) begin
           wren = nonzero_waddr;
           rden1 = 1;
           cwren = nonzero_raddr1;
           crden = 1;
           csr_op.csrrs = 1;
-          csrreg = 1;
+          csreg = 1;
         end else if (funct3 == 3) begin
           wren = nonzero_waddr;
           rden1 = 1;
           cwren = nonzero_raddr1;
           crden = 1;
           csr_op.csrrc = 1;
-          csrreg = 1;
+          csreg = 1;
         end else if (funct3 == 5) begin
           wren = nonzero_waddr;
           cwren = 1;
           crden = nonzero_waddr;
           csr_op.csrrwi = 1;
-          csrreg = 1;
+          csreg = 1;
         end else if (funct3 == 6) begin
           wren = nonzero_waddr;
           cwren = nonzero_imm_c;
           crden = 1;
           csr_op.csrrsi = 1;
-          csrreg = 1;
+          csreg = 1;
         end else if (funct3 == 7) begin
           wren = nonzero_waddr;
           cwren = nonzero_imm_c;
           crden = 1;
           csr_op.csrrci = 1;
-          csrreg = 1;
+          csreg = 1;
         end
       end
       opcode_fence : begin
@@ -263,7 +263,7 @@ module postdecoder
       nop = 1;
     end
 
-    if (csrreg == 1) begin
+    if (csreg == 1) begin
       if (mode < caddr[9:8] && caddr[11:8] == 4'hB && caddr[6:5] == 0 && mcounteren[caddr[4:0]] == 0) begin
         valid = 0;
       end else if (mode < caddr[9:8]) begin
@@ -279,7 +279,7 @@ module postdecoder
     postdecoder_out.crden = crden;
     postdecoder_out.lui = lui;
     postdecoder_out.nop = nop;
-    postdecoder_out.csrreg = csrreg;
+    postdecoder_out.csreg = csreg;
     postdecoder_out.division = division;
     postdecoder_out.mult = mult;
     postdecoder_out.alu_op = alu_op;

@@ -305,7 +305,7 @@ package wires;
     logic [0  : 0] crden;
     logic [0  : 0] lui;
     logic [0  : 0] nop;
-    logic [0  : 0] csrreg;
+    logic [0  : 0] csreg;
     logic [0  : 0] division;
     logic [0  : 0] mult;
     alu_op_type alu_op;
@@ -473,16 +473,14 @@ package wires;
     logic [4  : 0] raddr2;
     logic [4  : 0] raddr3;
     logic [11 : 0] caddr;
-    logic [1  : 0] fmt;
-    logic [2  : 0] rm;
     logic [31 : 0] rdata1;
     logic [31 : 0] rdata2;
     logic [31 : 0] crdata;
     logic [31 : 0] cwdata;
-    logic [31 : 0] mdata;
     logic [31 : 0] wdata;
     logic [31 : 0] ldata;
     logic [31 : 0] sdata;
+    logic [31 : 0] mdata;
     logic [31 : 0] ddata;
     logic [0  : 0] mready;
     logic [0  : 0] dready;
@@ -490,7 +488,6 @@ package wires;
     logic [3  : 0] byteenable;
     logic [3  : 0] ecause;
     logic [31 : 0] etval;
-    logic [4  : 0] flags;
     operation_type op;
     operation_type op_b;
     alu_op_type alu_op;
@@ -511,24 +508,21 @@ package wires;
     raddr2 : 0,
     raddr3 : 0,
     caddr : 0,
-    fmt : 0,
-    rm : 0,
     rdata1 : 0,
     rdata2 : 0,
     crdata : 0,
     cwdata : 0,
-    mdata : 0,
     wdata : 0,
     sdata : 0,
     ldata : 0,
+    mdata : 0,
     ddata : 0,
-    dready : 0,
     mready : 0,
+    dready : 0,
     address : 0,
     byteenable : 0,
     ecause : 0,
     etval : 0,
-    flags : 0,
     op : init_operation,
     op_b : init_operation,
     alu_op : init_alu_op,

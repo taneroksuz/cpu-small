@@ -87,7 +87,7 @@ module execute_stage
       v.instr.op.crden = postdecoder_out.crden;
       v.instr.op.lui = postdecoder_out.lui;
       v.instr.op.nop = postdecoder_out.nop;
-      v.instr.op.csreg = postdecoder_out.csrreg;
+      v.instr.op.csreg = postdecoder_out.csreg;
       v.instr.op.division = postdecoder_out.division;
       v.instr.op.mult = postdecoder_out.mult;
       v.instr.op.ecall = postdecoder_out.ecall;
@@ -217,6 +217,10 @@ module execute_stage
     if (v.clear == 1) begin
       v.stall = 0;
       v.clear = 0;
+    end
+
+    if (v.instr.op.nop == 1) begin
+      v.instr.op.valid = 0;
     end
 
     register_win.wren = v.instr.op.wren;
