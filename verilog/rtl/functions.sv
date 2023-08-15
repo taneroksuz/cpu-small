@@ -1,6 +1,6 @@
 package functions;
-	timeunit 1ns;
-	timeprecision 1ps;
+  timeunit 1ns;
+  timeprecision 1ps;
 
   function [31:0] multiplexer;
     input [31:0] data0;
