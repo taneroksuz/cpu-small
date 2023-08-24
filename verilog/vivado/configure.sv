@@ -4,7 +4,7 @@ package configure;
 
   parameter mul_performance = 1;
 
-  parameter buffer_depth = 16;
+  parameter buffer_depth = 8;
 
   parameter pmp_region = 4;
 
