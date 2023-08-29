@@ -10,6 +10,6 @@ Wolv Z0 CPU core supports currently only riscv32-imc instruction set architectur
 ## Coremark Benchmark ##
 | Cycles | Iteration/s/MHz | Iteration |
 | ------ | --------------- | --------- |
-| 358406 |            2.79 |        10 |
+| 349156 |            2.86 |        10 |
 
 Documentation will be expanded in the future.
