@@ -1,4 +1,0 @@
-[submodule "soft"]
-	path = soft
-	url = https://github.com/taneroksuz/test-case.git
-	branch = rv32imc
