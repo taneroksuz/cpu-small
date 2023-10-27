@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 
 import argparse
+import subprocess
+import os
 
 
 def getHex(offset):
@@ -33,15 +35,10 @@ if __name__ == '__main__':
 
     args = parser.parse_args()
 
-    input = open(args.input, "r")
-    address = open(args.address, "r")
-    offset = open(args.offset, "r")
-
-    filename = input
-    bin_file = '{0}.bin'.format(input)
-    hex_file = '{0}.hex'.format(input)
-    start_address = int(address,16)
-    offset = int(offset,16)
+    bin_file = '{0}.bin'.format(os.path.splitext(args.input)[0])
+    hex_file = '{0}.hex'.format(os.path.splitext(args.input)[0])
+    start_address = int(args.address,16)
+    offset = int(args.offset,16)
 
     print(hex_file)
 
