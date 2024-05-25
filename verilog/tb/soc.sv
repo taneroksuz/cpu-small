@@ -162,7 +162,7 @@ module soc();
         @(posedge clock);
         if (soc.cpu_comp.register_comp.register_win.wren == 1) begin
           $fwrite(reg_file,"PERIOD = %t\t",$time);
-          $fwrite(reg_file,"PC = %x\t",soc.cpu_comp.execute_stage_comp.d.f.instr.pc);
+          $fwrite(reg_file,"PC = %x\t",soc.cpu_comp.execute_stage_comp.a.e.instr.pc);
           $fwrite(reg_file,"WADDR = %d\t",soc.cpu_comp.register_comp.register_win.waddr);
           $fwrite(reg_file,"WDATA = %x\n",soc.cpu_comp.register_comp.register_win.wdata);
         end
@@ -179,7 +179,7 @@ module soc();
         @(posedge clock);
         if (soc.cpu_comp.csr_comp.csr_in.cwren == 1) begin
           $fwrite(csr_file,"PERIOD = %t\t",$time);
-          $fwrite(csr_file,"PC = %x\t",soc.cpu_comp.execute_stage_comp.d.f.instr.pc);
+          $fwrite(csr_file,"PC = %x\t",soc.cpu_comp.execute_stage_comp.a.e.instr.pc);
           $fwrite(csr_file,"WADDR = %x\t",soc.cpu_comp.csr_comp.csr_in.cwaddr);
           $fwrite(csr_file,"WDATA = %x\n",soc.cpu_comp.csr_comp.csr_in.cwdata);
         end
@@ -196,7 +196,7 @@ module soc();
         @(posedge clock);
         if (soc.cpu_comp.pmp_comp.csr_pmp_in.cwren == 1) begin
           $fwrite(pmp_file,"PERIOD = %t\t",$time);
-          $fwrite(pmp_file,"PC = %x\t",soc.cpu_comp.execute_stage_comp.d.f.instr.pc);
+          $fwrite(pmp_file,"PC = %x\t",soc.cpu_comp.execute_stage_comp.a.e.instr.pc);
           $fwrite(pmp_file,"WADDR = %x\t",soc.cpu_comp.pmp_comp.csr_pmp_in.cwaddr);
           $fwrite(pmp_file,"WDATA = %x\n",soc.cpu_comp.pmp_comp.csr_pmp_in.cwaddr);
         end
