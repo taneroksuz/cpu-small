@@ -214,7 +214,6 @@ module soc();
         if (soc.bram_comp.bram_valid == 1) begin
           if (|soc.bram_comp.bram_wstrb == 1) begin
             $fwrite(mem_file,"PERIOD = %t\t",$time);
-            $fwrite(mem_file,"PC = %x\t",soc.cpu_comp.execute_stage_comp.d.f.instr.pc);
             $fwrite(mem_file,"WADDR = %x\t",soc.bram_comp.bram_addr);
             $fwrite(mem_file,"WSTRB = %b\t",soc.bram_comp.bram_wstrb);
             $fwrite(mem_file,"WDATA = %x\n",soc.bram_comp.bram_wdata);
