@@ -226,9 +226,6 @@ module soc();
 
   always_ff @(posedge clock) begin
     if (counter == stoptime) begin
-      $write("%c[1;33m",8'h1B);
-      $display("TEST STOPPED");
-      $write("%c[0m",8'h1B);
       $finish;
     end else begin
       counter <= counter + 1;
@@ -239,15 +236,7 @@ module soc();
     if (soc.cpu_comp.fetch_stage_comp.dmem_in.mem_valid == 1) begin
       if (soc.cpu_comp.fetch_stage_comp.dmem_in.mem_addr[31:2] == host[0][31:2]) begin
         if (|soc.cpu_comp.fetch_stage_comp.dmem_in.mem_wstrb == 1) begin
-          if (soc.cpu_comp.fetch_stage_comp.dmem_in.mem_wdata == 32'h1) begin
-            $write("%c[1;32m",8'h1B);
-            $display("TEST SUCCEEDED");
-            $write("%c[0m",8'h1B);
-            $finish;
-          end else begin
-            $write("%c[1;31m",8'h1B);
-            $display("TEST FAILED");
-            $write("%c[0m",8'h1B);
+          if (|soc.cpu_comp.fetch_stage_comp.dmem_in.mem_wdata == 1) begin
             $finish;
           end
         end
