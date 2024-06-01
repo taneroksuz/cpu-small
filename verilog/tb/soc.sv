@@ -91,13 +91,13 @@ module soc();
   logic [31 : 0] clic_rdata;
   logic [0  : 0] clic_ready;
 
-  logic [0  : 0] bram_valid;
-  logic [0  : 0] bram_instr;
-  logic [31 : 0] bram_addr;
-  logic [31 : 0] bram_wdata;
-  logic [3  : 0] bram_wstrb;
-  logic [31 : 0] bram_rdata;
-  logic [0  : 0] bram_ready;
+  logic [0  : 0] ram_valid;
+  logic [0  : 0] ram_instr;
+  logic [31 : 0] ram_addr;
+  logic [31 : 0] ram_wdata;
+  logic [3  : 0] ram_wstrb;
+  logic [31 : 0] ram_rdata;
+  logic [0  : 0] ram_ready;
 
   logic [0 : 0] meip;
   logic [0 : 0] msip;
@@ -211,12 +211,13 @@ module soc();
       mem_file = $fopen(filename,"w");
       for (int i=0; i<stoptime; i=i+1) begin
         @(posedge clock);
-        if (soc.bram_comp.bram_valid == 1) begin
-          if (|soc.bram_comp.bram_wstrb == 1) begin
+        if (soc.cpu_comp.fetch_stage_comp.dmem_in.mem_valid == 1) begin
+          if (|soc.cpu_comp.fetch_stage_comp.dmem_in.mem_wstrb == 1) begin
             $fwrite(mem_file,"PERIOD = %t\t",$time);
-            $fwrite(mem_file,"WADDR = %x\t",soc.bram_comp.bram_addr);
-            $fwrite(mem_file,"WSTRB = %b\t",soc.bram_comp.bram_wstrb);
-            $fwrite(mem_file,"WDATA = %x\n",soc.bram_comp.bram_wdata);
+            $fwrite(mem_file,"PC = %x\t",soc.cpu_comp.execute_stage_comp.a.e.instr.pc);
+            $fwrite(mem_file,"WADDR = %x\t",soc.cpu_comp.fetch_stage_comp.dmem_in.mem_addr);
+            $fwrite(mem_file,"WSTRB = %b\t",soc.cpu_comp.fetch_stage_comp.dmem_in.mem_wstrb);
+            $fwrite(mem_file,"WDATA = %x\n",soc.cpu_comp.fetch_stage_comp.dmem_in.mem_wdata);
           end
         end
       end
@@ -252,64 +253,28 @@ module soc();
     print_valid = 0;
     clint_valid = 0;
     clic_valid = 0;
-    bram_valid = 0;
+    ram_valid = 0;
 
     base_addr = 0;
 
     if (memory_valid == 1) begin
-      if (memory_addr >= bram_base_addr &&
-        memory_addr < bram_top_addr) begin
-          mem_error = 0;
-          rom_valid = 0;
-          print_valid = 0;
-          clint_valid = 0;
-          clic_valid = 0;
-          bram_valid = memory_valid;
-          base_addr = bram_base_addr;
-      end else if (memory_addr >= clic_base_addr &&
-        memory_addr < clic_top_addr) begin
-          mem_error = 0;
-          rom_valid = 0;
-          print_valid = 0;
-          clint_valid = 0;
+      if (memory_addr >= ram_base_addr && memory_addr < ram_top_addr) begin
+          ram_valid = memory_valid;
+          base_addr = ram_base_addr;
+      end else if (memory_addr >= clic_base_addr && memory_addr < clic_top_addr) begin
           clic_valid = memory_valid;
-          bram_valid = 0;
           base_addr = clic_base_addr;
-      end else if (memory_addr >= clint_base_addr &&
-        memory_addr < clint_top_addr) begin
-          mem_error = 0;
-          rom_valid = 0;
-          print_valid = 0;
+      end else if (memory_addr >= clint_base_addr && memory_addr < clint_top_addr) begin
           clint_valid = memory_valid;
-          clic_valid = 0;
-          bram_valid = 0;
           base_addr = clint_base_addr;
-      end else if (memory_addr >= print_base_addr &&
-        memory_addr < print_top_addr) begin
-          mem_error = 0;
-          rom_valid = 0;
+      end else if (memory_addr >= print_base_addr && memory_addr < print_top_addr) begin
           print_valid = memory_valid;
-          clint_valid = 0;
-          clic_valid = 0;
-          bram_valid = 0;
           base_addr = print_base_addr;
-      end else if (memory_addr >= rom_base_addr &&
-        memory_addr < rom_top_addr) begin
-          mem_error = 0;
+      end else if (memory_addr >= rom_base_addr && memory_addr < rom_top_addr) begin
           rom_valid = memory_valid;
-          print_valid = 0;
-          clint_valid = 0;
-          clic_valid = 0;
-          bram_valid = 0;
           base_addr = rom_base_addr;
       end else begin
           mem_error = 1;
-          rom_valid = 0;
-          print_valid = 0;
-          clint_valid = 0;
-          clic_valid = 0;
-          bram_valid = 0;
-          base_addr = 0;
       end
     end
 
@@ -333,10 +298,10 @@ module soc();
     clic_wdata = memory_wdata;
     clic_wstrb = memory_wstrb;
 
-    bram_instr = memory_instr;
-    bram_addr = mem_addr;
-    bram_wdata = memory_wdata;
-    bram_wstrb = memory_wstrb;
+    ram_instr = memory_instr;
+    ram_addr = mem_addr;
+    ram_wdata = memory_wdata;
+    ram_wstrb = memory_wstrb;
 
     if (rom_ready == 1) begin
       memory_rdata = rom_rdata;
@@ -354,10 +319,10 @@ module soc();
       memory_rdata = clic_rdata;
       memory_error = 0;
       memory_ready = clic_ready;
-    end else if (bram_ready == 1) begin
-      memory_rdata = bram_rdata;
+    end else if (ram_ready == 1) begin
+      memory_rdata = ram_rdata;
       memory_error = 0;
-      memory_ready = bram_ready;
+      memory_ready = ram_ready;
     end else if (mem_ready == 1) begin
       memory_rdata = 0;
       memory_error = 1;
@@ -512,17 +477,17 @@ module soc();
     .clic_irpt (irpt)
   );
 
-  bram bram_comp
+  ram ram_comp
   (
     .reset (reset),
     .clock (clock),
-    .bram_valid (bram_valid),
-    .bram_instr (bram_instr),
-    .bram_addr (bram_addr),
-    .bram_wdata (bram_wdata),
-    .bram_wstrb (bram_wstrb),
-    .bram_rdata (bram_rdata),
-    .bram_ready (bram_ready)
+    .ram_valid (ram_valid),
+    .ram_instr (ram_instr),
+    .ram_addr (ram_addr),
+    .ram_wdata (ram_wdata),
+    .ram_wstrb (ram_wstrb),
+    .ram_rdata (ram_rdata),
+    .ram_ready (ram_ready)
   );
 
 endmodule
