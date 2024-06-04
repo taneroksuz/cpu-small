@@ -13,7 +13,6 @@ rm -f $BASEDIR/sim/input/*.host
 
 rm -f $BASEDIR/sim/input/*.reg
 rm -f $BASEDIR/sim/input/*.csr
-rm -f $BASEDIR/sim/input/*.pmp
 rm -f $BASEDIR/sim/input/*.mem
 rm -f $BASEDIR/sim/input/*.vcd
 
@@ -39,10 +38,9 @@ for FILE in $BASEDIR/sim/input/*; do
   cp ${FILE%.*}.host host.dat
   if [ "$DUMP" = "1" ]
   then
-    obj_dir/Vsoc +MAXTIME=$MAXTIME +REGFILE=${FILE%.*}.reg +CSRFILE=${FILE%.*}.csr +PMPFILE=${FILE%.*}.pmp +MEMFILE=${FILE%.*}.mem +FILENAME=${FILE%.*}.vcd
+    obj_dir/Vsoc +MAXTIME=$MAXTIME +REGFILE=${FILE%.*}.reg +CSRFILE=${FILE%.*}.csr +MEMFILE=${FILE%.*}.mem +FILENAME=${FILE%.*}.vcd
     cp ${FILE%.*}.reg $BASEDIR/sim/output/.
     cp ${FILE%.*}.csr $BASEDIR/sim/output/.
-    cp ${FILE%.*}.pmp $BASEDIR/sim/output/.
     cp ${FILE%.*}.mem $BASEDIR/sim/output/.
     cp ${FILE%.*}.vcd $BASEDIR/sim/output/.
   else
