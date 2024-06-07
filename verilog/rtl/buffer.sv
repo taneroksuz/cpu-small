@@ -43,6 +43,9 @@ module buffer_reg
   logic [48:0] buffer_reg_array0[0:buffer_depth-1] = '{default:'0};
   logic [48:0] buffer_reg_array1[0:buffer_depth-1] = '{default:'0};
 
+  logic [48:0] rdata0;
+  logic [48:0] rdata1;
+
   always_ff @(posedge clock) begin
     if (buffer_reg_in.wen0 == 1) begin
       buffer_reg_array0[buffer_reg_in.waddr0] <= buffer_reg_in.wdata0;
@@ -55,8 +58,15 @@ module buffer_reg
     end
   end
 
-  assign buffer_reg_out.rdata0 = buffer_reg_array0[buffer_reg_in.raddr0];
-  assign buffer_reg_out.rdata1 = buffer_reg_array1[buffer_reg_in.raddr1];
+  always_comb begin
+    rdata0 = buffer_reg_array0[buffer_reg_in.raddr0];
+    rdata1 = buffer_reg_array1[buffer_reg_in.raddr1];
+  end
+
+  always_comb begin
+    buffer_reg_out.rdata0 = buffer_reg_in.raddr0 == buffer_reg_in.waddr0 ? buffer_reg_in.wdata0 : rdata0;
+    buffer_reg_out.rdata1 = buffer_reg_in.raddr1 == buffer_reg_in.waddr1 ? buffer_reg_in.wdata1 : rdata1;
+  end
 
 endmodule
 
@@ -78,7 +88,7 @@ module buffer_ctrl
   localparam [depth-1:0] one = 1;
 
   typedef struct packed{
-    logic [depth-1 : 0] wid;
+    logic [depth : 0] wid;
     logic [depth : 0] rid;
     logic [depth : 0] diff;
     logic [depth : 0] count;
@@ -90,9 +100,10 @@ module buffer_ctrl
     logic [31 : 0] pc;
     logic [31 : 0] instr;
     logic [0 : 0] wen;
-    logic [0 : 0] miss;
     logic [0 : 0] comp;
-    logic [0 : 0] done;
+    logic [0 : 0] ready;
+    logic [0 : 0] error;
+    logic [0 : 0] clear;
     logic [0 : 0] stall;
   } reg_type;
 
@@ -109,9 +120,10 @@ module buffer_ctrl
     pc : 0,
     instr : 0,
     wen : 0,
-    miss : 0,
     comp : 0,
-    done : 0,
+    ready : 0,
+    error : 0,
+    clear : 0,
     stall : 0
   };
 
@@ -123,82 +135,82 @@ module buffer_ctrl
 
     if (buffer_in.clear == 1) begin
       v.wid = 0;
-      v.rid = buffer_in.align ? 1 : 0;
+      v.rid = 0;
       v.count = 0;
-      v.align = buffer_in.align ? 1 : 0;
+      v.clear = 1;
+    end
+
+    if (r.clear == 1 && buffer_in.clear == 0 && buffer_in.ready == 1) begin
+      v.rid = {{depth{1'b0}},buffer_in.pc[1]};
+      v.align = {{depth{1'b0}},buffer_in.pc[1]};
+      v.clear = 0;
     end
 
     v.wen = (~buffer_in.clear) & (~r.stall) & buffer_in.ready;
-    v.wdata0 = {buffer_in.pc,buffer_in.error,buffer_in.rdata[15:0]};
-    v.wdata1 = {buffer_in.pc+2,buffer_in.error,buffer_in.rdata[31:16]};
+
+    v.wdata0 = {buffer_in.error,buffer_in.pc[31:2],2'b00,buffer_in.rdata[15:0]};
+    v.wdata1 = {buffer_in.error,buffer_in.pc[31:2],2'b10,buffer_in.rdata[31:16]};
 
     buffer_reg_in.wen0 = v.wen;
     buffer_reg_in.wen1 = v.wen;
-    buffer_reg_in.waddr0 = v.wid;
-    buffer_reg_in.waddr1 = v.wid;
+    buffer_reg_in.waddr0 = v.wid[depth:1];
+    buffer_reg_in.waddr1 = v.wid[depth:1];
     buffer_reg_in.wdata0 = v.wdata0;
     buffer_reg_in.wdata1 = v.wdata1;
-    
+
     if (v.rid[0] == 0) begin
       buffer_reg_in.raddr0 = v.rid[depth:1];
       buffer_reg_in.raddr1 = v.rid[depth:1];
-      if (v.wid == v.rid[depth:1]) begin
-        v.rdata0 = v.wdata0;
-        v.rdata1 = v.wdata1;
-      end else begin
-        v.rdata0 = buffer_reg_out.rdata0;
-        v.rdata1 = buffer_reg_out.rdata1;
-      end
     end else begin
       buffer_reg_in.raddr0 = v.rid[depth:1] + one;
       buffer_reg_in.raddr1 = v.rid[depth:1];
-      if (v.wid == v.rid[depth:1]) begin
-        v.rdata0 = v.wdata1;
-        v.rdata1 = v.wdata0;
-      end else if (v.wid == v.rid[depth:1] + one) begin
-        v.rdata0 = buffer_reg_out.rdata1;
-        v.rdata1 = v.wdata0;
-      end else begin
-        v.rdata0 = buffer_reg_out.rdata1;
-        v.rdata1 = buffer_reg_out.rdata0;
-      end
+    end
+
+    if (v.rid[0] == 0) begin
+      v.rdata0 = buffer_reg_out.rdata0;
+      v.rdata1 = buffer_reg_out.rdata1;
+    end else begin
+      v.rdata0 = buffer_reg_out.rdata1;
+      v.rdata1 = buffer_reg_out.rdata0;
     end
 
     if (v.wen == 1) begin
-      v.wid = v.wid + 1;
+      v.wid = v.wid + 2;
       v.count = v.count + 2;
     end
 
     v.diff = 0;
 
+    v.comp = ~(&v.rdata0[1:0]);
+
     v.pc = 0;
     v.instr = 0;
+    v.ready = 0;
+    v.error = 0;
 
-    v.miss = 0;
-    v.comp = 0;
-    v.done = 0;
-
-    if (v.count > v.align) begin
-      v.pc = v.rdata0[48:17];
-      v.instr[15:0] = v.rdata0[15:0];
-      v.comp = ~(&v.rdata0[1:0]);
-      v.miss = v.rdata0[16];
-      v.done = v.comp;
-      v.diff = v.comp ? 1 : 0;
+    if (v.comp == 1) begin
+      if (v.count > v.align) begin
+        v.pc = v.rdata0[47:16];
+        v.instr = {16'b0,v.rdata0[15:0]};
+        v.ready = 1;
+        v.error = v.rdata0[48];
+        v.diff = 1;
+      end
     end
-    if (v.count > v.align+1) begin
-      if (v.comp == 0) begin
-        v.instr[31:16] = v.rdata1[15:0];
-        v.miss = v.rdata1[16];
-        v.done = 1;
+    if (v.comp == 0) begin
+      if (v.count > v.align+1) begin
+        v.pc = v.rdata0[47:16];
+        v.instr = {v.rdata1[15:0],v.rdata0[15:0]};
+        v.ready = 1;
+        v.error = v.rdata1[48] | v.rdata0[48];
         v.diff = 2;
       end
     end
 
     if (buffer_in.stall == 1) begin
       v.diff = 0;
-      v.miss = 0;
-      v.done = 0;
+      v.ready = 0;
+      v.error = 0;
     end
 
     v.count = v.count - v.diff;
@@ -210,11 +222,11 @@ module buffer_ctrl
       v.stall = 1;
     end
 
-    buffer_out.pc = v.done ? v.pc : 0;
-    buffer_out.instr = v.done ? v.instr : nop_instr;
-    buffer_out.miss = v.done ? v.miss : 0;
-    buffer_out.done = v.done;
-    buffer_out.stall = v.stall;
+    buffer_out.pc = v.ready ? v.pc : 0;
+    buffer_out.instr = v.ready ? v.instr : 0;
+    buffer_out.miss = v.ready ? v.error : 0;
+    buffer_out.done = v.ready;
+    buffer_out.stall = ~v.wen;
 
     rin = v;
 

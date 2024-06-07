@@ -366,7 +366,6 @@ package wires;
     logic [31 : 0] rdata;
     logic [0  : 0] error;
     logic [0  : 0] ready;
-    logic [0  : 0] align;
     logic [0  : 0] clear;
     logic [0  : 0] stall;
   } buffer_in_type;
@@ -535,6 +534,7 @@ package wires;
 
   typedef struct packed{
     instruction_type instr;
+    logic [0  : 0] done;
     logic [0  : 0] stall;
     logic [0  : 0] clear;
   } fetch_out_type;
@@ -583,6 +583,7 @@ package wires;
     instruction_type instr;
     logic [1  : 0] mode;
     logic [0  : 0] miss;
+    logic [0  : 0] done;
     logic [0  : 0] enable;
     logic [0  : 0] stall;
     logic [0  : 0] clear;
@@ -592,6 +593,7 @@ package wires;
     instr : init_instruction,
     mode : m_mode,
     miss : 0,
+    done : 0,
     enable : 0,
     stall : 0,
     clear : 1

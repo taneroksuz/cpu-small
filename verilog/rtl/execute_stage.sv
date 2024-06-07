@@ -40,6 +40,8 @@ module execute_stage
 
     v = r;
 
+    v.done = d.f.done;
+
     v.instr = d.f.instr;
 
     v.instr.op.cwren = 0;
@@ -123,6 +125,10 @@ module execute_stage
       v.instr.op.exception = 1;
       v.instr.ecause = except_env_call_mach;
       v.instr.etval = v.instr.instr;
+    end
+
+    if (v.done == 0) begin
+      v.instr.op.exception = 0;
     end
 
     csr_in.crden = v.instr.op.crden;
