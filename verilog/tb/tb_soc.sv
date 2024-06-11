@@ -7,7 +7,6 @@ module tb_soc();
 
   logic reset;
   logic clock;
-  logic clock_irpt;
 
   logic [0  : 0] print_valid;
   logic [0  : 0] print_instr;
@@ -49,7 +48,6 @@ module tb_soc();
   initial begin
     reset = 0;
     clock = 1;
-    clock_irpt = 1;
   end
 
   initial begin
@@ -57,7 +55,6 @@ module tb_soc();
   end
 
   always #0.5 clock = ~clock;
-  always #2.0 clock_irpt = ~clock_irpt;
 
   initial begin
     string filename;
@@ -136,7 +133,6 @@ module tb_soc();
   (
     .reset (reset),
     .clock (clock),
-    .clock_irpt (clock_irpt),
     .uart_valid (print_valid),
     .uart_instr (print_instr),
     .uart_addr (print_addr),
