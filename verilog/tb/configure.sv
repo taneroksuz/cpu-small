@@ -6,7 +6,6 @@ package configure;
 
   parameter buffer_depth = 8;
 
-  parameter ram_cycle = 0;
   parameter ram_depth = 262144;
 
   parameter pmp_region = 4;
@@ -26,9 +25,11 @@ package configure;
   parameter ram_base_addr = 32'h80000000;
   parameter ram_top_addr  = 32'h90000000;
 
-  parameter clk_freq = 1000000000; // 1GHz
-  parameter rtc_freq = 100000000; // 100MHz
+  parameter clk_freq = 100000000; // 100MHz
+  parameter ram_freq = 100000000; // 100MHz
+  parameter rtc_freq = 10000000; // 10MHz
 
-  parameter clk_divider_rtc = clk_freq/rtc_freq-1;
+  parameter clk_divider_ram = (clk_freq/ram_freq)/2-1;
+  parameter clk_divider_rtc = (clk_freq/rtc_freq)/2-1;
 
 endpackage

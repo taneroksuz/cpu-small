@@ -152,7 +152,7 @@ module soc();
   end
 
   always #0.5 clock = ~clock;
-  always #2 clock_irpt = ~clock_irpt;
+  always #2.0 clock_irpt = ~clock_irpt;
 
   initial begin
     string filename;
