@@ -23,7 +23,8 @@ $BASEDIR/verilog/rtl/clint.sv
 $BASEDIR/verilog/rtl/pmp.sv
 $BASEDIR/verilog/rtl/clic.sv
 $BASEDIR/verilog/rtl/cpu.sv
-$BASEDIR/verilog/tb/ram.sv
-$BASEDIR/verilog/tb/print.sv
-$BASEDIR/verilog/tb/rom.sv
-$BASEDIR/verilog/tb/soc.sv
+$BASEDIR/verilog/rtl/rom.sv
+$BASEDIR/verilog/rtl/ram.sv
+$BASEDIR/verilog/rtl/print.sv
+$BASEDIR/verilog/rtl/soc.sv
+$BASEDIR/verilog/tb/tb_soc.sv
