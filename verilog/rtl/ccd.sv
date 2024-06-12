@@ -11,7 +11,6 @@ module ccd(
   input  logic [31 : 0] memory_wdata,
   input  logic [3  : 0] memory_wstrb,
   output logic [31 : 0] memory_rdata,
-  output logic [0  : 0] memory_error,
   output logic [0  : 0] memory_ready,
   output logic [0  : 0] memory_slow_valid,
   output logic [0  : 0] memory_slow_instr,
@@ -19,7 +18,6 @@ module ccd(
   output logic [31 : 0] memory_slow_wdata,
   output logic [3  : 0] memory_slow_wstrb,
   input  logic [31 : 0] memory_slow_rdata,
-  input  logic [0  : 0] memory_slow_error,
   input  logic [0  : 0] memory_slow_ready
 );
   timeunit 1ns;
@@ -43,13 +41,11 @@ module ccd(
 
   typedef struct packed{
     logic [31 : 0] memory_rdata;
-    logic [0  : 0] memory_error;
     logic [0  : 0] memory_ready;
   } reg_type_out;
 
   parameter reg_type_out init_reg_out = '{
     memory_rdata : 0,
-    memory_error : 0,
     memory_ready : 0
   };
 
@@ -82,17 +78,11 @@ module ccd(
   always_comb begin
 
     if (r_out_3.memory_ready == 0 && r_out_2.memory_ready == 1) begin
-      memory_rdata = r_out_2.memory_slow_rdata;
-      memory_error = r_out_2.memory_slow_error;
-      memory_ready = r_out_2.memory_slow_ready;
-    end else if (r_out_3.memory_error == 0 && r_out_2.memory_error == 1) begin
-      memory_rdata = r_out_2.memory_slow_rdata;
-      memory_error = r_out_2.memory_slow_error;
-      memory_ready = r_out_2.memory_slow_ready;
+      memory_rdata = r_out_2.memory_rdata;
+      memory_ready = r_out_2.memory_ready;
     end else begin
-      memory_rdata = r_out_2.memory_slow_rdata;
-      memory_error = r_out_2.memory_slow_error;
-      memory_ready = r_out_2.memory_slow_ready;
+      memory_rdata = r_out_2.memory_rdata;
+      memory_ready = r_out_2.memory_ready;
     end
 
   end
@@ -112,7 +102,6 @@ module ccd(
       r_out_3 <= init_reg_out;
     end else begin
       r_out_1.memory_rdata <= memory_slow_rdata;
-      r_out_1.memory_error <= memory_slow_error;
       r_out_1.memory_ready <= memory_slow_ready;
       r_out_2 <= r_out_1;
       r_out_3 <= r_out_2;

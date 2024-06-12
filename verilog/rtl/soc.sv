@@ -4,6 +4,7 @@ module soc
 (
   input  logic reset,
   input  logic clock,
+  input  logic clock_slow,
   output logic [0  : 0] uart_valid,
   output logic [0  : 0] uart_instr,
   output logic [31 : 0] uart_addr,
@@ -89,6 +90,14 @@ module soc
   logic [3  : 0] clic_wstrb;
   logic [31 : 0] clic_rdata;
   logic [0  : 0] clic_ready;
+
+  logic [0  : 0] clic_slow_valid;
+  logic [0  : 0] clic_slow_instr;
+  logic [31 : 0] clic_slow_addr;
+  logic [31 : 0] clic_slow_wdata;
+  logic [3  : 0] clic_slow_wstrb;
+  logic [31 : 0] clic_slow_rdata;
+  logic [0  : 0] clic_slow_ready;
 
   logic [0  : 0] ram_valid;
   logic [0  : 0] ram_instr;
@@ -313,17 +322,38 @@ module soc
     .clint_mtime (mtime)
   );
 
-  clic clic_comp
+  ccd ccd_clic_comp
   (
     .reset (reset),
     .clock (clock),
-    .clic_valid (clic_valid),
-    .clic_instr (clic_instr),
-    .clic_addr (clic_addr),
-    .clic_wdata (clic_wdata),
-    .clic_wstrb (clic_wstrb),
-    .clic_rdata (clic_rdata),
-    .clic_ready (clic_ready),
+    .clock_slow (clock_slow),
+    .memory_valid (clic_valid),
+    .memory_instr (clic_instr),
+    .memory_addr (clic_addr),
+    .memory_wdata (clic_wdata),
+    .memory_wstrb (clic_wstrb),
+    .memory_rdata (clic_rdata),
+    .memory_ready (clic_ready),
+    .memory_slow_valid (clic_slow_valid),
+    .memory_slow_instr (clic_slow_instr),
+    .memory_slow_addr (clic_slow_addr),
+    .memory_slow_wdata (clic_slow_wdata),
+    .memory_slow_wstrb (clic_slow_wstrb),
+    .memory_slow_rdata (clic_slow_rdata),
+    .memory_slow_ready (clic_slow_ready)
+  );
+
+  clic clic_comp
+  (
+    .reset (reset),
+    .clock (clock_slow),
+    .clic_valid (clic_slow_valid),
+    .clic_instr (clic_slow_instr),
+    .clic_addr (clic_slow_addr),
+    .clic_wdata (clic_slow_wdata),
+    .clic_wstrb (clic_slow_wstrb),
+    .clic_rdata (clic_slow_rdata),
+    .clic_ready (clic_slow_ready),
     .clic_meip (meip),
     .clic_meid (meid),
     .clic_irpt (irpt)
