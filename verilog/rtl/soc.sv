@@ -322,7 +322,9 @@ module soc
     .clint_mtime (mtime)
   );
 
-  ccd ccd_clic_comp
+  ccd #(
+    .clock_rate (clk_divider_slow)
+  ) ccd_clic_comp
   (
     .reset (reset),
     .clock (clock),
