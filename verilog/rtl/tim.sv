@@ -196,6 +196,7 @@ module tim_ctrl
     end
 
     tim_out.mem_rdata = v_b.rden ? v_b.rdata : 0;
+    tim_out.mem_error = 0;
     tim_out.mem_ready = v_b.rden | v_b.wren;
 
     rin_b = v_b;
@@ -263,6 +264,7 @@ module tim
   assign tim_in.mem_fence = 0;
   assign tim_in.mem_spec = 0;
   assign tim_in.mem_instr = tim_instr;
+  assign tim_in.mem_mode = 0;
   assign tim_in.mem_addr  = tim_addr;
   assign tim_in.mem_wdata = tim_wdata;
   assign tim_in.mem_wstrb = tim_wstrb;
