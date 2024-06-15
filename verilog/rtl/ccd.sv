@@ -44,16 +44,6 @@ module ccd
     logic [0  : 0] memory_ready;
   } reg_type;
 
-  parameter reg_type init_reg = '{
-    memory_valid : 0,
-    memory_instr : 0,
-    memory_addr : 0,
-    memory_wdata : 0,
-    memory_wstrb : 0,
-    memory_rdata : 0,
-    memory_ready : 0
-  };
-
   reg_type r,rin,v;
 
   always_comb begin
@@ -107,7 +97,7 @@ module ccd
     if (reset == 0) begin
       count_reg <= 0;
       memory_fast_ready <= 0;
-      r <= init_reg;
+      r <= '{default:0};
     end else begin
       count_reg <= count;
       memory_fast_ready <= memory_slow_ready;
