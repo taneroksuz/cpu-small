@@ -17,33 +17,82 @@ module ram
 
   localparam depth = $clog2(ram_depth-1);
 
-  logic [31 : 0] ram_block[0:ram_depth-1];
+  generate
 
-  initial begin
-    $readmemh("ram.dat", ram_block);
-  end
+    if (ram_type == 0) begin
 
-  always_ff @(posedge clock) begin
+      logic [31 : 0] ram_block[0:ram_depth-1];
 
-    ram_rdata <= 0;
-    ram_ready <= 0;
+      initial begin
+        $readmemh("ram.dat", ram_block);
+      end
 
-    if (ram_valid == 1) begin
+      always_ff @(posedge clock) begin
 
-      if (ram_wstrb[0] == 1)
-        ram_block[ram_addr[(depth+1):2]][7:0] <= ram_wdata[7:0];
-      if (ram_wstrb[1] == 1)
-        ram_block[ram_addr[(depth+1):2]][15:8] <= ram_wdata[15:8];
-      if (ram_wstrb[2] == 1)
-        ram_block[ram_addr[(depth+1):2]][23:16] <= ram_wdata[23:16];
-      if (ram_wstrb[3] == 1)
-        ram_block[ram_addr[(depth+1):2]][31:24] <= ram_wdata[31:24];
+        if (ram_valid == 1) begin
 
-      ram_rdata <= ram_block[ram_addr[(depth+1):2]];
-      ram_ready <= 1;
+          if (ram_wstrb[0] == 1)
+            ram_block[ram_addr[(depth+1):2]][7:0] <= ram_wdata[7:0];
+          if (ram_wstrb[1] == 1)
+            ram_block[ram_addr[(depth+1):2]][15:8] <= ram_wdata[15:8];
+          if (ram_wstrb[2] == 1)
+            ram_block[ram_addr[(depth+1):2]][23:16] <= ram_wdata[23:16];
+          if (ram_wstrb[3] == 1)
+            ram_block[ram_addr[(depth+1):2]][31:24] <= ram_wdata[31:24];
+
+          ram_rdata <= ram_block[ram_addr[(depth+1):2]];
+          ram_ready <= 1;
+
+        end else begin
+
+          ram_rdata <= 0;
+          ram_ready <= 0;
+
+        end
+      
+      end
 
     end
 
-  end
+    if (ram_type == 1) begin
+
+      logic [3 : 0][7 : 0] ram_block[0:ram_depth-1];
+
+      initial begin
+        $readmemh("ram.dat", ram_block);
+      end
+
+      always_ff @(posedge clock) begin
+
+          if (ram_wstrb[0] == 1)
+            ram_block[ram_addr[(depth+1):2]][0] <= ram_wdata[7:0];
+          if (ram_wstrb[1] == 1)
+            ram_block[ram_addr[(depth+1):2]][1] <= ram_wdata[15:8];
+          if (ram_wstrb[2] == 1)
+            ram_block[ram_addr[(depth+1):2]][2] <= ram_wdata[23:16];
+          if (ram_wstrb[3] == 1)
+            ram_block[ram_addr[(depth+1):2]][3] <= ram_wdata[31:24];
+
+          ram_rdata <= ram_block[ram_addr[(depth+1):2]];
+
+      end
+
+      always_ff @(posedge clock) begin
+
+        if (ram_valid == 1) begin
+
+          ram_ready <= 1;
+
+        end else begin
+
+          ram_ready <= 0;
+
+        end
+
+      end
+
+    end
+
+  endgenerate
 
 endmodule
