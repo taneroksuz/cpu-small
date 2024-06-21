@@ -37,48 +37,28 @@ module ccd
   logic [31 : 0] memory_fast_rdata;
   logic [0  : 0] memory_fast_ready;
 
-  typedef struct packed{
-    logic [0  : 0] memory_valid;
-    logic [0  : 0] memory_instr;
-    logic [31 : 0] memory_addr;
-    logic [31 : 0] memory_wdata;
-    logic [3  : 0] memory_wstrb;
-  } reg_type;
-
-  reg_type r,rin,v;
-
   initial begin
     count = 0;
   end
 
   always_comb begin
 
-    v = r;
-
-    v.memory_valid = 0;
-    v.memory_instr = 0;
-    v.memory_addr = 0;
-    v.memory_wdata = 0;
-    v.memory_wstrb = 0;
-
     if (memory_valid == 1) begin
-      v.memory_valid = memory_valid;
-      v.memory_instr = memory_instr;
-      v.memory_addr = memory_addr;
-      v.memory_wdata = memory_wdata;
-      v.memory_wstrb = memory_wstrb;
+      memory_slow_valid = memory_valid;
+      memory_slow_instr = memory_instr;
+      memory_slow_addr = memory_addr;
+      memory_slow_wdata = memory_wdata;
+      memory_slow_wstrb = memory_wstrb;
+    end else begin
+      memory_slow_valid = 0;
+      memory_slow_instr = 0;
+      memory_slow_addr = 0;
+      memory_slow_wdata = 0;
+      memory_slow_wstrb = 0;
     end
-
-    memory_slow_valid = v.memory_valid;
-    memory_slow_instr = v.memory_instr;
-    memory_slow_addr = v.memory_addr;
-    memory_slow_wdata = v.memory_wdata;
-    memory_slow_wstrb = v.memory_wstrb;
 
     memory_rdata = memory_fast_rdata;
     memory_ready = memory_fast_ready;
-
-    rin = v;
 
   end
 
@@ -97,14 +77,6 @@ module ccd
     end else begin
       memory_fast_rdata <= 0;
       memory_fast_ready <= 0;
-    end
-  end
-
-  always_ff @(posedge clock) begin
-    if (reset == 0) begin
-      r <= '{default:0};
-    end else begin
-      r <= rin;
     end
   end
 
