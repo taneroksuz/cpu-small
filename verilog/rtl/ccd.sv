@@ -28,10 +28,13 @@ module ccd
   timeprecision 1ps;
 
   localparam depth = $clog2(clock_rate);
+  localparam full = clock_rate-1;
+
+  localparam [depth-1:0] one = 1;
 
   logic [depth-1:0] count;
-  logic [depth-1:0] count_reg;
 
+  logic [31 : 0] memory_fast_rdata;
   logic [0  : 0] memory_fast_ready;
 
   typedef struct packed{
@@ -40,15 +43,15 @@ module ccd
     logic [31 : 0] memory_addr;
     logic [31 : 0] memory_wdata;
     logic [3  : 0] memory_wstrb;
-    logic [31 : 0] memory_rdata;
-    logic [0  : 0] memory_ready;
   } reg_type;
 
   reg_type r,rin,v;
 
-  always_comb begin
+  initial begin
+    count = 0;
+  end
 
-    count = count_reg;
+  always_comb begin
 
     v = r;
 
@@ -57,18 +60,6 @@ module ccd
     v.memory_addr = 0;
     v.memory_wdata = 0;
     v.memory_wstrb = 0;
-    v.memory_rdata = 0;
-    v.memory_ready = 0;
-
-    if (memory_fast_ready == 0 && memory_slow_ready == 1) begin
-      count = clock_rate[depth-1:0];
-    end
-
-    if (count == clock_rate[depth-1:0] && memory_slow_ready == 1) begin
-      count = 0;
-      v.memory_rdata = memory_slow_rdata;
-      v.memory_ready = memory_slow_ready;
-    end
 
     if (memory_valid == 1) begin
       v.memory_valid = memory_valid;
@@ -84,23 +75,35 @@ module ccd
     memory_slow_wdata = v.memory_wdata;
     memory_slow_wstrb = v.memory_wstrb;
 
-    memory_rdata = v.memory_rdata;
-    memory_ready = v.memory_ready;
-
-    count = count + 1;
+    memory_rdata = memory_fast_rdata;
+    memory_ready = memory_fast_ready;
 
     rin = v;
 
   end
 
   always_ff @(posedge clock) begin
-    if (reset == 0) begin
-      count_reg <= 0;
+    if (count == full[depth-1:0]) begin
+      count <= 0;
+    end else begin
+      count <= count + one;
+    end
+  end
+
+  always_ff @(posedge clock) begin
+    if (count == full[depth-1:0] && memory_slow_ready == 1) begin
+      memory_fast_rdata <= memory_slow_rdata;
+      memory_fast_ready <= memory_slow_ready;
+    end else begin
+      memory_fast_rdata <= 0;
       memory_fast_ready <= 0;
+    end
+  end
+
+  always_ff @(posedge clock) begin
+    if (reset == 0) begin
       r <= '{default:0};
     end else begin
-      count_reg <= count;
-      memory_fast_ready <= memory_slow_ready;
       r <= rin;
     end
   end

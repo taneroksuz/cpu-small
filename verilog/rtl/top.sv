@@ -3,13 +3,14 @@ import configure::*;
 module top(
   input  logic reset,
   input  logic clock,
-  input  logic clock_slow,
   input  logic uart_rx,
   output logic uart_tx
 );
 
   timeunit 1ns;
   timeprecision 1ps;
+
+  logic clock_slow;
 
   logic [0  : 0] uart_valid;
   logic [0  : 0] uart_instr;
@@ -18,6 +19,15 @@ module top(
   logic [3  : 0] uart_wstrb;
   logic [31 : 0] uart_rdata;
   logic [0  : 0] uart_ready;
+
+  clk_div #(
+    .clock_rate (clk_divider_slow)
+  ) clk_div_comp
+  (
+    .reset (reset),
+    .clock (clock),
+    .clock_slow (clock_slow)
+  );
 
   soc soc_comp
   (
