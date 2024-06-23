@@ -335,7 +335,9 @@ module soc
     .rom_ready (rom_ready)
   );
 
-  clint clint_comp
+  clint #(
+    .clock_rate (clk_divider_rtc)
+  ) clint_comp
   (
     .reset (reset),
     .clock (clock),
