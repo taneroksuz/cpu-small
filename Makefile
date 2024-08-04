@@ -5,7 +5,7 @@ export PYTHON ?= /usr/bin/python3
 export SERIAL ?= /dev/ttyUSB0
 export BASEDIR ?= $(shell dirname $(realpath $(firstword $(MAKEFILE_LIST))))
 
-export RISCV ?= /opt/rv32imc/
+export RISCV ?= /opt/rv32imc
 export ARCH ?= rv32imc_zicsr_zifencei
 export ABI ?= ilp32
 export CPU ?= wolv-z0
@@ -22,6 +22,7 @@ compile:
 	wolv-benchmark/dhrystone.sh
 	wolv-benchmark/isa.sh
 	wolv-benchmark/whetstone.sh
+	wolv-benchmark/free-rtos.sh
 
 program:
 	serial/transfer.sh
