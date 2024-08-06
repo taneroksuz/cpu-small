@@ -1,39 +1,37 @@
 import constants::*;
 import wires::*;
 
-module execute_stage
-(
-  input logic reset,
-  input logic clock,
-  input postdecoder_out_type postdecoder_out,
-  output postdecoder_in_type postdecoder_in,
-  input alu_out_type alu_out,
-  output alu_in_type alu_in,
-  input lsu_out_type lsu_out,
-  output lsu_in_type lsu_in,
-  input csr_alu_out_type csr_alu_out,
-  output csr_alu_in_type csr_alu_in,
-  input div_out_type div_out,
-  output div_in_type div_in,
-  input mul_out_type mul_out,
-  output mul_in_type mul_in,
-  output register_write_in_type register_win,
-  output forwarding_execute_in_type forwarding_ein,
-  input csr_out_type csr_out,
-  output csr_in_type csr_in,
-  input csr_pmp_out_type csr_pmp_out,
-  output csr_pmp_in_type csr_pmp_in,
-  input mem_out_type dmem_out,
-  output rvfi_out_type rvfi_out,
-  input execute_in_type a,
-  input execute_in_type d,
-  output execute_out_type y,
-  output execute_out_type q
+module execute_stage (
+    input logic reset,
+    input logic clock,
+    input postdecoder_out_type postdecoder_out,
+    output postdecoder_in_type postdecoder_in,
+    input alu_out_type alu_out,
+    output alu_in_type alu_in,
+    input lsu_out_type lsu_out,
+    output lsu_in_type lsu_in,
+    input csr_alu_out_type csr_alu_out,
+    output csr_alu_in_type csr_alu_in,
+    input div_out_type div_out,
+    output div_in_type div_in,
+    input mul_out_type mul_out,
+    output mul_in_type mul_in,
+    output register_write_in_type register_win,
+    output forwarding_execute_in_type forwarding_ein,
+    input csr_out_type csr_out,
+    output csr_in_type csr_in,
+    input csr_pmp_out_type csr_pmp_out,
+    output csr_pmp_in_type csr_pmp_in,
+    input mem_out_type dmem_out,
+    output rvfi_out_type rvfi_out,
+    input execute_in_type a,
+    input execute_in_type d,
+    output execute_out_type y,
+    output execute_out_type q
 );
-  timeunit 1ns;
-  timeprecision 1ps;
+  timeunit 1ns; timeprecision 1ps;
 
-  execute_reg_type r,rin;
+  execute_reg_type r, rin;
   execute_reg_type v;
 
   always_comb begin
@@ -204,13 +202,13 @@ module execute_stage
       v.miss = dmem_out.mem_error;
       v.stall = ~dmem_out.mem_ready;
     end else if (v.instr.op.store == 1) begin
-      v.miss = dmem_out.mem_error;
+      v.miss  = dmem_out.mem_error;
       v.stall = ~dmem_out.mem_ready;
     end
 
     if (v.miss == 1) begin
       v.instr.op.exception = 1;
-      v.instr.ecause =  v.instr.op.load == 1 ? except_load_access_fault : except_store_access_fault;
+      v.instr.ecause = v.instr.op.load == 1 ? except_load_access_fault : except_store_access_fault;
       v.instr.etval = r.instr.address;
     end
 

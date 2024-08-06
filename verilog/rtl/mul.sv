@@ -1,20 +1,17 @@
 import configure::*;
 import wires::*;
 
-module mul
-#(
-  parameter mul_performance = 1
-)
-(
-  input logic reset,
-  input logic clock,
-  input mul_in_type mul_in,
-  output mul_out_type mul_out
+module mul #(
+    parameter mul_performance = 1
+) (
+    input logic reset,
+    input logic clock,
+    input mul_in_type mul_in,
+    output mul_out_type mul_out
 );
-  timeunit 1ns;
-  timeprecision 1ps;
+  timeunit 1ns; timeprecision 1ps;
 
-  mul_reg_type r,rin;
+  mul_reg_type r, rin;
   mul_reg_type v;
 
   logic signed [32:0] op1;
@@ -36,16 +33,14 @@ module mul
         v = r;
 
         case (r.counter)
-          0 : begin
+          0: begin
             v.op1 = mul_in.rdata1;
             v.op2 = mul_in.rdata2;
             v.op = mul_in.op;
-            v.op1_signed = v.op.muls | v.op.mulh |
-                           v.op.mulhsu;
+            v.op1_signed = v.op.muls | v.op.mulh | v.op.mulhsu;
             v.op2_signed = v.op.muls | v.op.mulh;
             v.negativ = 0;
-            v.mult = v.op.muls | v.op.mulh |
-                   v.op.mulhsu | v.op.mulhu;
+            v.mult = v.op.muls | v.op.mulh | v.op.mulhsu | v.op.mulhu;
             v.op1_neg = 0;
             if (v.op1_signed == 1 && v.op1[31] == 1) begin
               v.negativ = ~v.negativ;
@@ -57,7 +52,7 @@ module mul
               v.op2 = -v.op2;
             end
             v.counter = 0;
-            for (int i=31; i>=0; i--) begin
+            for (int i = 31; i >= 0; i--) begin
               if (v.op1[i] == 1) begin
                 break;
               end
@@ -72,9 +67,9 @@ module mul
               v.counter = v.counter + 1;
             end
             mul_out.result = 0;
-            mul_out.ready = 0;
+            mul_out.ready  = 0;
           end
-          33 : begin
+          33: begin
             if (v.negativ == 1) begin
               if (v.mult == 1) begin
                 v.result = -v.result;
@@ -83,18 +78,16 @@ module mul
             v.counter = 0;
             if (v.op.muls == 1) begin
               mul_out.result = v.result[31:0];
-            end else if (v.op.mulh == 1 |
-                         v.op.mulhsu == 1 |
-                         v.op.mulhu == 1) begin
+            end else if (v.op.mulh == 1 | v.op.mulhsu == 1 | v.op.mulhu == 1) begin
               mul_out.result = v.result[63:32];
             end
             mul_out.ready = 1;
           end
-          default : begin
+          default: begin
             if (v.mult == 1) begin
-              v.result = {v.result[63:0],1'b0};
+              v.result = {v.result[63:0], 1'b0};
               if (v.op1[32-v.counter] == 1) begin
-                v.result = v.result + {33'b0,v.op2};
+                v.result = v.result + {33'b0, v.op2};
               end
             end
             v.counter = v.counter + 1;
@@ -107,7 +100,7 @@ module mul
 
       end
 
-      always_ff @ (posedge clock) begin
+      always_ff @(posedge clock) begin
         if (reset == 0) begin
           r <= init_mul_reg;
         end else begin
@@ -120,11 +113,10 @@ module mul
 
       always_comb begin
 
-        op1 = {1'b0,mul_in.rdata1};
-        op2 = {1'b0,mul_in.rdata2};
+        op1 = {1'b0, mul_in.rdata1};
+        op2 = {1'b0, mul_in.rdata2};
         op = mul_in.op;
-        op1_signed = op.muls | op.mulh |
-                     op.mulhsu;
+        op1_signed = op.muls | op.mulh | op.mulhsu;
         op2_signed = op.muls | op.mulh;
         if (op1_signed == 1) begin
           op1[32] = op1[31];
@@ -132,7 +124,7 @@ module mul
         if (op2_signed == 1) begin
           op2[32] = op2[31];
         end
-        result = op1*op2;
+        result = op1 * op2;
         if (op.muls == 1) begin
           mul_out.result = result[31:0];
         end else begin

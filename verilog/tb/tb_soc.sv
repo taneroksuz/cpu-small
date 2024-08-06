@@ -1,23 +1,22 @@
 import configure::*;
 
-module tb_soc();
+module tb_soc ();
 
-  timeunit 1ns;
-  timeprecision 1ps;
+  timeunit 1ns; timeprecision 1ps;
 
   logic reset;
   logic clock;
   logic clock_slow;
 
-  logic [0  : 0] print_valid;
-  logic [0  : 0] print_instr;
+  logic [0 : 0] print_valid;
+  logic [0 : 0] print_instr;
   logic [31 : 0] print_addr;
   logic [31 : 0] print_wdata;
-  logic [3  : 0] print_wstrb;
+  logic [3 : 0] print_wstrb;
   logic [31 : 0] print_rdata;
-  logic [0  : 0] print_ready;
+  logic [0 : 0] print_ready;
 
-  logic [31 : 0] host[0:0] = '{default:'0};
+  logic [31 : 0] host[0:0] = '{default: '0};
 
   logic [31 : 0] stoptime = 10000000;
   logic [31 : 0] counter = 0;
@@ -33,7 +32,7 @@ module tb_soc();
 
   initial begin
     string filename;
-    if ($value$plusargs("FILENAME=%s",filename)) begin
+    if ($value$plusargs("FILENAME=%s", filename)) begin
       $dumpfile(filename);
       $dumpvars(0, soc);
     end
@@ -41,7 +40,7 @@ module tb_soc();
 
   initial begin
     string maxtime;
-    if ($value$plusargs("MAXTIME=%s",maxtime)) begin
+    if ($value$plusargs("MAXTIME=%s", maxtime)) begin
       stoptime = maxtime.atoi();
     end
   end
@@ -59,15 +58,17 @@ module tb_soc();
 
   initial begin
     string filename;
-    if ($value$plusargs("REGFILE=%s",filename)) begin
-      reg_file = $fopen(filename,"w");
-      for (int i=0; i<stoptime; i=i+1) begin
+    if ($value$plusargs("REGFILE=%s", filename)) begin
+      reg_file = $fopen(filename, "w");
+      for (int i = 0; i < stoptime; i = i + 1) begin
         @(posedge clock);
         if (tb_soc.soc_comp.cpu_comp.execute_stage_comp.a.e.instr.op.wren == 1) begin
-          $fwrite(reg_file,"PERIOD = %t\t",$time);
-          $fwrite(reg_file,"PC = %x\t",tb_soc.soc_comp.cpu_comp.execute_stage_comp.a.e.instr.pc);
-          $fwrite(reg_file,"WADDR = %x\t",tb_soc.soc_comp.cpu_comp.execute_stage_comp.a.e.instr.waddr);
-          $fwrite(reg_file,"WDATA = %x\n",tb_soc.soc_comp.cpu_comp.execute_stage_comp.a.e.instr.wdata);
+          $fwrite(reg_file, "PERIOD = %t\t", $time);
+          $fwrite(reg_file, "PC = %x\t", tb_soc.soc_comp.cpu_comp.execute_stage_comp.a.e.instr.pc);
+          $fwrite(reg_file, "WADDR = %x\t",
+                  tb_soc.soc_comp.cpu_comp.execute_stage_comp.a.e.instr.waddr);
+          $fwrite(reg_file, "WDATA = %x\n",
+                  tb_soc.soc_comp.cpu_comp.execute_stage_comp.a.e.instr.wdata);
         end
       end
       $fclose(reg_file);
@@ -76,15 +77,17 @@ module tb_soc();
 
   initial begin
     string filename;
-    if ($value$plusargs("CSRFILE=%s",filename)) begin
-      csr_file = $fopen(filename,"w");
-      for (int i=0; i<stoptime; i=i+1) begin
+    if ($value$plusargs("CSRFILE=%s", filename)) begin
+      csr_file = $fopen(filename, "w");
+      for (int i = 0; i < stoptime; i = i + 1) begin
         @(posedge clock);
         if (tb_soc.soc_comp.cpu_comp.execute_stage_comp.a.e.instr.op.cwren == 1) begin
-          $fwrite(csr_file,"PERIOD = %t\t",$time);
-          $fwrite(csr_file,"PC = %x\t",tb_soc.soc_comp.cpu_comp.execute_stage_comp.a.e.instr.pc);
-          $fwrite(csr_file,"WADDR = %x\t",tb_soc.soc_comp.cpu_comp.execute_stage_comp.a.e.instr.caddr);
-          $fwrite(csr_file,"WDATA = %x\n",tb_soc.soc_comp.cpu_comp.execute_stage_comp.a.e.instr.cwdata);
+          $fwrite(csr_file, "PERIOD = %t\t", $time);
+          $fwrite(csr_file, "PC = %x\t", tb_soc.soc_comp.cpu_comp.execute_stage_comp.a.e.instr.pc);
+          $fwrite(csr_file, "WADDR = %x\t",
+                  tb_soc.soc_comp.cpu_comp.execute_stage_comp.a.e.instr.caddr);
+          $fwrite(csr_file, "WDATA = %x\n",
+                  tb_soc.soc_comp.cpu_comp.execute_stage_comp.a.e.instr.cwdata);
         end
       end
       $fclose(csr_file);
@@ -93,17 +96,21 @@ module tb_soc();
 
   initial begin
     string filename;
-    if ($value$plusargs("MEMFILE=%s",filename)) begin
-      mem_file = $fopen(filename,"w");
-      for (int i=0; i<stoptime; i=i+1) begin
+    if ($value$plusargs("MEMFILE=%s", filename)) begin
+      mem_file = $fopen(filename, "w");
+      for (int i = 0; i < stoptime; i = i + 1) begin
         @(posedge clock);
         if (tb_soc.soc_comp.cpu_comp.execute_stage_comp.a.e.instr.op.store == 1) begin
           if (|tb_soc.soc_comp.cpu_comp.execute_stage_comp.a.e.instr.byteenable == 1) begin
-            $fwrite(mem_file,"PERIOD = %t\t",$time);
-            $fwrite(mem_file,"PC = %x\t",tb_soc.soc_comp.cpu_comp.execute_stage_comp.a.e.instr.pc);
-            $fwrite(mem_file,"WADDR = %x\t",tb_soc.soc_comp.cpu_comp.execute_stage_comp.a.e.instr.address);
-            $fwrite(mem_file,"WSTRB = %b\t",tb_soc.soc_comp.cpu_comp.execute_stage_comp.a.e.instr.byteenable);
-            $fwrite(mem_file,"WDATA = %x\n",tb_soc.soc_comp.cpu_comp.execute_stage_comp.a.e.instr.sdata);
+            $fwrite(mem_file, "PERIOD = %t\t", $time);
+            $fwrite(mem_file, "PC = %x\t",
+                    tb_soc.soc_comp.cpu_comp.execute_stage_comp.a.e.instr.pc);
+            $fwrite(mem_file, "WADDR = %x\t",
+                    tb_soc.soc_comp.cpu_comp.execute_stage_comp.a.e.instr.address);
+            $fwrite(mem_file, "WSTRB = %b\t",
+                    tb_soc.soc_comp.cpu_comp.execute_stage_comp.a.e.instr.byteenable);
+            $fwrite(mem_file, "WDATA = %x\n",
+                    tb_soc.soc_comp.cpu_comp.execute_stage_comp.a.e.instr.sdata);
           end
         end
       end
@@ -123,7 +130,7 @@ module tb_soc();
     if (tb_soc.soc_comp.cpu_comp.fetch_stage_comp.dmem_in.mem_valid == 1) begin
       if (tb_soc.soc_comp.cpu_comp.fetch_stage_comp.dmem_in.mem_addr[31:2] == host[0][31:2]) begin
         if (|tb_soc.soc_comp.cpu_comp.fetch_stage_comp.dmem_in.mem_wstrb == 1) begin
-          $display("%d",tb_soc.soc_comp.cpu_comp.fetch_stage_comp.dmem_in.mem_wdata);
+          $display("%d", tb_soc.soc_comp.cpu_comp.fetch_stage_comp.dmem_in.mem_wdata);
           $finish;
         end
       end
@@ -131,39 +138,36 @@ module tb_soc();
   end
 
   clk_div #(
-    .clock_rate (clk_divider_slow)
-  ) clk_div_comp
-  (
-    .reset (reset),
-    .clock (clock),
-    .clock_slow (clock_slow)
+      .clock_rate(clk_divider_slow)
+  ) clk_div_comp (
+      .reset(reset),
+      .clock(clock),
+      .clock_slow(clock_slow)
   );
 
-  soc soc_comp
-  (
-    .reset (reset),
-    .clock (clock),
-    .clock_slow (clock_slow),
-    .uart_valid (print_valid),
-    .uart_instr (print_instr),
-    .uart_addr (print_addr),
-    .uart_wdata (print_wdata),
-    .uart_wstrb (print_wstrb),
-    .uart_rdata (print_rdata),
-    .uart_ready (print_ready)
+  soc soc_comp (
+      .reset(reset),
+      .clock(clock),
+      .clock_slow(clock_slow),
+      .uart_valid(print_valid),
+      .uart_instr(print_instr),
+      .uart_addr(print_addr),
+      .uart_wdata(print_wdata),
+      .uart_wstrb(print_wstrb),
+      .uart_rdata(print_rdata),
+      .uart_ready(print_ready)
   );
 
-  print print_comp
-  (
-    .reset (reset),
-    .clock (clock),
-    .print_valid (print_valid),
-    .print_instr (print_instr),
-    .print_addr (print_addr),
-    .print_wdata (print_wdata),
-    .print_wstrb (print_wstrb),
-    .print_rdata (print_rdata),
-    .print_ready (print_ready)
+  print print_comp (
+      .reset(reset),
+      .clock(clock),
+      .print_valid(print_valid),
+      .print_instr(print_instr),
+      .print_addr(print_addr),
+      .print_wdata(print_wdata),
+      .print_wstrb(print_wstrb),
+      .print_rdata(print_rdata),
+      .print_ready(print_ready)
   );
 
 endmodule

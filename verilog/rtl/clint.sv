@@ -1,54 +1,51 @@
 import configure::*;
 import wires::*;
 
-module clint
-#(
-  parameter clock_rate
-)
-(
-  input logic reset,
-  input logic clock,
-  input logic [0   : 0] clint_valid,
-  input logic [0   : 0] clint_instr,
-  input logic [31  : 0] clint_addr,
-  input logic [31  : 0] clint_wdata,
-  input logic [3   : 0] clint_wstrb,
-  output logic [31 : 0] clint_rdata,
-  output logic [0  : 0] clint_ready,
-  output logic [63 : 0] clint_mtime,
-  output logic clint_msip,
-  output logic clint_mtip
+module clint #(
+    parameter clock_rate
+) (
+    input logic reset,
+    input logic clock,
+    input logic [0 : 0] clint_valid,
+    input logic [0 : 0] clint_instr,
+    input logic [31 : 0] clint_addr,
+    input logic [31 : 0] clint_wdata,
+    input logic [3 : 0] clint_wstrb,
+    output logic [31 : 0] clint_rdata,
+    output logic [0 : 0] clint_ready,
+    output logic [63 : 0] clint_mtime,
+    output logic clint_msip,
+    output logic clint_mtip
 );
-  timeunit 1ns;
-  timeprecision 1ps;
+  timeunit 1ns; timeprecision 1ps;
 
   localparam depth = $clog2(clock_rate);
-  localparam half = clock_rate/2-1;
+  localparam half = clock_rate / 2 - 1;
 
   logic [depth-1 : 0] count = 0;
 
-  localparam  clint_msip_start     = 0;
-  localparam  clint_msip_end       = clint_msip_start + 4;
-  localparam  clint_mtimecmp_start = 16384;
-  localparam  clint_mtimecmp_end   = clint_mtimecmp_start + 8;
-  localparam  clint_mtime_start    = 49144;
-  localparam  clint_mtime_end      = clint_mtime_start + 8;
+  localparam clint_msip_start = 0;
+  localparam clint_msip_end = clint_msip_start + 4;
+  localparam clint_mtimecmp_start = 16384;
+  localparam clint_mtimecmp_end = clint_mtimecmp_start + 8;
+  localparam clint_mtime_start = 49144;
+  localparam clint_mtime_end = clint_mtime_start + 8;
 
   logic [63 : 0] mtimecmp = 0;
   logic [63 : 0] mtime = 0;
 
-  logic [0  : 0] mtip = 0;
-  logic [0  : 0] msip = 0;
+  logic [ 0 : 0] mtip = 0;
+  logic [ 0 : 0] msip = 0;
 
-  logic [0  : 0] enable = 0;
+  logic [ 0 : 0] enable = 0;
 
   logic [31 : 0] rdata_ms = 0;
   logic [31 : 0] rdata_mt = 0;
   logic [31 : 0] rdata_mtc = 0;
 
-  logic [0  : 0] ready_ms = 0;
-  logic [0  : 0] ready_mt = 0;
-  logic [0  : 0] ready_mtc = 0;
+  logic [ 0 : 0] ready_ms = 0;
+  logic [ 0 : 0] ready_mt = 0;
+  logic [ 0 : 0] ready_mtc = 0;
 
   always_ff @(posedge clock) begin
     if (reset == 0) begin
@@ -109,7 +106,7 @@ module clint
     if (reset == 0) begin
       rdata_mtc <= 0;
       ready_mtc <= 0;
-      mtimecmp <= 0;
+      mtimecmp  <= 0;
     end else begin
       rdata_mtc <= 0;
       ready_mtc <= 0;
@@ -149,14 +146,14 @@ module clint
 
   always_ff @(posedge clock) begin
     if (reset == 0) begin
-      count <= 0;
+      count  <= 0;
       enable <= 0;
     end else begin
       if (count == half[depth-1:0]) begin
-        count <= 0;
+        count  <= 0;
         enable <= 1;
       end else begin
-        count <= count + 1;
+        count  <= count + 1;
         enable <= 0;
       end
     end

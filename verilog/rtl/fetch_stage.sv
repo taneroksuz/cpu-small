@@ -2,42 +2,40 @@ import constants::*;
 import functions::*;
 import wires::*;
 
-module fetch_stage
-(
-  input logic reset,
-  input logic clock,
-  input predecoder_out_type predecoder_out,
-  output predecoder_in_type predecoder_in,
-  input compress_out_type compress_out,
-  output compress_in_type compress_in,
-  input agu_out_type agu_out,
-  output agu_in_type agu_in,
-  input bcu_out_type bcu_out,
-  output bcu_in_type bcu_in,
-  input register_out_type register_out,
-  output register_read_in_type register_rin,
-  input forwarding_out_type forwarding_out,
-  output forwarding_register_in_type forwarding_rin,
-  input csr_out_type csr_out,
-  input mem_out_type imem_out,
-  output mem_in_type imem_in,
-  input buffer_out_type buffer_out,
-  output buffer_in_type buffer_in,
-  output mem_in_type dmem_in,
-  input fetch_in_type a,
-  input fetch_in_type d,
-  output fetch_out_type y,
-  output fetch_out_type q
+module fetch_stage (
+    input logic reset,
+    input logic clock,
+    input predecoder_out_type predecoder_out,
+    output predecoder_in_type predecoder_in,
+    input compress_out_type compress_out,
+    output compress_in_type compress_in,
+    input agu_out_type agu_out,
+    output agu_in_type agu_in,
+    input bcu_out_type bcu_out,
+    output bcu_in_type bcu_in,
+    input register_out_type register_out,
+    output register_read_in_type register_rin,
+    input forwarding_out_type forwarding_out,
+    output forwarding_register_in_type forwarding_rin,
+    input csr_out_type csr_out,
+    input mem_out_type imem_out,
+    output mem_in_type imem_in,
+    input buffer_out_type buffer_out,
+    output buffer_in_type buffer_in,
+    output mem_in_type dmem_in,
+    input fetch_in_type a,
+    input fetch_in_type d,
+    output fetch_out_type y,
+    output fetch_out_type q
 );
-  timeunit 1ns;
-  timeprecision 1ps;
+  timeunit 1ns; timeprecision 1ps;
 
   localparam [1:0] idle = 0;
   localparam [1:0] busy = 1;
   localparam [1:0] ctrl = 2;
   localparam [1:0] inv = 3;
 
-  fetch_reg_type r,rin;
+  fetch_reg_type r, rin;
   fetch_reg_type v;
 
   always_comb begin
@@ -55,55 +53,55 @@ module fetch_stage
     v.error = imem_out.mem_error;
     v.ready = imem_out.mem_ready;
 
-    case(v.state)
-      idle : begin
+    case (v.state)
+      idle: begin
         v.stall = 1;
       end
-      busy : begin
+      busy: begin
         if (v.ready == 0) begin
           v.stall = 1;
         end
       end
-      ctrl : begin
+      ctrl: begin
         v.stall = 1;
       end
-      inv : begin
+      inv: begin
         v.stall = 1;
       end
-      default : begin
+      default: begin
       end
     endcase
 
     if (csr_out.trap == 1) begin
       v.fence = 0;
-      v.spec = 1;
-      v.addr = csr_out.mtvec;
+      v.spec  = 1;
+      v.addr  = csr_out.mtvec;
     end else if (csr_out.mret == 1) begin
       v.fence = 0;
-      v.spec = 1;
-      v.addr = csr_out.mepc;
+      v.spec  = 1;
+      v.addr  = csr_out.mepc;
     end else if (d.f.instr.op.jump == 1) begin
       v.fence = 0;
-      v.spec = 1;
-      v.addr = d.f.instr.address;
+      v.spec  = 1;
+      v.addr  = d.f.instr.address;
     end else if (a.e.instr.op.fence == 1) begin
       v.fence = 1;
-      v.spec = 1;
-      v.addr = a.e.instr.npc;
+      v.spec  = 1;
+      v.addr  = a.e.instr.npc;
     end else if (v.stall == 0) begin
       v.fence = 0;
-      v.spec = 0;
-      v.addr = v.addr + 4;
+      v.spec  = 0;
+      v.addr  = v.addr + 4;
     end
 
-    case(v.state)
-      idle : begin
+    case (v.state)
+      idle: begin
         if (d.e.clear == 0) begin
           v.state = busy;
           v.valid = 1;
         end
       end
-      busy : begin
+      busy: begin
         if (v.ready == 1) begin
           v.state = busy;
           v.valid = 1;
@@ -118,7 +116,7 @@ module fetch_stage
           v.valid = 0;
         end
       end
-      ctrl : begin
+      ctrl: begin
         if (v.ready == 1) begin
           v.state = busy;
           v.valid = 1;
@@ -128,7 +126,7 @@ module fetch_stage
         end
         v.ready = 0;
       end
-      inv : begin
+      inv: begin
         if (v.ready == 1) begin
           v.state = busy;
           v.valid = 1;
@@ -138,7 +136,7 @@ module fetch_stage
         end
         v.ready = 0;
       end
-      default : begin
+      default: begin
       end
     endcase
 
@@ -299,7 +297,8 @@ module fetch_stage
     dmem_in.mem_instr = 0;
     dmem_in.mem_mode = v.mode;
     dmem_in.mem_addr = v.instr.address;
-    dmem_in.mem_wdata = store_data(v.instr.sdata,v.instr.lsu_op.lsu_sb,v.instr.lsu_op.lsu_sh,v.instr.lsu_op.lsu_sw);
+    dmem_in.mem_wdata = store_data(v.instr.sdata, v.instr.lsu_op.lsu_sb, v.instr.lsu_op.lsu_sh,
+                                   v.instr.lsu_op.lsu_sw);
     dmem_in.mem_wstrb = (v.instr.op.load == 1) ? 4'h0 : v.instr.byteenable;
 
     rin = v;

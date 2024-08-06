@@ -1,21 +1,19 @@
 import configure::*;
 
-module ram
-(
-  input logic reset,
-  input logic clock,
-  input logic [0   : 0] ram_valid,
-  input logic [0   : 0] ram_instr,
-  input logic [31  : 0] ram_addr,
-  input logic [31  : 0] ram_wdata,
-  input logic [3   : 0] ram_wstrb,
-  output logic [31 : 0] ram_rdata,
-  output logic [0  : 0] ram_ready
+module ram (
+    input logic reset,
+    input logic clock,
+    input logic [0 : 0] ram_valid,
+    input logic [0 : 0] ram_instr,
+    input logic [31 : 0] ram_addr,
+    input logic [31 : 0] ram_wdata,
+    input logic [3 : 0] ram_wstrb,
+    output logic [31 : 0] ram_rdata,
+    output logic [0 : 0] ram_ready
 );
-  timeunit 1ns;
-  timeprecision 1ps;
+  timeunit 1ns; timeprecision 1ps;
 
-  localparam depth = $clog2(ram_depth-1);
+  localparam depth = $clog2(ram_depth - 1);
 
   generate
 
@@ -31,14 +29,10 @@ module ram
 
         if (ram_valid == 1) begin
 
-          if (ram_wstrb[0] == 1)
-            ram_block[ram_addr[(depth+1):2]][7:0] <= ram_wdata[7:0];
-          if (ram_wstrb[1] == 1)
-            ram_block[ram_addr[(depth+1):2]][15:8] <= ram_wdata[15:8];
-          if (ram_wstrb[2] == 1)
-            ram_block[ram_addr[(depth+1):2]][23:16] <= ram_wdata[23:16];
-          if (ram_wstrb[3] == 1)
-            ram_block[ram_addr[(depth+1):2]][31:24] <= ram_wdata[31:24];
+          if (ram_wstrb[0] == 1) ram_block[ram_addr[(depth+1):2]][7:0] <= ram_wdata[7:0];
+          if (ram_wstrb[1] == 1) ram_block[ram_addr[(depth+1):2]][15:8] <= ram_wdata[15:8];
+          if (ram_wstrb[2] == 1) ram_block[ram_addr[(depth+1):2]][23:16] <= ram_wdata[23:16];
+          if (ram_wstrb[3] == 1) ram_block[ram_addr[(depth+1):2]][31:24] <= ram_wdata[31:24];
 
           ram_rdata <= ram_block[ram_addr[(depth+1):2]];
           ram_ready <= 1;
@@ -49,7 +43,7 @@ module ram
           ram_ready <= 0;
 
         end
-      
+
       end
 
     end
@@ -64,16 +58,12 @@ module ram
 
       always_ff @(posedge clock) begin
 
-          if (ram_wstrb[0] == 1)
-            ram_block[ram_addr[(depth+1):2]][0] <= ram_wdata[7:0];
-          if (ram_wstrb[1] == 1)
-            ram_block[ram_addr[(depth+1):2]][1] <= ram_wdata[15:8];
-          if (ram_wstrb[2] == 1)
-            ram_block[ram_addr[(depth+1):2]][2] <= ram_wdata[23:16];
-          if (ram_wstrb[3] == 1)
-            ram_block[ram_addr[(depth+1):2]][3] <= ram_wdata[31:24];
+        if (ram_wstrb[0] == 1) ram_block[ram_addr[(depth+1):2]][0] <= ram_wdata[7:0];
+        if (ram_wstrb[1] == 1) ram_block[ram_addr[(depth+1):2]][1] <= ram_wdata[15:8];
+        if (ram_wstrb[2] == 1) ram_block[ram_addr[(depth+1):2]][2] <= ram_wdata[23:16];
+        if (ram_wstrb[3] == 1) ram_block[ram_addr[(depth+1):2]][3] <= ram_wdata[31:24];
 
-          ram_rdata <= ram_block[ram_addr[(depth+1):2]];
+        ram_rdata <= ram_block[ram_addr[(depth+1):2]];
 
       end
 

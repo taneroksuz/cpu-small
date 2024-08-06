@@ -1,54 +1,52 @@
 import configure::*;
 import wires::*;
 
-module cpu
-(
-  input  logic reset,
-  input  logic clock,
-  output logic [0  : 0] rvfi_valid,
-  output logic [63 : 0] rvfi_order,
-  output logic [31 : 0] rvfi_insn,
-  output logic [0  : 0] rvfi_trap,
-  output logic [0  : 0] rvfi_halt,
-  output logic [0  : 0] rvfi_intr,
-  output logic [1  : 0] rvfi_mode,
-  output logic [1  : 0] rvfi_ixl,
-  output logic [4  : 0] rvfi_rs1_addr,
-  output logic [4  : 0] rvfi_rs2_addr,
-  output logic [31 : 0] rvfi_rs1_rdata,
-  output logic [31 : 0] rvfi_rs2_rdata,
-  output logic [4  : 0] rvfi_rd_addr,
-  output logic [31 : 0] rvfi_rd_wdata,
-  output logic [31 : 0] rvfi_pc_rdata,
-  output logic [31 : 0] rvfi_pc_wdata,
-  output logic [31 : 0] rvfi_mem_addr,
-  output logic [3  : 0] rvfi_mem_rmask,
-  output logic [3  : 0] rvfi_mem_wmask,
-  output logic [31 : 0] rvfi_mem_rdata,
-  output logic [31 : 0] rvfi_mem_wdata,
-  output logic [0  : 0] imemory_valid,
-  output logic [0  : 0] imemory_instr,
-  output logic [31 : 0] imemory_addr,
-  output logic [31 : 0] imemory_wdata,
-  output logic [3  : 0] imemory_wstrb,
-  input logic [31  : 0] imemory_rdata,
-  input logic [0   : 0] imemory_error,
-  input logic [0   : 0] imemory_ready,
-  output logic [0  : 0] dmemory_valid,
-  output logic [0  : 0] dmemory_instr,
-  output logic [31 : 0] dmemory_addr,
-  output logic [31 : 0] dmemory_wdata,
-  output logic [3  : 0] dmemory_wstrb,
-  input logic [31  : 0] dmemory_rdata,
-  input logic [0   : 0] dmemory_error,
-  input logic [0   : 0] dmemory_ready,
-  input  logic [0  : 0] meip,
-  input  logic [0  : 0] msip,
-  input  logic [0  : 0] mtip,
-  input  logic [63 : 0] mtime
+module cpu (
+    input logic reset,
+    input logic clock,
+    output logic [0 : 0] rvfi_valid,
+    output logic [63 : 0] rvfi_order,
+    output logic [31 : 0] rvfi_insn,
+    output logic [0 : 0] rvfi_trap,
+    output logic [0 : 0] rvfi_halt,
+    output logic [0 : 0] rvfi_intr,
+    output logic [1 : 0] rvfi_mode,
+    output logic [1 : 0] rvfi_ixl,
+    output logic [4 : 0] rvfi_rs1_addr,
+    output logic [4 : 0] rvfi_rs2_addr,
+    output logic [31 : 0] rvfi_rs1_rdata,
+    output logic [31 : 0] rvfi_rs2_rdata,
+    output logic [4 : 0] rvfi_rd_addr,
+    output logic [31 : 0] rvfi_rd_wdata,
+    output logic [31 : 0] rvfi_pc_rdata,
+    output logic [31 : 0] rvfi_pc_wdata,
+    output logic [31 : 0] rvfi_mem_addr,
+    output logic [3 : 0] rvfi_mem_rmask,
+    output logic [3 : 0] rvfi_mem_wmask,
+    output logic [31 : 0] rvfi_mem_rdata,
+    output logic [31 : 0] rvfi_mem_wdata,
+    output logic [0 : 0] imemory_valid,
+    output logic [0 : 0] imemory_instr,
+    output logic [31 : 0] imemory_addr,
+    output logic [31 : 0] imemory_wdata,
+    output logic [3 : 0] imemory_wstrb,
+    input logic [31 : 0] imemory_rdata,
+    input logic [0 : 0] imemory_error,
+    input logic [0 : 0] imemory_ready,
+    output logic [0 : 0] dmemory_valid,
+    output logic [0 : 0] dmemory_instr,
+    output logic [31 : 0] dmemory_addr,
+    output logic [31 : 0] dmemory_wdata,
+    output logic [3 : 0] dmemory_wstrb,
+    input logic [31 : 0] dmemory_rdata,
+    input logic [0 : 0] dmemory_error,
+    input logic [0 : 0] dmemory_ready,
+    input logic [0 : 0] meip,
+    input logic [0 : 0] msip,
+    input logic [0 : 0] mtip,
+    input logic [63 : 0] mtime
 );
-  timeunit 1ns;
-  timeprecision 1ps;
+  timeunit 1ns; timeprecision 1ps;
 
   logic pmp_ierror;
   logic pmp_derror;
@@ -133,189 +131,172 @@ module cpu
   assign rvfi_mem_rdata = rvfi_out.rvfi_mem_rdata;
   assign rvfi_mem_wdata = rvfi_out.rvfi_mem_wdata;
 
-  agu agu_comp
-  (
-    .agu_in (agu_in),
-    .agu_out (agu_out)
+  agu agu_comp (
+      .agu_in (agu_in),
+      .agu_out(agu_out)
   );
 
-  alu alu_comp
-  (
-    .alu_in (alu_in),
-    .alu_out (alu_out)
+  alu alu_comp (
+      .alu_in (alu_in),
+      .alu_out(alu_out)
   );
 
-  bcu bcu_comp
-  (
-    .bcu_in (bcu_in),
-    .bcu_out (bcu_out)
+  bcu bcu_comp (
+      .bcu_in (bcu_in),
+      .bcu_out(bcu_out)
   );
 
-  lsu lsu_comp
-  (
-    .lsu_in (lsu_in),
-    .lsu_out (lsu_out)
+  lsu lsu_comp (
+      .lsu_in (lsu_in),
+      .lsu_out(lsu_out)
   );
 
-  csr_alu csr_alu_comp
-  (
-    .csr_alu_in (csr_alu_in),
-    .csr_alu_out (csr_alu_out)
+  csr_alu csr_alu_comp (
+      .csr_alu_in (csr_alu_in),
+      .csr_alu_out(csr_alu_out)
   );
 
-  div div_comp
-  (
-    .reset (reset),
-    .clock (clock),
-    .div_in (div_in),
-    .div_out (div_out)
+  div div_comp (
+      .reset  (reset),
+      .clock  (clock),
+      .div_in (div_in),
+      .div_out(div_out)
   );
 
-  mul #(mul_performance) mul_comp
-  (
-    .reset (reset),
-    .clock (clock),
-    .mul_in (mul_in),
-    .mul_out (mul_out)
+  mul #(mul_performance) mul_comp (
+      .reset  (reset),
+      .clock  (clock),
+      .mul_in (mul_in),
+      .mul_out(mul_out)
   );
 
-  forwarding forwarding_comp
-  (
-    .forwarding_rin (forwarding_rin),
-    .forwarding_ein (forwarding_ein),
-    .forwarding_out (forwarding_out)
+  forwarding forwarding_comp (
+      .forwarding_rin(forwarding_rin),
+      .forwarding_ein(forwarding_ein),
+      .forwarding_out(forwarding_out)
   );
 
-  predecoder predecoder_comp
-  (
-    .predecoder_in (predecoder_in),
-    .predecoder_out (predecoder_out)
+  predecoder predecoder_comp (
+      .predecoder_in (predecoder_in),
+      .predecoder_out(predecoder_out)
   );
 
-  postdecoder postdecoder_comp
-  (
-    .postdecoder_in (postdecoder_in),
-    .postdecoder_out (postdecoder_out)
+  postdecoder postdecoder_comp (
+      .postdecoder_in (postdecoder_in),
+      .postdecoder_out(postdecoder_out)
   );
 
-  compress compress_comp
-  (
-    .compress_in (compress_in),
-    .compress_out (compress_out)
+  compress compress_comp (
+      .compress_in (compress_in),
+      .compress_out(compress_out)
   );
 
-  register register_comp
-  (
-    .reset (reset),
-    .clock (clock),
-    .register_rin (register_rin),
-    .register_win (register_win),
-    .register_out (register_out)
+  register register_comp (
+      .reset(reset),
+      .clock(clock),
+      .register_rin(register_rin),
+      .register_win(register_win),
+      .register_out(register_out)
   );
 
-  csr csr_comp
-  (
-    .reset (reset),
-    .clock (clock),
-    .csr_in (csr_in),
-    .csr_out (csr_out),
-    .meip (meip),
-    .msip (msip),
-    .mtip (mtip),
-    .mtime (mtime)
+  csr csr_comp (
+      .reset(reset),
+      .clock(clock),
+      .csr_in(csr_in),
+      .csr_out(csr_out),
+      .meip(meip),
+      .msip(msip),
+      .mtip(mtip),
+      .mtime(mtime)
   );
 
-  pmp pmp_comp
-  (
-    .reset (reset),
-    .clock (clock),
-    .pmp_ierror (pmp_ierror),
-    .pmp_derror (pmp_derror),
-    .csr_pmp_in (csr_pmp_in),
-    .csr_pmp_out (csr_pmp_out),
-    .imem_in (imem_in),
-    .imem_out (ipmp_out),
-    .dmem_in (dmem_in),
-    .dmem_out (dpmp_out)
+  pmp pmp_comp (
+      .reset(reset),
+      .clock(clock),
+      .pmp_ierror(pmp_ierror),
+      .pmp_derror(pmp_derror),
+      .csr_pmp_in(csr_pmp_in),
+      .csr_pmp_out(csr_pmp_out),
+      .imem_in(imem_in),
+      .imem_out(ipmp_out),
+      .dmem_in(dmem_in),
+      .dmem_out(dpmp_out)
   );
 
-  buffer buffer_comp
-  (
-    .reset (reset),
-    .clock (clock),
-    .buffer_in (buffer_in),
-    .buffer_out (buffer_out)
+  buffer buffer_comp (
+      .reset(reset),
+      .clock(clock),
+      .buffer_in(buffer_in),
+      .buffer_out(buffer_out)
   );
 
-  fetch_stage fetch_stage_comp
-  (
-    .reset (reset),
-    .clock (clock),
-    .predecoder_out (predecoder_out),
-    .predecoder_in (predecoder_in),
-    .compress_out (compress_out),
-    .compress_in (compress_in),
-    .agu_out (agu_out),
-    .agu_in (agu_in),
-    .bcu_out (bcu_out),
-    .bcu_in (bcu_in),
-    .register_out (register_out),
-    .register_rin (register_rin),
-    .forwarding_out (forwarding_out),
-    .forwarding_rin (forwarding_rin),
-    .csr_out (csr_out),
-    .imem_out (imem_out),
-    .imem_in (imem_in),
-    .buffer_out (buffer_out),
-    .buffer_in (buffer_in),
-    .dmem_in (dmem_in),
-    .a (fetch_in_a),
-    .d (fetch_in_d),
-    .y (fetch_out_y),
-    .q (fetch_out_q)
+  fetch_stage fetch_stage_comp (
+      .reset(reset),
+      .clock(clock),
+      .predecoder_out(predecoder_out),
+      .predecoder_in(predecoder_in),
+      .compress_out(compress_out),
+      .compress_in(compress_in),
+      .agu_out(agu_out),
+      .agu_in(agu_in),
+      .bcu_out(bcu_out),
+      .bcu_in(bcu_in),
+      .register_out(register_out),
+      .register_rin(register_rin),
+      .forwarding_out(forwarding_out),
+      .forwarding_rin(forwarding_rin),
+      .csr_out(csr_out),
+      .imem_out(imem_out),
+      .imem_in(imem_in),
+      .buffer_out(buffer_out),
+      .buffer_in(buffer_in),
+      .dmem_in(dmem_in),
+      .a(fetch_in_a),
+      .d(fetch_in_d),
+      .y(fetch_out_y),
+      .q(fetch_out_q)
   );
 
-  execute_stage execute_stage_comp
-  (
-    .reset (reset),
-    .clock (clock),
-    .postdecoder_out (postdecoder_out),
-    .postdecoder_in (postdecoder_in),
-    .alu_out (alu_out),
-    .alu_in (alu_in),
-    .lsu_out (lsu_out),
-    .lsu_in (lsu_in),
-    .csr_alu_out (csr_alu_out),
-    .csr_alu_in (csr_alu_in),
-    .div_out (div_out),
-    .div_in (div_in),
-    .mul_out (mul_out),
-    .mul_in (mul_in),
-    .register_win (register_win),
-    .forwarding_ein (forwarding_ein),
-    .csr_out (csr_out),
-    .csr_in (csr_in),
-    .csr_pmp_out (csr_pmp_out),
-    .csr_pmp_in (csr_pmp_in),
-    .dmem_out (dmem_out),
-    .rvfi_out (rvfi_out),
-    .a (execute_in_a),
-    .d (execute_in_d),
-    .y (execute_out_y),
-    .q (execute_out_q)
+  execute_stage execute_stage_comp (
+      .reset(reset),
+      .clock(clock),
+      .postdecoder_out(postdecoder_out),
+      .postdecoder_in(postdecoder_in),
+      .alu_out(alu_out),
+      .alu_in(alu_in),
+      .lsu_out(lsu_out),
+      .lsu_in(lsu_in),
+      .csr_alu_out(csr_alu_out),
+      .csr_alu_in(csr_alu_in),
+      .div_out(div_out),
+      .div_in(div_in),
+      .mul_out(mul_out),
+      .mul_in(mul_in),
+      .register_win(register_win),
+      .forwarding_ein(forwarding_ein),
+      .csr_out(csr_out),
+      .csr_in(csr_in),
+      .csr_pmp_out(csr_pmp_out),
+      .csr_pmp_in(csr_pmp_in),
+      .dmem_out(dmem_out),
+      .rvfi_out(rvfi_out),
+      .a(execute_in_a),
+      .d(execute_in_d),
+      .y(execute_out_y),
+      .q(execute_out_q)
   );
 
   always_comb begin
     if (pmp_ierror == 0) begin
       imemory_valid = imem_in.mem_valid;
       imemory_instr = imem_in.mem_instr;
-      imemory_addr = imem_in.mem_addr;
+      imemory_addr  = imem_in.mem_addr;
       imemory_wdata = imem_in.mem_wdata;
       imemory_wstrb = imem_in.mem_wstrb;
     end else begin
       imemory_valid = 0;
       imemory_instr = 0;
-      imemory_addr = 0;
+      imemory_addr  = 0;
       imemory_wdata = 0;
       imemory_wstrb = 0;
     end
@@ -334,13 +315,13 @@ module cpu
     if (pmp_derror == 0) begin
       dmemory_valid = dmem_in.mem_valid;
       dmemory_instr = dmem_in.mem_instr;
-      dmemory_addr = dmem_in.mem_addr;
+      dmemory_addr  = dmem_in.mem_addr;
       dmemory_wdata = dmem_in.mem_wdata;
       dmemory_wstrb = dmem_in.mem_wstrb;
     end else begin
       dmemory_valid = 0;
       dmemory_instr = 0;
-      dmemory_addr = 0;
+      dmemory_addr  = 0;
       dmemory_wdata = 0;
       dmemory_wstrb = 0;
     end

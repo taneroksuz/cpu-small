@@ -1,48 +1,46 @@
 import constants::*;
 import wires::*;
 
-module postdecoder
-(
-  input postdecoder_in_type postdecoder_in,
-  output postdecoder_out_type postdecoder_out
+module postdecoder (
+    input  postdecoder_in_type  postdecoder_in,
+    output postdecoder_out_type postdecoder_out
 );
-  timeunit 1ns;
-  timeprecision 1ps;
+  timeunit 1ns; timeprecision 1ps;
 
   logic [31 : 0] instr;
   logic [31 : 0] mcounteren;
-  logic [1  : 0] mode;
+  logic [1 : 0] mode;
 
   logic [31 : 0] imm_c;
   logic [31 : 0] imm_i;
   logic [31 : 0] imm_u;
   logic [31 : 0] imm;
 
-  logic [6  : 0] opcode;
-  logic [2  : 0] funct3;
+  logic [6 : 0] opcode;
+  logic [2 : 0] funct3;
 
-  logic [4  : 0] waddr;
-  logic [4  : 0] raddr1;
+  logic [4 : 0] waddr;
+  logic [4 : 0] raddr1;
   logic [11 : 0] caddr;
 
-  logic [0  : 0] wren;
-  logic [0  : 0] rden1;
-  logic [0  : 0] rden2;
+  logic [0 : 0] wren;
+  logic [0 : 0] rden1;
+  logic [0 : 0] rden2;
 
-  logic [0  : 0] cwren;
-  logic [0  : 0] crden;
+  logic [0 : 0] cwren;
+  logic [0 : 0] crden;
 
-  logic [0  : 0] lui;
-  logic [0  : 0] nop;
-  logic [0  : 0] csreg;
-  logic [0  : 0] division;
-  logic [0  : 0] mult;
-  logic [0  : 0] ecall;
-  logic [0  : 0] ebreak;
-  logic [0  : 0] mret;
-  logic [0  : 0] fence;
-  logic [0  : 0] wfi;
-  logic [0  : 0] valid;
+  logic [0 : 0] lui;
+  logic [0 : 0] nop;
+  logic [0 : 0] csreg;
+  logic [0 : 0] division;
+  logic [0 : 0] mult;
+  logic [0 : 0] ecall;
+  logic [0 : 0] ebreak;
+  logic [0 : 0] mret;
+  logic [0 : 0] fence;
+  logic [0 : 0] wfi;
+  logic [0 : 0] valid;
 
   alu_op_type alu_op;
   csr_op_type csr_op;
@@ -50,12 +48,12 @@ module postdecoder
   div_op_type div_op;
   mul_op_type mul_op;
 
-  logic [0  : 0] nonzero_waddr;
-  logic [0  : 0] nonzero_raddr1;
+  logic [0 : 0] nonzero_waddr;
+  logic [0 : 0] nonzero_raddr1;
 
-  logic [0  : 0] nonzero_imm_c;
-  logic [0  : 0] nonzero_imm_i;
-  logic [0  : 0] nonzero_imm_u;
+  logic [0 : 0] nonzero_imm_c;
+  logic [0 : 0] nonzero_imm_i;
+  logic [0 : 0] nonzero_imm_u;
 
   always_comb begin
 
@@ -63,9 +61,9 @@ module postdecoder
     mcounteren = postdecoder_in.mcounteren;
     mode = postdecoder_in.mode;
 
-    imm_c = {{27'h0},instr[19:15]};
-    imm_i = {{20{instr[31]}},instr[31:20]};
-    imm_u = {instr[31:12],12'h0};
+    imm_c = {{27'h0}, instr[19:15]};
+    imm_i = {{20{instr[31]}}, instr[31:20]};
+    imm_u = {instr[31:12], 12'h0};
 
     imm = 0;
 
@@ -109,103 +107,106 @@ module postdecoder
     nonzero_imm_u = |imm_u;
 
     case (opcode)
-      opcode_lui : begin
-        imm = imm_u;
+      opcode_lui: begin
+        imm  = imm_u;
         wren = nonzero_waddr;
-        lui = 1;
+        lui  = 1;
       end
-      opcode_immediate : begin
-        wren = nonzero_waddr;
+      opcode_immediate: begin
+        wren  = nonzero_waddr;
         rden1 = 1;
-        imm = imm_i;
+        imm   = imm_i;
         case (funct3)
-          funct_add : alu_op.alu_add = 1;
-          funct_sll : begin
+          funct_add: alu_op.alu_add = 1;
+          funct_sll: begin
             alu_op.alu_sll = 1;
             valid = ~instr[25];
           end
-          funct_srl : begin
+          funct_srl: begin
             alu_op.alu_srl = ~instr[30];
             alu_op.alu_sra = instr[30];
             valid = ~instr[25];
           end
-          funct_slt : alu_op.alu_slt = 1;
-          funct_sltu : alu_op.alu_sltu = 1;
-          funct_and : alu_op.alu_and = 1;
-          funct_or : alu_op.alu_or = 1;
-          funct_xor : alu_op.alu_xor = 1;
-          default : valid = 0;
-        endcase;
+          funct_slt: alu_op.alu_slt = 1;
+          funct_sltu: alu_op.alu_sltu = 1;
+          funct_and: alu_op.alu_and = 1;
+          funct_or: alu_op.alu_or = 1;
+          funct_xor: alu_op.alu_xor = 1;
+          default: valid = 0;
+        endcase
+        ;
       end
-      opcode_register : begin
-        wren = nonzero_waddr;
+      opcode_register: begin
+        wren  = nonzero_waddr;
         rden1 = 1;
         rden2 = 1;
         if (instr[25] == 0) begin
           case (funct3)
-            funct_add : begin
+            funct_add: begin
               alu_op.alu_add = ~instr[30];
               alu_op.alu_sub = instr[30];
             end
-            funct_sll : alu_op.alu_sll = 1;
-            funct_srl : begin
+            funct_sll: alu_op.alu_sll = 1;
+            funct_srl: begin
               alu_op.alu_srl = ~instr[30];
               alu_op.alu_sra = instr[30];
             end
-            funct_slt : alu_op.alu_slt = 1;
-            funct_sltu : alu_op.alu_sltu = 1;
-            funct_and : alu_op.alu_and = 1;
-            funct_or : alu_op.alu_or = 1;
-            funct_xor : alu_op.alu_xor = 1;
-            default : valid = 0;
-          endcase;
+            funct_slt: alu_op.alu_slt = 1;
+            funct_sltu: alu_op.alu_sltu = 1;
+            funct_and: alu_op.alu_and = 1;
+            funct_or: alu_op.alu_or = 1;
+            funct_xor: alu_op.alu_xor = 1;
+            default: valid = 0;
+          endcase
+          ;
         end else if (instr[25] == 1) begin
           case (funct3)
-            funct_mul : begin
+            funct_mul: begin
               mult = 1;
               mul_op.muls = 1;
             end
-            funct_mulh :  begin
+            funct_mulh: begin
               mult = 1;
               mul_op.mulh = 1;
             end
-            funct_mulhsu :  begin
+            funct_mulhsu: begin
               mult = 1;
               mul_op.mulhsu = 1;
             end
-            funct_mulhu :  begin
+            funct_mulhu: begin
               mult = 1;
               mul_op.mulhu = 1;
             end
-            funct_div :  begin
+            funct_div: begin
               division = 1;
               div_op.divs = 1;
             end
-            funct_divu :  begin
+            funct_divu: begin
               division = 1;
               div_op.divu = 1;
             end
-            funct_rem :  begin
-              division = 1;
+            funct_rem: begin
+              division   = 1;
               div_op.rem = 1;
             end
-            funct_remu :  begin
+            funct_remu: begin
               division = 1;
               div_op.remu = 1;
             end
-            default : valid = 0;
-          endcase;
+            default: valid = 0;
+          endcase
+          ;
         end
       end
-      opcode_system : begin
+      opcode_system: begin
         imm = imm_c;
         if (funct3 == 0) begin
           case (caddr)
-            csr_ecall : ecall = 1;
-            csr_ebreak : ebreak = 1;
-            csr_mret : mret = 1;
-            csr_wfi : wfi = 1;
-            default : valid = 0;
+            csr_ecall: ecall = 1;
+            csr_ebreak: ebreak = 1;
+            csr_mret: mret = 1;
+            csr_wfi: wfi = 1;
+            default: valid = 0;
           endcase
         end else if (funct3 == 1) begin
           wren = nonzero_waddr;
@@ -248,15 +249,16 @@ module postdecoder
           csreg = 1;
         end
       end
-      opcode_fence : begin
+      opcode_fence: begin
         if (funct3 == 0) begin
           fence = 1;
         end else if (funct3 == 1) begin
           fence = 1;
         end
       end
-      default : valid = 0;
-    endcase;
+      default: valid = 0;
+    endcase
+    ;
 
     if (instr == nop_instr) begin
       alu_op.alu_add = 0;
