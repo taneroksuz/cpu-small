@@ -1,4 +1,5 @@
 OUTPUT_ARCH( "riscv" )
+ENTRY(_start)
 
 MEMORY
 {
@@ -15,6 +16,8 @@ SECTIONS
   {
     .text.init
     {
+      _text_start = .;
+      _start = .;
       *(.text.init)
     }
   } >boot AT>boot
