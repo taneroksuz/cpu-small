@@ -6,6 +6,7 @@ export PYTHON ?= python3
 export PYTHON ?= /usr/bin/python3
 export SERIAL ?= /dev/ttyUSB0
 export BASEDIR ?= $(shell dirname $(realpath $(firstword $(MAKEFILE_LIST))))
+export BENCHMARK ?= benchmark
 
 export RISCV ?= /opt/rv32imc
 export ARCH ?= rv32imc_zicsr_zifencei
@@ -19,7 +20,7 @@ simulate:
 	sim/run.sh
 
 compile:
-	benchmark/benchmarks.sh
+	benchmark/riscv-tests.sh
 	benchmark/coremark.sh
 	benchmark/dhrystone.sh
 	benchmark/isa.sh
