@@ -650,7 +650,7 @@ package wires;
       tw : 0,
       tvm : 0,
       mxr : 0,
-      sum : 0,
+      summ : 0,
       mprv : 0,
       xs : 0,
       fs : 0,
