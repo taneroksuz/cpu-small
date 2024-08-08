@@ -28,6 +28,6 @@ $BASEDIR/verilog/rtl/clic.sv
 $BASEDIR/verilog/rtl/cpu.sv
 $BASEDIR/verilog/rtl/rom.sv
 $BASEDIR/verilog/rtl/ram.sv
-$BASEDIR/verilog/rtl/print.sv
+$BASEDIR/verilog/rtl/uart.sv
 $BASEDIR/verilog/rtl/soc.sv
 $BASEDIR/verilog/tb/tb_soc.sv

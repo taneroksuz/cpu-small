@@ -7,14 +7,8 @@ module tb_soc ();
   logic reset;
   logic clock;
   logic clock_slow;
-
-  logic [0 : 0] print_valid;
-  logic [0 : 0] print_instr;
-  logic [31 : 0] print_addr;
-  logic [31 : 0] print_wdata;
-  logic [3 : 0] print_wstrb;
-  logic [31 : 0] print_rdata;
-  logic [0 : 0] print_ready;
+  logic uart_rx;
+  logic uart_tx;
 
   logic [31 : 0] host[0:0] = '{default: '0};
 
@@ -149,25 +143,8 @@ module tb_soc ();
       .reset(reset),
       .clock(clock),
       .clock_slow(clock_slow),
-      .uart_valid(print_valid),
-      .uart_instr(print_instr),
-      .uart_addr(print_addr),
-      .uart_wdata(print_wdata),
-      .uart_wstrb(print_wstrb),
-      .uart_rdata(print_rdata),
-      .uart_ready(print_ready)
-  );
-
-  print print_comp (
-      .reset(reset),
-      .clock(clock),
-      .print_valid(print_valid),
-      .print_instr(print_instr),
-      .print_addr(print_addr),
-      .print_wdata(print_wdata),
-      .print_wstrb(print_wstrb),
-      .print_rdata(print_rdata),
-      .print_ready(print_ready)
+      .uart_rx(uart_rx),
+      .uart_tx(uart_tx)
   );
 
 endmodule
