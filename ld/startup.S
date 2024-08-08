@@ -122,10 +122,10 @@ _start:
   la t3, __tim_end
 
 copy_text:
-  lb t4,0(t0)
-  sb t4,0(t2)
-  addi t0,t0,1
-  addi t2,t2,1
+  LREG t4,0(t0)
+  SREG t4,0(t2)
+  addi t0,t0,REGBYTES
+  addi t2,t2,REGBYTES
   blt t0,t1,copy_text
 
   la t0, _init
