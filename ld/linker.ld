@@ -33,14 +33,7 @@ SECTIONS
       *(.sdata*)
       *(.bss*)
       *(.sbss*)
-    }
-    .heap
-    {
       _end = .;
-    }
-    .stack
-    {
-      _sp = ORIGIN(tim) + LENGTH(tim);
     }
   } >tim AT>ram
 
