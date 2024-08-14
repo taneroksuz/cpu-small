@@ -8,6 +8,8 @@ Wolv Z1 CPU is 2-stage scalar processor.
 - RV32-IMC
 - Fast and slow option for multiplication unit
 - Slow division unit
+- Physical memory protection
+- Core Local Interrupt Controller
 ### Memory
 - Neumann architecture
 - Unified Tightly Integrated Memory
