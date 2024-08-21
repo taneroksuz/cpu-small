@@ -8,7 +8,7 @@ Wolv Z1 CPU is 2-stage scalar processor.
 - RV32-IMC
 - Fast and slow option for multiplication unit
 - Slow division unit
-- Physical memory protection
+- Physical Memory Protection
 - Core Local Interrupt Controller
 ### Memory
 - Neumann architecture
@@ -67,11 +67,6 @@ make simulate MAXTIME=1000
 8. The simulation results together with <u>debug</u> informations are located in **sim/output**.
 
 ## BENCHMARKS
-
-### Dhrystone (Legal) Benchmark
-| Cycles | Dhrystone/s/MHz | DMIPS/s/MHz | Iteration |
-| ------ | --------------- | ----------- | --------- |
-|    466 |            2145 |        1.22 |       500 |
 
 ### Coremark Benchmark
 | Cycles | Iteration/s/MHz | Iteration |
