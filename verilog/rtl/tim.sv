@@ -63,10 +63,10 @@ module tim_ram (
 
       always_ff @(posedge clock) begin
         if (tim_ram_in.en == 1) begin
-          if (tim_ram_in.strb[0]) tim_ram[tim_ram_in.addr][0] <= tim_ram_in.data[0];
-          if (tim_ram_in.strb[1]) tim_ram[tim_ram_in.addr][1] <= tim_ram_in.data[1];
-          if (tim_ram_in.strb[2]) tim_ram[tim_ram_in.addr][2] <= tim_ram_in.data[2];
-          if (tim_ram_in.strb[3]) tim_ram[tim_ram_in.addr][3] <= tim_ram_in.data[3];
+          if (tim_ram_in.strb[0]) tim_ram[tim_ram_in.addr][0] <= tim_ram_in.data[7:0];
+          if (tim_ram_in.strb[1]) tim_ram[tim_ram_in.addr][1] <= tim_ram_in.data[15:8];
+          if (tim_ram_in.strb[2]) tim_ram[tim_ram_in.addr][2] <= tim_ram_in.data[23:16];
+          if (tim_ram_in.strb[3]) tim_ram[tim_ram_in.addr][3] <= tim_ram_in.data[31:24];
           tim_ram_out.data <= tim_ram[tim_ram_in.addr];
         end else begin
           tim_ram_out.data <= 0;
