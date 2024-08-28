@@ -62,15 +62,11 @@ module tim_ram (
       logic [3 : 0][7 : 0] tim_ram[0:tim_depth-1] = '{default: '0};
 
       always_ff @(posedge clock) begin
-        if (tim_ram_in.en == 1) begin
-          if (tim_ram_in.strb[0]) tim_ram[tim_ram_in.addr][0] <= tim_ram_in.data[7:0];
-          if (tim_ram_in.strb[1]) tim_ram[tim_ram_in.addr][1] <= tim_ram_in.data[15:8];
-          if (tim_ram_in.strb[2]) tim_ram[tim_ram_in.addr][2] <= tim_ram_in.data[23:16];
-          if (tim_ram_in.strb[3]) tim_ram[tim_ram_in.addr][3] <= tim_ram_in.data[31:24];
-          tim_ram_out.data <= tim_ram[tim_ram_in.addr];
-        end else begin
-          tim_ram_out.data <= 0;
-        end
+        if (tim_ram_in.strb[0]) tim_ram[tim_ram_in.addr][0] <= tim_ram_in.data[7:0];
+        if (tim_ram_in.strb[1]) tim_ram[tim_ram_in.addr][1] <= tim_ram_in.data[15:8];
+        if (tim_ram_in.strb[2]) tim_ram[tim_ram_in.addr][2] <= tim_ram_in.data[23:16];
+        if (tim_ram_in.strb[3]) tim_ram[tim_ram_in.addr][3] <= tim_ram_in.data[31:24];
+        tim_ram_out.data <= tim_ram[tim_ram_in.addr];
       end
 
     end
