@@ -22,7 +22,6 @@ simulate:
 compile:
 	benchmark/riscv-tests.sh
 	benchmark/coremark.sh
-	benchmark/isa.sh
 	benchmark/whetstone.sh
 	benchmark/free-rtos.sh
 
