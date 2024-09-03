@@ -148,8 +148,6 @@ module fetch_stage (
     buffer_in.stall = a.e.stall;
 
     imem_in.mem_valid = v.valid;
-    imem_in.mem_fence = v.fence;
-    imem_in.mem_spec = v.spec;
     imem_in.mem_instr = 1;
     imem_in.mem_mode = v.mode;
     imem_in.mem_addr = v.addr;
@@ -292,8 +290,6 @@ module fetch_stage (
     end
 
     dmem_in.mem_valid = v.instr.op.load | v.instr.op.store;
-    dmem_in.mem_fence = v.instr.op.fence;
-    dmem_in.mem_spec = 0;
     dmem_in.mem_instr = 0;
     dmem_in.mem_mode = v.mode;
     dmem_in.mem_addr = v.instr.address;
