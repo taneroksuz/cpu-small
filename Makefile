@@ -24,6 +24,7 @@ compile:
 	benchmark/coremark.sh
 	benchmark/whetstone.sh
 	benchmark/free-rtos.sh
+	benchmark/isa.sh
 
 parse:
 	check/run.sh
