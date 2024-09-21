@@ -1,6 +1,6 @@
-# WOLV Z0 CPU
+# CPU-RV32IMC
 
-Wolv Z1 CPU is 2-stage scalar processor.
+This cpu is 2-stage scalar processor.
 
 ## SPECIFICATIONS
 
@@ -29,7 +29,7 @@ The installation scripts of necessary tools are located in directory **tools**. 
 
 1. Cloning the repository:
 ```console
-git clone --recurse-submodules https://github.com/taneroksuz/wolv-z0.git
+git clone --recurse-submodules https://github.com/taneroksuz/cpu-rv32imc.git
 ```
 
 2. Execute scripts in directory **tools** to install necessary tools for compilation and simulation:

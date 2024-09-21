@@ -56,9 +56,9 @@ module soc (
   mem_out_type uart_rx_out;
   mem_out_type uart_tx_out;
 
-  mem_in_type ram_slow_in;
+  mem_in_type ram_per_in;
 
-  mem_out_type ram_slow_out;
+  mem_out_type ram_per_out;
 
   logic [0 : 0] meip;
   logic [0 : 0] msip;
@@ -229,15 +229,15 @@ module soc (
       .clock_per(clock_per),
       .mem_in(ram_in),
       .mem_out(ram_out),
-      .mem_slow_in(ram_slow_in),
-      .mem_slow_out(ram_slow_out)
+      .mem_per_in(ram_per_in),
+      .mem_per_out(ram_per_out)
   );
 
   ram ram_comp (
       .reset  (reset),
       .clock  (clock_per),
-      .ram_in (ram_slow_in),
-      .ram_out(ram_slow_out)
+      .ram_in (ram_per_in),
+      .ram_out(ram_per_out)
   );
 
   uart_rx #(

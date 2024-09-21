@@ -11,7 +11,6 @@ export BENCHMARK ?= benchmark
 export RISCV ?= /opt/rv32imc
 export ARCH ?= rv32imc_zicsr_zifencei
 export ABI ?= ilp32
-export CPU ?= wolv-z0
 
 export MAXTIME ?= 10000000
 export DUMP ?= 0# "1" on, "0" off
