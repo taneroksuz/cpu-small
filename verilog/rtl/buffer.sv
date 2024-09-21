@@ -3,7 +3,7 @@ package buffer_wires;
 
   import configure::*;
 
-  localparam depth = $clog2(buffer_depth - 1);
+  localparam depth = $clog2(buffer_depth);
 
   typedef struct packed {
     logic [0 : 0] wen0;
@@ -35,7 +35,7 @@ module buffer_reg (
 );
   timeunit 1ns; timeprecision 1ps;
 
-  localparam depth = $clog2(buffer_depth - 1);
+  localparam depth = $clog2(buffer_depth);
 
   logic [48:0] buffer_reg_array0[0:buffer_depth-1] = '{default: '0};
   logic [48:0] buffer_reg_array1[0:buffer_depth-1] = '{default: '0};
@@ -77,8 +77,8 @@ module buffer_ctrl (
 );
   timeunit 1ns; timeprecision 1ps;
 
-  localparam depth = $clog2(buffer_depth - 1);
-  localparam total = buffer_depth - 2;
+  localparam depth = $clog2(buffer_depth);
+  localparam total = 2 * (buffer_depth - 2);
 
   localparam [depth-1:0] one = 1;
 

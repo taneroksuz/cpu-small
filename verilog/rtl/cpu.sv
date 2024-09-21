@@ -25,22 +25,10 @@ module cpu (
     output logic [3 : 0] rvfi_mem_wmask,
     output logic [31 : 0] rvfi_mem_rdata,
     output logic [31 : 0] rvfi_mem_wdata,
-    output logic [0 : 0] imemory_valid,
-    output logic [0 : 0] imemory_instr,
-    output logic [31 : 0] imemory_addr,
-    output logic [31 : 0] imemory_wdata,
-    output logic [3 : 0] imemory_wstrb,
-    input logic [31 : 0] imemory_rdata,
-    input logic [0 : 0] imemory_error,
-    input logic [0 : 0] imemory_ready,
-    output logic [0 : 0] dmemory_valid,
-    output logic [0 : 0] dmemory_instr,
-    output logic [31 : 0] dmemory_addr,
-    output logic [31 : 0] dmemory_wdata,
-    output logic [3 : 0] dmemory_wstrb,
-    input logic [31 : 0] dmemory_rdata,
-    input logic [0 : 0] dmemory_error,
-    input logic [0 : 0] dmemory_ready,
+    input mem_out_type imemory_out,
+    output mem_in_type imemory_in,
+    input mem_out_type dmemory_out,
+    output mem_in_type dmemory_in,
     input logic [0 : 0] meip,
     input logic [0 : 0] msip,
     input logic [0 : 0] mtip,
@@ -288,51 +276,27 @@ module cpu (
 
   always_comb begin
     if (pmp_ierror == 0) begin
-      imemory_valid = imem_in.mem_valid;
-      imemory_instr = imem_in.mem_instr;
-      imemory_addr  = imem_in.mem_addr;
-      imemory_wdata = imem_in.mem_wdata;
-      imemory_wstrb = imem_in.mem_wstrb;
+      imemory_in = imem_in;
     end else begin
-      imemory_valid = 0;
-      imemory_instr = 0;
-      imemory_addr  = 0;
-      imemory_wdata = 0;
-      imemory_wstrb = 0;
+      imemory_in = init_mem_in;
     end
     if (ipmp_out.mem_error == 0) begin
-      imem_out.mem_rdata = imemory_rdata;
-      imem_out.mem_error = imemory_error;
-      imem_out.mem_ready = imemory_ready;
+      imem_out = imemory_out;
     end else begin
-      imem_out.mem_rdata = ipmp_out.mem_rdata;
-      imem_out.mem_error = ipmp_out.mem_error;
-      imem_out.mem_ready = ipmp_out.mem_ready;
+      imem_out = ipmp_out;
     end
   end
 
   always_comb begin
     if (pmp_derror == 0) begin
-      dmemory_valid = dmem_in.mem_valid;
-      dmemory_instr = dmem_in.mem_instr;
-      dmemory_addr  = dmem_in.mem_addr;
-      dmemory_wdata = dmem_in.mem_wdata;
-      dmemory_wstrb = dmem_in.mem_wstrb;
+      dmemory_in = dmem_in;
     end else begin
-      dmemory_valid = 0;
-      dmemory_instr = 0;
-      dmemory_addr  = 0;
-      dmemory_wdata = 0;
-      dmemory_wstrb = 0;
+      dmemory_in = init_mem_in;
     end
     if (dpmp_out.mem_error == 0) begin
-      dmem_out.mem_rdata = dmemory_rdata;
-      dmem_out.mem_error = dmemory_error;
-      dmem_out.mem_ready = dmemory_ready;
+      dmem_out = dmemory_out;
     end else begin
-      dmem_out.mem_rdata = dpmp_out.mem_rdata;
-      dmem_out.mem_error = dpmp_out.mem_error;
-      dmem_out.mem_ready = dpmp_out.mem_ready;
+      dmem_out = dpmp_out;
     end
   end
 

@@ -3,8 +3,8 @@ package tim_wires;
 
   import configure::*;
 
-  localparam depth = $clog2(tim_depth - 1);
-  localparam width = $clog2(tim_width - 1);
+  localparam depth = $clog2(tim_depth);
+  localparam width = $clog2(tim_width);
 
   typedef struct packed {
     logic [0 : 0] en;
@@ -34,8 +34,8 @@ module tim_ram (
 );
   timeunit 1ns; timeprecision 1ps;
 
-  localparam depth = $clog2(tim_depth - 1);
-  localparam width = $clog2(tim_width - 1);
+  localparam depth = $clog2(tim_depth);
+  localparam width = $clog2(tim_width);
 
   generate
 
@@ -87,8 +87,8 @@ module tim_ctrl (
 );
   timeunit 1ns; timeprecision 1ps;
 
-  localparam depth = $clog2(tim_depth - 1);
-  localparam width = $clog2(tim_width - 1);
+  localparam depth = $clog2(tim_depth);
+  localparam width = $clog2(tim_width);
 
   typedef struct packed {
     logic [width-1:0] wid;
@@ -146,20 +146,13 @@ endmodule
 module tim (
     input logic reset,
     input logic clock,
-    input logic [0 : 0] tim_valid,
-    input logic [0 : 0] tim_instr,
-    input logic [31 : 0] tim_addr,
-    input logic [31 : 0] tim_wdata,
-    input logic [3 : 0] tim_wstrb,
-    output logic [31 : 0] tim_rdata,
-    output logic [0 : 0] tim_ready
+    input mem_in_type tim_in,
+    output mem_out_type tim_out
 );
   timeunit 1ns; timeprecision 1ps;
 
-  tim_vec_in_type dvec_in;
+  tim_vec_in_type  dvec_in;
   tim_vec_out_type dvec_out;
-  mem_in_type tim_in;
-  mem_out_type tim_out;
 
   generate
 
@@ -183,14 +176,5 @@ module tim (
       .tim_in(tim_in),
       .tim_out(tim_out)
   );
-
-  assign tim_in.mem_valid = tim_valid;
-  assign tim_in.mem_instr = tim_instr;
-  assign tim_in.mem_addr = tim_addr;
-  assign tim_in.mem_wdata = tim_wdata;
-  assign tim_in.mem_wstrb = tim_wstrb;
-
-  assign tim_rdata = tim_out.mem_rdata;
-  assign tim_ready = tim_out.mem_ready;
 
 endmodule

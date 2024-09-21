@@ -5,7 +5,7 @@ package configure;
 
   parameter mul_performance = 1;
 
-  parameter buffer_depth = 8;
+  parameter buffer_depth = 4;
 
   parameter tim_width = 32;
   parameter tim_depth = 8192;

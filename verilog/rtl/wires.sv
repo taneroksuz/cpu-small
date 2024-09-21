@@ -770,10 +770,14 @@ package wires;
     logic [3 : 0]  mem_wstrb;
   } mem_in_type;
 
+  localparam mem_in_type init_mem_in = 0;
+
   typedef struct packed {
     logic [0 : 0]  mem_ready;
     logic [0 : 0]  mem_error;
     logic [31 : 0] mem_rdata;
   } mem_out_type;
+
+  localparam mem_out_type init_mem_out = 0;
 
 endpackage

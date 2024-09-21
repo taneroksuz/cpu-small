@@ -5,13 +5,8 @@ import wires::*;
 module clic (
     input logic reset,
     input logic clock,
-    input logic [0 : 0] clic_valid,
-    input logic [0 : 0] clic_instr,
-    input logic [31 : 0] clic_addr,
-    input logic [31 : 0] clic_wdata,
-    input logic [3 : 0] clic_wstrb,
-    output logic [31 : 0] clic_rdata,
-    output logic [0 : 0] clic_ready,
+    input mem_in_type clic_in,
+    output mem_out_type clic_out,
     output logic [0 : 0] clic_meip,
     output logic [11 : 0] clic_meid,
     input logic [31 : 0] clic_irpt
@@ -114,16 +109,16 @@ module clic (
     end else begin
       rdata_cfg <= 0;
       ready_cfg <= 0;
-      if (clic_valid == 1) begin
-        if (clic_addr < clic_cfg_end) begin
-          if (|clic_wstrb == 0) begin
+      if (clic_in.mem_valid == 1) begin
+        if (clic_in.mem_addr < clic_cfg_end) begin
+          if (|clic_in.mem_wstrb == 0) begin
             rdata_cfg[6:5] <= clic_cfg.nmbits;
             rdata_cfg[4:1] <= clic_cfg.nlbits;
             rdata_cfg[0:0] <= clic_cfg.nvbits;
           end else begin
-            clic_cfg.nmbits <= clic_wdata[6:5];
-            clic_cfg.nlbits <= clic_wdata[4:1];
-            clic_cfg.nvbits <= clic_wdata[0:0];
+            clic_cfg.nmbits <= clic_in.mem_wdata[6:5];
+            clic_cfg.nlbits <= clic_in.mem_wdata[4:1];
+            clic_cfg.nvbits <= clic_in.mem_wdata[0:0];
           end
           ready_cfg <= 1;
         end
@@ -138,9 +133,9 @@ module clic (
     end else begin
       rdata_info <= 0;
       ready_info <= 0;
-      if (clic_valid == 1) begin
-        if (clic_addr >= clic_info_start && clic_addr < clic_info_end) begin
-          if (|clic_wstrb == 0) begin
+      if (clic_in.mem_valid == 1) begin
+        if (clic_in.mem_addr >= clic_info_start && clic_in.mem_addr < clic_info_end) begin
+          if (|clic_in.mem_wstrb == 0) begin
             rdata_info[30:25] <= clic_info.num_trigger;
             rdata_info[24:21] <= clic_info.num_intctlbit;
             rdata_info[20:17] <= clic_info.arch_version;
@@ -160,14 +155,20 @@ module clic (
     end else begin
       rdata_trig <= 0;
       ready_trig <= 0;
-      if (clic_valid == 1) begin
-        if (clic_addr >= clic_trig_start && clic_addr < clic_trig_end) begin
-          if (|clic_wstrb == 0) begin
-            rdata_trig[31]   <= clic_int_trig[clic_addr[$clog2(clic_trigger)+1:2]].enable;
-            rdata_trig[12:0] <= clic_int_trig[clic_addr[$clog2(clic_trigger)+1:2]].num_interrupt;
+      if (clic_in.mem_valid == 1) begin
+        if (clic_in.mem_addr >= clic_trig_start && clic_in.mem_addr < clic_trig_end) begin
+          if (|clic_in.mem_wstrb == 0) begin
+            rdata_trig[31] <= clic_int_trig[clic_in.mem_addr[$clog2(clic_trigger)+1:2]].enable;
+            rdata_trig[12:0] <= clic_int_trig[clic_in.mem_addr[$clog2(
+                clic_trigger
+            )+1:2]].num_interrupt;
           end else begin
-            clic_int_trig[clic_addr[$clog2(clic_trigger)+1:2]].enable <= clic_wdata[31];
-            clic_int_trig[clic_addr[$clog2(clic_trigger)+1:2]].num_interrupt <= clic_wdata[12:0];
+            clic_int_trig[clic_in.mem_addr[$clog2(
+                clic_trigger
+            )+1:2]].enable <= clic_in.mem_wdata[31];
+            clic_int_trig[clic_in.mem_addr[$clog2(
+                clic_trigger
+            )+1:2]].num_interrupt <= clic_in.mem_wdata[12:0];
           end
           ready_trig <= 1;
         end
@@ -182,31 +183,38 @@ module clic (
     end else begin
       rdata_irpt <= 0;
       ready_irpt <= 0;
-      if (clic_valid == 1) begin
-        if (clic_addr >= clic_int_start && clic_addr < clic_int_end) begin
-          if (|clic_wstrb == 0) begin
-            rdata_irpt[0:0]   <= clic_int_ip[clic_addr[$clog2(clic_interrupt)+1:2]];
-            rdata_irpt[8:8]   <= clic_int_ie[clic_addr[$clog2(clic_interrupt)+1:2]];
-            rdata_irpt[16:16] <= clic_int_attr[clic_addr[$clog2(clic_interrupt)+1:2]].shv;
-            rdata_irpt[18:17] <= clic_int_attr[clic_addr[$clog2(clic_interrupt)+1:2]].trig;
-            rdata_irpt[23:22] <= clic_int_attr[clic_addr[$clog2(clic_interrupt)+1:2]].mode;
-            rdata_irpt[31:24] <= clic_int_ctl[clic_addr[$clog2(clic_interrupt)+1:2]];
+      if (clic_in.mem_valid == 1) begin
+        if (clic_in.mem_addr >= clic_int_start && clic_in.mem_addr < clic_int_end) begin
+          if (|clic_in.mem_wstrb == 0) begin
+            rdata_irpt[0:0]   <= clic_int_ip[clic_in.mem_addr[$clog2(clic_interrupt)+1:2]];
+            rdata_irpt[8:8]   <= clic_int_ie[clic_in.mem_addr[$clog2(clic_interrupt)+1:2]];
+            rdata_irpt[16:16] <= clic_int_attr[clic_in.mem_addr[$clog2(clic_interrupt)+1:2]].shv;
+            rdata_irpt[18:17] <= clic_int_attr[clic_in.mem_addr[$clog2(clic_interrupt)+1:2]].trig;
+            rdata_irpt[23:22] <= clic_int_attr[clic_in.mem_addr[$clog2(clic_interrupt)+1:2]].mode;
+            rdata_irpt[31:24] <= clic_int_ctl[clic_in.mem_addr[$clog2(clic_interrupt)+1:2]];
           end else begin
-            if (clic_wstrb[0] == 1 && clic_int_attr[clic_addr[$clog2(
+            if (clic_in.mem_wstrb[0] == 1 && clic_int_attr[clic_in.mem_addr[$clog2(
                     clic_interrupt
                 )+1:2]].trig[0] == 1) begin
-              clic_int_ip[clic_addr[$clog2(clic_interrupt)+1:2]] <= clic_wdata[0:0];
+              clic_int_ip[clic_in.mem_addr[$clog2(clic_interrupt)+1:2]] <= clic_in.mem_wdata[0:0];
             end
-            if (clic_wstrb[1] == 1) begin
-              clic_int_ie[clic_addr[$clog2(clic_interrupt)+1:2]] <= clic_wdata[8:8];
+            if (clic_in.mem_wstrb[1] == 1) begin
+              clic_int_ie[clic_in.mem_addr[$clog2(clic_interrupt)+1:2]] <= clic_in.mem_wdata[8:8];
             end
-            if (clic_wstrb[2] == 1) begin
-              clic_int_attr[clic_addr[$clog2(clic_interrupt)+1:2]].shv  <= clic_wdata[16:16];
-              clic_int_attr[clic_addr[$clog2(clic_interrupt)+1:2]].trig <= clic_wdata[18:17];
-              clic_int_attr[clic_addr[$clog2(clic_interrupt)+1:2]].mode <= clic_wdata[23:22];
+            if (clic_in.mem_wstrb[2] == 1) begin
+              clic_int_attr[clic_in.mem_addr[$clog2(
+                  clic_interrupt
+              )+1:2]].shv <= clic_in.mem_wdata[16:16];
+              clic_int_attr[clic_in.mem_addr[$clog2(
+                  clic_interrupt
+              )+1:2]].trig <= clic_in.mem_wdata[18:17];
+              clic_int_attr[clic_in.mem_addr[$clog2(
+                  clic_interrupt
+              )+1:2]].mode <= clic_in.mem_wdata[23:22];
             end
-            if (clic_wstrb[3] == 1) begin
-              clic_int_ctl[clic_addr[$clog2(clic_interrupt)+1:2]] <= clic_wdata[31:24];
+            if (clic_in.mem_wstrb[3] == 1) begin
+              clic_int_ctl[clic_in.mem_addr[$clog2(clic_interrupt)+1:2]] <=
+                  clic_in.mem_wdata[31:24];
             end
           end
           ready_irpt <= 1;
@@ -318,11 +326,11 @@ module clic (
     end
   end
 
-  assign clic_rdata = (ready_cfg == 1) ? rdata_cfg :
-                      (ready_info == 1) ? rdata_info :
-                      (ready_trig == 1) ? rdata_trig :
-                      (ready_irpt == 1) ? rdata_irpt : 0;
-  assign clic_ready = ready_cfg | ready_info | ready_trig | ready_irpt;
+  assign clic_out.mem_rdata = (ready_cfg == 1) ? rdata_cfg :
+                              (ready_info == 1) ? rdata_info :
+                              (ready_trig == 1) ? rdata_trig :
+                              (ready_irpt == 1) ? rdata_irpt : 0;
+  assign clic_out.mem_ready = ready_cfg | ready_info | ready_trig | ready_irpt;
 
   assign clic_meip = meip;
   assign clic_meid = meid;
