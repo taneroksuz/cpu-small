@@ -32,6 +32,7 @@ module cpu (
     input logic [0 : 0] meip,
     input logic [0 : 0] msip,
     input logic [0 : 0] mtip,
+    input logic [0 : 0] irpt,
     input logic [63 : 0] mtime
 );
   timeunit 1ns; timeprecision 1ps;
@@ -195,6 +196,7 @@ module cpu (
       .meip(meip),
       .msip(msip),
       .mtip(mtip),
+      .irpt(irpt),
       .mtime(mtime)
   );
 

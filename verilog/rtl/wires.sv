@@ -229,7 +229,7 @@ package wires;
     logic [31 : 0] address;
     logic [3 : 0]  byteenable;
     logic [0 : 0]  exception;
-    logic [3 : 0]  ecause;
+    logic [7 : 0]  ecause;
     logic [31 : 0] etval;
   } agu_out_type;
 
@@ -462,7 +462,7 @@ package wires;
     logic [0 : 0] dready;
     logic [31 : 0] address;
     logic [3 : 0] byteenable;
-    logic [3 : 0] ecause;
+    logic [7 : 0] ecause;
     logic [31 : 0] etval;
     operation_type op;
     operation_type op_b;
@@ -704,7 +704,7 @@ package wires;
     logic [0 : 0]  mret;
     logic [0 : 0]  exception;
     logic [31 : 0] epc;
-    logic [3 : 0]  ecause;
+    logic [7 : 0]  ecause;
     logic [31 : 0] etval;
   } csr_in_type;
 

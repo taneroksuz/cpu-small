@@ -18,8 +18,11 @@ package configure;
   parameter rom_base_addr = 32'h0;
   parameter rom_top_addr = 32'h80;
 
-  parameter uart_base_addr = 32'h1000000;
-  parameter uart_top_addr = 32'h1000004;
+  parameter uart_tx_base_addr = 32'h1000000;
+  parameter uart_tx_top_addr = 32'h1000004;
+
+  parameter uart_rx_base_addr = 32'h1000004;
+  parameter uart_rx_top_addr = 32'h1000008;
 
   parameter clint_base_addr = 32'h2000000;
   parameter clint_top_addr = 32'h200C000;
@@ -38,8 +41,8 @@ package configure;
   parameter slow_freq = 10000000;  // 10MHz
   parameter baudrate = 115200;
 
+  parameter clk_divider_per = clk_freq / slow_freq;
   parameter clk_divider_rtc = clk_freq / rtc_freq;
-  parameter clk_divider_slow = clk_freq / slow_freq;
-  parameter clks_per_bit = slow_freq / baudrate - 1;
+  parameter clk_divider_bit = clk_freq / baudrate;
 
 endpackage

@@ -6,7 +6,7 @@ module ccd #(
 ) (
     input logic reset,
     input logic clock,
-    input logic clock_slow,
+    input logic clock_per,
     input mem_in_type mem_in,
     output mem_out_type mem_out,
     output mem_in_type mem_slow_in,
