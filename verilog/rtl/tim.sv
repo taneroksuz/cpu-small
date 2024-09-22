@@ -129,6 +129,7 @@ module tim_ctrl (
     rin = v;
 
     tim_out.mem_rdata = dvec_out[r.wid].data;
+    tim_out.mem_error = 0;
     tim_out.mem_ready = r.valid;
 
   end

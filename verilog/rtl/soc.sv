@@ -1,17 +1,17 @@
 import configure::*;
 
 module soc (
-    input  logic reset,
-    input  logic clock,
-    input  logic clock_per,
-    output logic sclk,
-    output logic cs,
-    inout  logic d0,
-    inout  logic d1,
-    inout  logic d2,
-    inout  logic d3,
-    input  logic rx,
-    output logic tx
+    input  reset,
+    input  clock,
+    input  clock_per,
+    output sclk,
+    output cs,
+    inout  d0,
+    inout  d1,
+    inout  d2,
+    inout  d3,
+    input  rx,
+    output tx
 );
 
   timeunit 1ns; timeprecision 1ps;
@@ -91,7 +91,7 @@ module soc (
 
     base_addr = 0;
 
-    error_in.mem_valid = 1;
+    error_in.mem_valid = memory_in.mem_valid;
 
     if (memory_in.mem_valid & ~|(rom_base_addr ^ (memory_in.mem_addr & ~rom_mask_addr))) begin
       rom_in = memory_in;
@@ -295,7 +295,7 @@ module soc (
       .clock(clock),
       .uart_in(uart_rx_in),
       .uart_out(uart_rx_out),
-      .irpt(irpt),
+      .uart_irpt(irpt),
       .rx(rx)
   );
 

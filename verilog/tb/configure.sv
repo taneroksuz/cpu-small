@@ -10,6 +10,7 @@ package configure;
   parameter tim_width = 32;
   parameter tim_depth = 8192;
 
+  // vivado -> 0 altera -> 1
   parameter ram_type = 0;
   parameter ram_depth = 262144;
 

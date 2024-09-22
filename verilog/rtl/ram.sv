@@ -34,11 +34,13 @@ module ram (
             ram_block[ram_in.mem_addr[(depth+1):2]][31:24] <= ram_in.mem_wdata[31:24];
 
           ram_out.mem_rdata <= ram_block[ram_in.mem_addr[(depth+1):2]];
+          ram_out.mem_error <= 0;
           ram_out.mem_ready <= 1;
 
         end else begin
 
           ram_out.mem_rdata <= 0;
+          ram_out.mem_error <= 0;
           ram_out.mem_ready <= 0;
 
         end
@@ -74,10 +76,12 @@ module ram (
 
         if (ram_in.mem_valid == 1) begin
 
+          ram_out.mem_error <= 0;
           ram_out.mem_ready <= 1;
 
         end else begin
 
+          ram_out.mem_error <= 0;
           ram_out.mem_ready <= 0;
 
         end
