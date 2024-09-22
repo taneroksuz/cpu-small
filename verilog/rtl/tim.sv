@@ -57,8 +57,6 @@ module tim_ram (
 
     if (ram_type == 1) begin
 
-      /* synthesis syn_ramstyle = "MLAB, no_rw_check"*/
-
       logic [3 : 0][7 : 0] tim_ram[0:tim_depth-1] = '{default: '0};
 
       always_ff @(posedge clock) begin
