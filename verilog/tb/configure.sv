@@ -15,26 +15,26 @@ package configure;
 
   parameter pmp_region = 4;
 
-  parameter rom_base_addr = 32'h0;
-  parameter rom_top_addr = 32'h80;
+  parameter rom_base_addr = 32'h00;
+  parameter rom_mask_addr = 32'h7F;
+
+  parameter qspi_base_addr = 32'h100000;
+  parameter qspi_mask_addr = 32'h0FFFFF;
 
   parameter uart_tx_base_addr = 32'h1000000;
-  parameter uart_tx_top_addr = 32'h1000004;
+  parameter uart_tx_mask_addr = 32'h0000003;
 
   parameter uart_rx_base_addr = 32'h1000004;
-  parameter uart_rx_top_addr = 32'h1000008;
+  parameter uart_rx_mask_addr = 32'h0000007;
 
   parameter clint_base_addr = 32'h2000000;
-  parameter clint_top_addr = 32'h200C000;
-
-  parameter clic_base_addr = 32'h3000000;
-  parameter clic_top_addr = 32'h3005000;
+  parameter clint_mask_addr = 32'h000FFFF;
 
   parameter tim_base_addr = 32'h10000000;
-  parameter tim_top_addr = 32'h10100000;
+  parameter tim_mask_addr = 32'h000FFFFF;
 
   parameter ram_base_addr = 32'h80000000;
-  parameter ram_top_addr = 32'h90000000;
+  parameter ram_mask_addr = 32'h000FFFFF;
 
   parameter clk_freq = 100000000;  // 100MHz
   parameter per_freq = 10000000;  // 10MHz

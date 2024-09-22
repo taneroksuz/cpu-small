@@ -4,6 +4,12 @@ module soc (
     input  logic reset,
     input  logic clock,
     input  logic clock_per,
+    output logic sclk,
+    output logic cs,
+    inout  logic d0,
+    inout  logic d1,
+    inout  logic d2,
+    inout  logic d3,
     input  logic rx,
     output logic tx
 );
@@ -43,6 +49,7 @@ module soc (
   mem_in_type rom_in;
   mem_in_type ram_in;
   mem_in_type tim_in;
+  mem_in_type qspi_in;
   mem_in_type clint_in;
   mem_in_type error_in;
   mem_in_type uart_rx_in;
@@ -51,6 +58,7 @@ module soc (
   mem_out_type rom_out;
   mem_out_type ram_out;
   mem_out_type tim_out;
+  mem_out_type qspi_out;
   mem_out_type clint_out;
   mem_out_type error_out;
   mem_out_type uart_rx_out;
@@ -75,6 +83,7 @@ module soc (
     rom_in = init_mem_in;
     ram_in = init_mem_in;
     tim_in = init_mem_in;
+    qspi_in = init_mem_in;
     clint_in = init_mem_in;
     error_in = init_mem_in;
     uart_rx_in = init_mem_in;
@@ -82,28 +91,42 @@ module soc (
 
     base_addr = 0;
 
-    if (memory_in.mem_valid == 1) begin
-      if (memory_in.mem_addr >= rom_base_addr && memory_in.mem_addr < rom_top_addr) begin
-        rom_in = memory_in;
-        base_addr = rom_base_addr;
-      end else if (memory_in.mem_addr >= ram_base_addr && memory_in.mem_addr < ram_top_addr) begin
-        ram_in = memory_in;
-        base_addr = ram_base_addr;
-      end else if (memory_in.mem_addr >= tim_base_addr && memory_in.mem_addr < tim_top_addr) begin
-        tim_in = memory_in;
-        base_addr = tim_base_addr;
-      end else if (memory_in.mem_addr >= clint_base_addr && memory_in.mem_addr < clint_top_addr) begin
-        clint_in  = memory_in;
-        base_addr = clint_base_addr;
-      end else if (memory_in.mem_addr >= uart_rx_base_addr && memory_in.mem_addr < uart_rx_top_addr) begin
-        uart_rx_in = memory_in;
-        base_addr  = uart_rx_base_addr;
-      end else if (memory_in.mem_addr >= uart_tx_base_addr && memory_in.mem_addr < uart_tx_top_addr) begin
-        uart_tx_in = memory_in;
-        base_addr  = uart_tx_base_addr;
-      end else begin
-        error_in.mem_valid = 1;
-      end
+    error_in.mem_valid = 1;
+
+    if (memory_in.mem_valid & ~|(rom_base_addr ^ (memory_in.mem_addr & ~rom_mask_addr))) begin
+      rom_in = memory_in;
+      base_addr = rom_base_addr;
+      error_in.mem_valid = 0;
+    end
+    if (memory_in.mem_valid & ~|(ram_base_addr ^ (memory_in.mem_addr & ~ram_mask_addr))) begin
+      ram_in = memory_in;
+      base_addr = ram_base_addr;
+      error_in.mem_valid = 0;
+    end
+    if (memory_in.mem_valid & ~|(tim_base_addr ^ (memory_in.mem_addr & ~tim_mask_addr))) begin
+      tim_in = memory_in;
+      base_addr = tim_base_addr;
+      error_in.mem_valid = 0;
+    end
+    if (memory_in.mem_valid & ~|(qspi_base_addr ^ (memory_in.mem_addr & ~qspi_mask_addr))) begin
+      qspi_in = memory_in;
+      base_addr = qspi_base_addr;
+      error_in.mem_valid = 0;
+    end
+    if (memory_in.mem_valid & ~|(clint_base_addr ^ (memory_in.mem_addr & ~clint_mask_addr))) begin
+      clint_in = memory_in;
+      base_addr = clint_base_addr;
+      error_in.mem_valid = 0;
+    end
+    if (memory_in.mem_valid & ~|(uart_rx_base_addr ^ (memory_in.mem_addr & ~uart_rx_mask_addr))) begin
+      uart_rx_in = memory_in;
+      base_addr = uart_rx_base_addr;
+      error_in.mem_valid = 0;
+    end
+    if (memory_in.mem_valid & ~|(uart_tx_base_addr ^ (memory_in.mem_addr & ~uart_tx_mask_addr))) begin
+      uart_tx_in = memory_in;
+      base_addr = uart_tx_base_addr;
+      error_in.mem_valid = 0;
     end
 
     mem_addr = memory_in.mem_addr - base_addr;
@@ -111,6 +134,7 @@ module soc (
     rom_in.mem_addr = mem_addr;
     ram_in.mem_addr = mem_addr;
     tim_in.mem_addr = mem_addr;
+    qspi_in.mem_addr = mem_addr;
     clint_in.mem_addr = mem_addr;
     uart_rx_in.mem_addr = mem_addr;
     uart_tx_in.mem_addr = mem_addr;
@@ -119,17 +143,26 @@ module soc (
 
     if (rom_out.mem_ready == 1) begin
       memory_out = rom_out;
-    end else if (ram_out.mem_ready == 1) begin
+    end
+    if (ram_out.mem_ready == 1) begin
       memory_out = ram_out;
-    end else if (tim_out.mem_ready == 1) begin
+    end
+    if (tim_out.mem_ready == 1) begin
       memory_out = tim_out;
-    end else if (clint_out.mem_ready == 1) begin
+    end
+    if (qspi_out.mem_ready == 1) begin
+      memory_out = qspi_out;
+    end
+    if (clint_out.mem_ready == 1) begin
       memory_out = clint_out;
-    end else if (error_out.mem_ready == 1) begin
+    end
+    if (error_out.mem_ready == 1) begin
       memory_out = error_out;
-    end else if (uart_rx_out.mem_ready == 1) begin
+    end
+    if (uart_rx_out.mem_ready == 1) begin
       memory_out = uart_rx_out;
-    end else if (uart_tx_out.mem_ready == 1) begin
+    end
+    if (uart_tx_out.mem_ready == 1) begin
       memory_out = uart_tx_out;
     end
 
@@ -238,6 +271,21 @@ module soc (
       .clock  (clock_per),
       .ram_in (ram_per_in),
       .ram_out(ram_per_out)
+  );
+
+  qspi #(
+      .clock_rate(clk_divider_per)
+  ) qspi_comp (
+      .reset(reset),
+      .clock(clock),
+      .qspi_in(qspi_in),
+      .qspi_out(qspi_out),
+      .sclk(sclk),
+      .cs(cs),
+      .d0(d0),
+      .d1(d1),
+      .d2(d2),
+      .d3(d3)
   );
 
   uart_rx #(
