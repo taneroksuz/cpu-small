@@ -50,8 +50,6 @@ module tim_ram (
           if (tim_ram_in.strb[2]) tim_ram[tim_ram_in.addr][23:16] <= tim_ram_in.data[23:16];
           if (tim_ram_in.strb[3]) tim_ram[tim_ram_in.addr][31:24] <= tim_ram_in.data[31:24];
           tim_ram_out.data <= tim_ram[tim_ram_in.addr];
-        end else begin
-          tim_ram_out.data <= 0;
         end
       end
 
