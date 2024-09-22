@@ -7,14 +7,12 @@ module testbench ();
   logic reset;
   logic clock;
   logic clock_per;
+  logic sclk;
+  logic mosi;
+  logic miso;
+  logic ss;
   logic rx;
   logic tx;
-  logic sclk;
-  logic cs;
-  logic d0;
-  logic d1;
-  logic d2;
-  logic d3;
 
   logic [31 : 0] host[0:0] = '{default: '0};
 
@@ -64,7 +62,8 @@ module testbench ();
         @(posedge clock);
         if (testbench.soc_comp.cpu_comp.execute_stage_comp.a.e.instr.op.wren == 1) begin
           $fwrite(reg_file, "PERIOD = %t\t", $time);
-          $fwrite(reg_file, "PC = %x\t", testbench.soc_comp.cpu_comp.execute_stage_comp.a.e.instr.pc);
+          $fwrite(reg_file, "PC = %x\t",
+                  testbench.soc_comp.cpu_comp.execute_stage_comp.a.e.instr.pc);
           $fwrite(reg_file, "WADDR = %x\t",
                   testbench.soc_comp.cpu_comp.execute_stage_comp.a.e.instr.waddr);
           $fwrite(reg_file, "WDATA = %x\n",
@@ -83,7 +82,8 @@ module testbench ();
         @(posedge clock);
         if (testbench.soc_comp.cpu_comp.execute_stage_comp.a.e.instr.op.cwren == 1) begin
           $fwrite(csr_file, "PERIOD = %t\t", $time);
-          $fwrite(csr_file, "PC = %x\t", testbench.soc_comp.cpu_comp.execute_stage_comp.a.e.instr.pc);
+          $fwrite(csr_file, "PC = %x\t",
+                  testbench.soc_comp.cpu_comp.execute_stage_comp.a.e.instr.pc);
           $fwrite(csr_file, "WADDR = %x\t",
                   testbench.soc_comp.cpu_comp.execute_stage_comp.a.e.instr.caddr);
           $fwrite(csr_file, "WDATA = %x\n",
@@ -149,14 +149,12 @@ module testbench ();
       .reset(reset),
       .clock(clock),
       .clock_per(clock_per),
-      .rx(rx),
-      .tx(tx),
       .sclk(sclk),
-      .cs(cs),
-      .d0(d0),
-      .d1(d1),
-      .d2(d2),
-      .d3(d3)
+      .mosi(mosi),
+      .miso(miso),
+      .ss(ss),
+      .rx(rx),
+      .tx(tx)
   );
 
 endmodule

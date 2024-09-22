@@ -5,11 +5,9 @@ module soc (
     input  clock,
     input  clock_per,
     output sclk,
-    output cs,
-    inout  d0,
-    inout  d1,
-    inout  d2,
-    inout  d3,
+    output mosi,
+    input  miso,
+    output ss,
     input  rx,
     output tx
 );
@@ -49,7 +47,7 @@ module soc (
   mem_in_type rom_in;
   mem_in_type ram_in;
   mem_in_type tim_in;
-  mem_in_type qspi_in;
+  mem_in_type spi_in;
   mem_in_type clint_in;
   mem_in_type error_in;
   mem_in_type uart_rx_in;
@@ -58,7 +56,7 @@ module soc (
   mem_out_type rom_out;
   mem_out_type ram_out;
   mem_out_type tim_out;
-  mem_out_type qspi_out;
+  mem_out_type spi_out;
   mem_out_type clint_out;
   mem_out_type error_out;
   mem_out_type uart_rx_out;
@@ -83,7 +81,7 @@ module soc (
     rom_in = init_mem_in;
     ram_in = init_mem_in;
     tim_in = init_mem_in;
-    qspi_in = init_mem_in;
+    spi_in = init_mem_in;
     clint_in = init_mem_in;
     error_in = init_mem_in;
     uart_rx_in = init_mem_in;
@@ -108,9 +106,9 @@ module soc (
       base_addr = tim_base_addr;
       error_in.mem_valid = 0;
     end
-    if (memory_in.mem_valid & ~|(qspi_base_addr ^ (memory_in.mem_addr & ~qspi_mask_addr))) begin
-      qspi_in = memory_in;
-      base_addr = qspi_base_addr;
+    if (memory_in.mem_valid & ~|(spi_base_addr ^ (memory_in.mem_addr & ~spi_mask_addr))) begin
+      spi_in = memory_in;
+      base_addr = spi_base_addr;
       error_in.mem_valid = 0;
     end
     if (memory_in.mem_valid & ~|(clint_base_addr ^ (memory_in.mem_addr & ~clint_mask_addr))) begin
@@ -134,7 +132,7 @@ module soc (
     rom_in.mem_addr = mem_addr;
     ram_in.mem_addr = mem_addr;
     tim_in.mem_addr = mem_addr;
-    qspi_in.mem_addr = mem_addr;
+    spi_in.mem_addr = mem_addr;
     clint_in.mem_addr = mem_addr;
     uart_rx_in.mem_addr = mem_addr;
     uart_tx_in.mem_addr = mem_addr;
@@ -150,8 +148,8 @@ module soc (
     if (tim_out.mem_ready == 1) begin
       memory_out = tim_out;
     end
-    if (qspi_out.mem_ready == 1) begin
-      memory_out = qspi_out;
+    if (spi_out.mem_ready == 1) begin
+      memory_out = spi_out;
     end
     if (clint_out.mem_ready == 1) begin
       memory_out = clint_out;
@@ -273,19 +271,17 @@ module soc (
       .ram_out(ram_per_out)
   );
 
-  qspi #(
+  spi #(
       .clock_rate(clk_divider_per)
-  ) qspi_comp (
+  ) spi_comp (
       .reset(reset),
       .clock(clock),
-      .qspi_in(qspi_in),
-      .qspi_out(qspi_out),
+      .spi_in(spi_in),
+      .spi_out(spi_out),
       .sclk(sclk),
-      .cs(cs),
-      .d0(d0),
-      .d1(d1),
-      .d2(d2),
-      .d3(d3)
+      .mosi(mosi),
+      .miso(miso),
+      .ss(ss)
   );
 
   uart_rx #(
