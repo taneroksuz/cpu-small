@@ -1,6 +1,6 @@
 import configure::*;
 
-module tb_soc ();
+module testbench ();
 
   timeunit 1ns; timeprecision 1ps;
 
@@ -62,13 +62,13 @@ module tb_soc ();
       reg_file = $fopen(filename, "w");
       for (int i = 0; i < stoptime; i = i + 1) begin
         @(posedge clock);
-        if (tb_soc.soc_comp.cpu_comp.execute_stage_comp.a.e.instr.op.wren == 1) begin
+        if (testbench.soc_comp.cpu_comp.execute_stage_comp.a.e.instr.op.wren == 1) begin
           $fwrite(reg_file, "PERIOD = %t\t", $time);
-          $fwrite(reg_file, "PC = %x\t", tb_soc.soc_comp.cpu_comp.execute_stage_comp.a.e.instr.pc);
+          $fwrite(reg_file, "PC = %x\t", testbench.soc_comp.cpu_comp.execute_stage_comp.a.e.instr.pc);
           $fwrite(reg_file, "WADDR = %x\t",
-                  tb_soc.soc_comp.cpu_comp.execute_stage_comp.a.e.instr.waddr);
+                  testbench.soc_comp.cpu_comp.execute_stage_comp.a.e.instr.waddr);
           $fwrite(reg_file, "WDATA = %x\n",
-                  tb_soc.soc_comp.cpu_comp.execute_stage_comp.a.e.instr.wdata);
+                  testbench.soc_comp.cpu_comp.execute_stage_comp.a.e.instr.wdata);
         end
       end
       $fclose(reg_file);
@@ -81,13 +81,13 @@ module tb_soc ();
       csr_file = $fopen(filename, "w");
       for (int i = 0; i < stoptime; i = i + 1) begin
         @(posedge clock);
-        if (tb_soc.soc_comp.cpu_comp.execute_stage_comp.a.e.instr.op.cwren == 1) begin
+        if (testbench.soc_comp.cpu_comp.execute_stage_comp.a.e.instr.op.cwren == 1) begin
           $fwrite(csr_file, "PERIOD = %t\t", $time);
-          $fwrite(csr_file, "PC = %x\t", tb_soc.soc_comp.cpu_comp.execute_stage_comp.a.e.instr.pc);
+          $fwrite(csr_file, "PC = %x\t", testbench.soc_comp.cpu_comp.execute_stage_comp.a.e.instr.pc);
           $fwrite(csr_file, "WADDR = %x\t",
-                  tb_soc.soc_comp.cpu_comp.execute_stage_comp.a.e.instr.caddr);
+                  testbench.soc_comp.cpu_comp.execute_stage_comp.a.e.instr.caddr);
           $fwrite(csr_file, "WDATA = %x\n",
-                  tb_soc.soc_comp.cpu_comp.execute_stage_comp.a.e.instr.cwdata);
+                  testbench.soc_comp.cpu_comp.execute_stage_comp.a.e.instr.cwdata);
         end
       end
       $fclose(csr_file);
@@ -100,17 +100,17 @@ module tb_soc ();
       mem_file = $fopen(filename, "w");
       for (int i = 0; i < stoptime; i = i + 1) begin
         @(posedge clock);
-        if (tb_soc.soc_comp.cpu_comp.execute_stage_comp.a.e.instr.op.store == 1) begin
-          if (|tb_soc.soc_comp.cpu_comp.execute_stage_comp.a.e.instr.byteenable == 1) begin
+        if (testbench.soc_comp.cpu_comp.execute_stage_comp.a.e.instr.op.store == 1) begin
+          if (|testbench.soc_comp.cpu_comp.execute_stage_comp.a.e.instr.byteenable == 1) begin
             $fwrite(mem_file, "PERIOD = %t\t", $time);
             $fwrite(mem_file, "PC = %x\t",
-                    tb_soc.soc_comp.cpu_comp.execute_stage_comp.a.e.instr.pc);
+                    testbench.soc_comp.cpu_comp.execute_stage_comp.a.e.instr.pc);
             $fwrite(mem_file, "WADDR = %x\t",
-                    tb_soc.soc_comp.cpu_comp.execute_stage_comp.a.e.instr.address);
+                    testbench.soc_comp.cpu_comp.execute_stage_comp.a.e.instr.address);
             $fwrite(mem_file, "WSTRB = %b\t",
-                    tb_soc.soc_comp.cpu_comp.execute_stage_comp.a.e.instr.byteenable);
+                    testbench.soc_comp.cpu_comp.execute_stage_comp.a.e.instr.byteenable);
             $fwrite(mem_file, "WDATA = %x\n",
-                    tb_soc.soc_comp.cpu_comp.execute_stage_comp.a.e.instr.sdata);
+                    testbench.soc_comp.cpu_comp.execute_stage_comp.a.e.instr.sdata);
           end
         end
       end
@@ -127,10 +127,10 @@ module tb_soc ();
   end
 
   always_ff @(posedge clock) begin
-    if (tb_soc.soc_comp.cpu_comp.fetch_stage_comp.dmem_in.mem_valid == 1) begin
-      if (tb_soc.soc_comp.cpu_comp.fetch_stage_comp.dmem_in.mem_addr[31:2] == host[0][31:2]) begin
-        if (|tb_soc.soc_comp.cpu_comp.fetch_stage_comp.dmem_in.mem_wstrb == 1) begin
-          $display("%d", tb_soc.soc_comp.cpu_comp.fetch_stage_comp.dmem_in.mem_wdata);
+    if (testbench.soc_comp.cpu_comp.fetch_stage_comp.dmem_in.mem_valid == 1) begin
+      if (testbench.soc_comp.cpu_comp.fetch_stage_comp.dmem_in.mem_addr[31:2] == host[0][31:2]) begin
+        if (|testbench.soc_comp.cpu_comp.fetch_stage_comp.dmem_in.mem_wstrb == 1) begin
+          $display("%d", testbench.soc_comp.cpu_comp.fetch_stage_comp.dmem_in.mem_wdata);
           $finish;
         end
       end
