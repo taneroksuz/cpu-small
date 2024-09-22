@@ -1,4 +1,4 @@
-# CPU-RV32IMC
+# CPU-SMALL
 
 This cpu is 2-stage scalar processor.
 
@@ -11,7 +11,7 @@ This cpu is 2-stage scalar processor.
 - Physical Memory Protection
 - Core Local Interrupt Controller
 ### Memory
-- Neumann architecture
+- Neumann bus architecture
 - Unified Tightly Integrated Memory
 ### Peripheral
 - UART
@@ -29,7 +29,7 @@ The installation scripts of necessary tools are located in directory **tools**. 
 
 1. Cloning the repository:
 ```console
-git clone --recurse-submodules https://github.com/taneroksuz/cpu-rv32imc.git
+git clone --recurse-submodules https://github.com/taneroksuz/cpu-small.git
 ```
 
 2. Execute scripts in directory **tools** to install necessary tools for compilation and simulation:
