@@ -24,6 +24,7 @@ compile:
 	benchmark/whetstone.sh
 	benchmark/free-rtos.sh
 	benchmark/isa.sh
+	benchmark/rom.sh
 
 parse:
 	check/run.sh
