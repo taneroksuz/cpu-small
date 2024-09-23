@@ -1,15 +1,22 @@
 import configure::*;
 
 module soc (
-    input  reset,
-    input  clock,
-    input  clock_per,
+    input reset,
+    input clock,
+    input clock_per,
     output sclk,
     output mosi,
-    input  miso,
+    input miso,
     output ss,
-    input  rx,
-    output tx
+    input rx,
+    output tx,
+    output sram_ce_n,
+    output sram_we_n,
+    output sram_oe_n,
+    output sram_ub_n,
+    output sram_lb_n,
+    inout [15:0] sram_dq,
+    output [17:0] sram_addr
 );
 
   timeunit 1ns; timeprecision 1ps;
@@ -45,7 +52,7 @@ module soc (
   mem_out_type dmemory_out;
 
   mem_in_type rom_in;
-  mem_in_type ram_in;
+  mem_in_type sram_in;
   mem_in_type tim_in;
   mem_in_type spi_in;
   mem_in_type clint_in;
@@ -54,17 +61,13 @@ module soc (
   mem_in_type uart_tx_in;
 
   mem_out_type rom_out;
-  mem_out_type ram_out;
+  mem_out_type sram_out;
   mem_out_type tim_out;
   mem_out_type spi_out;
   mem_out_type clint_out;
   mem_out_type error_out;
   mem_out_type uart_rx_out;
   mem_out_type uart_tx_out;
-
-  mem_in_type ram_per_in;
-
-  mem_out_type ram_per_out;
 
   logic [0 : 0] meip;
   logic [0 : 0] msip;
@@ -79,7 +82,7 @@ module soc (
   always_comb begin
 
     rom_in = init_mem_in;
-    ram_in = init_mem_in;
+    sram_in = init_mem_in;
     tim_in = init_mem_in;
     spi_in = init_mem_in;
     clint_in = init_mem_in;
@@ -96,9 +99,9 @@ module soc (
       base_addr = rom_base_addr;
       error_in.mem_valid = 0;
     end
-    if (memory_in.mem_valid & ~|(ram_base_addr ^ (memory_in.mem_addr & ~ram_mask_addr))) begin
-      ram_in = memory_in;
-      base_addr = ram_base_addr;
+    if (memory_in.mem_valid & ~|(sram_base_addr ^ (memory_in.mem_addr & ~sram_mask_addr))) begin
+      sram_in = memory_in;
+      base_addr = sram_base_addr;
       error_in.mem_valid = 0;
     end
     if (memory_in.mem_valid & ~|(tim_base_addr ^ (memory_in.mem_addr & ~tim_mask_addr))) begin
@@ -130,7 +133,7 @@ module soc (
     mem_addr = memory_in.mem_addr - base_addr;
 
     rom_in.mem_addr = mem_addr;
-    ram_in.mem_addr = mem_addr;
+    sram_in.mem_addr = mem_addr;
     tim_in.mem_addr = mem_addr;
     spi_in.mem_addr = mem_addr;
     clint_in.mem_addr = mem_addr;
@@ -142,8 +145,8 @@ module soc (
     if (rom_out.mem_ready == 1) begin
       memory_out = rom_out;
     end
-    if (ram_out.mem_ready == 1) begin
-      memory_out = ram_out;
+    if (sram_out.mem_ready == 1) begin
+      memory_out = sram_out;
     end
     if (tim_out.mem_ready == 1) begin
       memory_out = tim_out;
@@ -252,23 +255,20 @@ module soc (
       .clint_mtime(mtime)
   );
 
-  ccd #(
+  sram #(
       .clock_rate(clk_divider_per)
-  ) ccd_ram_comp (
+  ) sram_comp (
       .reset(reset),
       .clock(clock),
-      .clock_per(clock_per),
-      .mem_in(ram_in),
-      .mem_out(ram_out),
-      .mem_per_in(ram_per_in),
-      .mem_per_out(ram_per_out)
-  );
-
-  ram ram_comp (
-      .reset  (reset),
-      .clock  (clock_per),
-      .ram_in (ram_per_in),
-      .ram_out(ram_per_out)
+      .sram_in(sram_in),
+      .sram_out(sram_out),
+      .sram_ce_n(sram_ce_n),
+      .sram_we_n(sram_we_n),
+      .sram_oe_n(sram_oe_n),
+      .sram_ub_n(sram_ub_n),
+      .sram_lb_n(sram_lb_n),
+      .sram_dq(sram_dq),
+      .sram_addr(sram_addr)
   );
 
   spi #(
