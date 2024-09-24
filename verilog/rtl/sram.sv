@@ -60,6 +60,7 @@ module sram #(
           v.write = 0;
         end
         if (v.state == 0) begin
+          v.addr[1:0] = 2'b10;
           v.state = 1;
         end
       end
@@ -75,6 +76,7 @@ module sram #(
         end
         if (v.state == 0) begin
           v.data[15:0] = sram_dq;
+          v.addr[1:0] = 2'b10;
           v.state = 1;
         end
       end
@@ -82,7 +84,7 @@ module sram #(
     end
 
     if (sram_in.mem_valid == 1 && sram_in.mem_addr == 0) begin
-      v.addr  = sram_in.mem_addr[17:0];
+      v.addr  = {sram_in.mem_addr[17:2], 2'b00};
       v.data  = sram_in.mem_wdata;
       v.strb  = sram_in.mem_wstrb;
       v.write = |v.strb;
