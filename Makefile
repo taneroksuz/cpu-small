@@ -32,8 +32,8 @@ parse:
 quartus:
 	fpga/quartus/run.sh
 
-xilinx:
-	fpga/xilinx/run.sh
+vivado:
+	fpga/vivado/run.sh
 
 program:
 	serial/transfer.sh

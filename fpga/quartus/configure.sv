@@ -8,7 +8,7 @@ package configure;
   parameter buffer_depth = 4;
 
   parameter tim_width = 32;
-  parameter tim_depth = 8192;
+  parameter tim_depth = 1024;
 
   parameter ram_type = 1;
 
