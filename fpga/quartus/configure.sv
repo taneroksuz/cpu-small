@@ -10,6 +10,8 @@ package configure;
   parameter tim_width = 32;
   parameter tim_depth = 1024;
 
+  parameter sram_depth = 1;
+
   parameter ram_type = 1;
 
   parameter pmp_region = 4;

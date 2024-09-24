@@ -10,12 +10,14 @@ package configure;
   parameter tim_width = 32;
   parameter tim_depth = 8192;
 
+  parameter sram_depth = 262144;
+
   parameter ram_type = 0;
 
   parameter pmp_region = 4;
 
   parameter rom_base_addr = 32'h00;
-  parameter rom_mask_addr = 32'hFF;
+  parameter rom_mask_addr = 32'h7F;
 
   parameter spi_base_addr = 32'h100000;
   parameter spi_mask_addr = 32'h0FFFFF;
