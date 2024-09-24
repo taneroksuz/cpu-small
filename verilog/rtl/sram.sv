@@ -17,7 +17,7 @@ module sram #(
     output [17:0] sram_addr
 );
   timeunit 1ns; timeprecision 1ps;
-  
+
   generate
 
     if (hardware == 0) begin
