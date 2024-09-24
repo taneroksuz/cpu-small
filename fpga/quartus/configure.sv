@@ -39,7 +39,7 @@ package configure;
 
   parameter sys_freq = 50000000;  // 50MHz
 
-  parameter cpu_freq = 25000000;  // 25MHz
+  parameter cpu_freq = 10000000;  // 10MHz
   parameter per_freq = 5000000;   // 5MHz
   parameter rtc_freq = 1000000;   // 1MHz
   parameter baudrate = 115200;
