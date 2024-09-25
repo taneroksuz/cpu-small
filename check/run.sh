@@ -23,7 +23,6 @@ ${VERIBLE}-verilog-format --inplace ${BASEDIR}/verilog/conf/configure.sv \
                                     ${BASEDIR}/verilog/rtl/forwarding.sv \
                                     ${BASEDIR}/verilog/rtl/fetch_stage.sv \
                                     ${BASEDIR}/verilog/rtl/execute_stage.sv \
-                                    ${BASEDIR}/verilog/rtl/clk_div.sv \
                                     ${BASEDIR}/verilog/rtl/arbiter.sv \
                                     ${BASEDIR}/verilog/rtl/ccd.sv \
                                     ${BASEDIR}/verilog/rtl/clint.sv \
