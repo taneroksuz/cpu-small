@@ -74,7 +74,7 @@ module sram #(
         logic [0 : 0]  oe_n;
         logic [0 : 0]  ub_n;
         logic [0 : 0]  lb_n;
-        logic [0 : 0]  state;
+        logic [1 : 0]  state;
         logic [0 : 0]  write;
         logic [0 : 0]  read;
         logic [0 : 0]  ready;
@@ -96,54 +96,53 @@ module sram #(
         v.ub_n = 1;
         v.lb_n = 1;
 
-        if (v.counter > full) begin
-          if (v.write == 1) begin
-            if (v.state == 1) begin
-              v.ready = 1;
-              v.write = 0;
-            end
-            if (v.state == 0) begin
-              v.addr[1:0] = 2'b10;
-              v.state = 1;
-            end
-          end
+        if (sram_in.mem_valid == 1 && v.state == 0) begin
+          v.addr = sram_in.mem_addr[18:1];
+          v.data = sram_in.mem_wdata;
+          v.strb = sram_in.mem_wstrb;
+          v.write = |v.strb;
+          v.read = ~v.write;
           v.counter = 0;
+          v.state = 1;
         end
 
         if (v.counter > full) begin
-          if (v.read == 1) begin
+          if (v.write == 1) begin
+            if (v.state == 2) begin
+              v.ready = 1;
+              v.write = 0;
+              v.state = 0;
+            end
             if (v.state == 1) begin
+              v.addr[0] = 1'b1;
+              v.state = 2;
+            end
+          end
+          if (v.read == 1) begin
+            if (v.state == 2) begin
               v.data[31:16] = sram_dq;
               v.ready = 1;
               v.read = 0;
+              v.state = 0;
             end
-            if (v.state == 0) begin
+            if (v.state == 1) begin
               v.data[15:0] = sram_dq;
-              v.addr[1:0] = 2'b10;
-              v.state = 1;
+              v.addr[0] = 1'b1;
+              v.state = 2;
             end
           end
           v.counter = 0;
-        end
-
-        if (sram_in.mem_valid == 1 && sram_in.mem_addr == 0) begin
-          v.addr  = {sram_in.mem_addr[17:2], 2'b00};
-          v.data  = sram_in.mem_wdata;
-          v.strb  = sram_in.mem_wstrb;
-          v.write = |v.strb;
-          v.read  = ~v.write;
-          v.state = 0;
         end
 
         if (v.write == 1) begin
           v.ce_n = 0;
           v.we_n = 0;
-          if (v.state == 1) begin
+          if (v.state == 2) begin
             v.dq   = v.data[31:16];
             v.ub_n = ~v.strb[3];
             v.lb_n = ~v.strb[2];
           end
-          if (v.state == 0) begin
+          if (v.state == 1) begin
             v.dq   = v.data[15:0];
             v.ub_n = ~v.strb[1];
             v.lb_n = ~v.strb[0];
