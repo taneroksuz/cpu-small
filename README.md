@@ -9,7 +9,6 @@ This cpu is 2-stage scalar processor.
 - Fast and slow option for multiplication unit
 - Slow division unit
 - Physical Memory Protection
-- Core Local Interrupt Controller
 ### Memory
 - Neumann bus architecture
 - Unified Tightly Integrated Memory
