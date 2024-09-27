@@ -3,10 +3,17 @@ default: simulate
 export VERILATOR ?= verilator
 export VERIBLE ?= verible
 export PYTHON ?= python3
-export PYTHON ?= /usr/bin/python3
 export SERIAL ?= /dev/ttyUSB0
 export BASEDIR ?= $(shell dirname $(realpath $(firstword $(MAKEFILE_LIST))))
 export BENCHMARK ?= benchmark
+
+export QUARTUS_VER ?= 23.1
+export QUARTUS_BIN ?= $(HOME)/intelFPGA_lite/$(QUARTUS_VER)std/quartus/bin/
+
+export VIVADO_VER ?=2023.2
+export VIVADO_BIN ?= $(HOME)/Xilinx/Vivado/$(VIVADO_VER)/bin
+
+export SRAM_SIZE ?= 0x80000
 
 export RISCV ?= /opt/rv32imc
 export ARCH ?= rv32imc_zicsr_zifencei
