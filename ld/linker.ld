@@ -4,8 +4,7 @@ ENTRY(_start)
 MEMORY
 {
   tim (rwx) : ORIGIN = 0x10000000, LENGTH = 0x100000
-  boot (rwx) : ORIGIN = 0x80000000, LENGTH = 0x1000
-  ram (rwx) : ORIGIN = 0x80001000, LENGTH = 0xFF000
+  ram (rwx) : ORIGIN = 0x80000000, LENGTH = 0x100000
   host (rwx) : ORIGIN = 0x90000000, LENGTH = 0x100
 }
 
@@ -19,8 +18,9 @@ SECTIONS
       _text_start = .;
       _start = .;
       *(.text.init)
+      . = ALIGN(8);
     }
-  } >boot AT>boot
+  } >ram AT>ram
 
   OVERLAY :
   {
