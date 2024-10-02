@@ -15,7 +15,7 @@ rm -f $BASEDIR/sim/vsim/input/*.reg
 rm -f $BASEDIR/sim/vsim/input/*.csr
 rm -f $BASEDIR/sim/vsim/input/*.mem
 rm -f $BASEDIR/sim/vsim/input/*.vcd
-rm -f $BASEDIR/sim/vsim/input/*.freg
+rm -f $BASEDIR/sim/vsim/input/*.wlf
 
 rm -rf $BASEDIR/sim/vsim/output/*
 
@@ -73,11 +73,12 @@ for FILE in $BASEDIR/sim/vsim/input/*; do
   cp ${FILE%.*}.host host.dat
   if [ "$DUMP" = "1" ]
   then
-    $QUESTA_BIN/vsim -c testbench -do "run -all" +MAXTIME=$MAXTIME +REGFILE=${FILE%.*}.reg +CSRFILE=${FILE%.*}.csr +MEMFILE=${FILE%.*}.mem +FILENAME=${FILE%.*}.vcd
+    $QUESTA_BIN/vsim -c testbench -do "add wave -recursive *; run -all" +MAXTIME=$MAXTIME +REGFILE=${FILE%.*}.reg +CSRFILE=${FILE%.*}.csr +MEMFILE=${FILE%.*}.mem +FILENAME=${FILE%.*}.vcd -wlf ${FILE%.*}.wlf
     cp ${FILE%.*}.reg $BASEDIR/sim/vsim/output/.
     cp ${FILE%.*}.csr $BASEDIR/sim/vsim/output/.
     cp ${FILE%.*}.mem $BASEDIR/sim/vsim/output/.
     cp ${FILE%.*}.vcd $BASEDIR/sim/vsim/output/.
+    cp ${FILE%.*}.wlf $BASEDIR/sim/vsim/output/.
   else
     $QUESTA_BIN/vsim -c testbench -do "run -all" +MAXTIME=$MAXTIME
   fi
