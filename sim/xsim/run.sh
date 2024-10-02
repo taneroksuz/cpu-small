@@ -71,15 +71,15 @@ for FILE in $BASEDIR/sim/xsim/input/*; do
   cp ${FILE%.*}.host host.dat
   if [ "$DUMP" = "1" ]
   then
-    $VIVADO_BIN/xelab -top testbench -snapshot testbench_snapshot -L MAXTIME=$MAXTIME -L REGFILE=${FILE%.*}.reg -L CSRFILE=${FILE%.*}.csr -L MEMFILE=${FILE%.*}.mem -L FILENAME=${FILE%.*}.vcd
-    $VIVADO_BIN/xsim $BASEDIR/sim/xsim/work/testbench_snapshot -R
+    $VIVADO_BIN/xelab -top testbench -snapshot testbench_snapshot
+    $VIVADO_BIN/xsim testbench_snapshot -R -testplusarg "MAXTIME=$MAXTIME" -testplusarg "REGFILE=${FILE%.*}.reg" -testplusarg "CSRFILE=${FILE%.*}.csr" -testplusarg "MEMFILE=${FILE%.*}.mem" -testplusarg "FILENAME=${FILE%.*}.vcd"
     cp ${FILE%.*}.reg $BASEDIR/sim/xsim/output/.
     cp ${FILE%.*}.csr $BASEDIR/sim/xsim/output/.
     cp ${FILE%.*}.mem $BASEDIR/sim/xsim/output/.
     cp ${FILE%.*}.vcd $BASEDIR/sim/xsim/output/.
   else
-    $VIVADO_BIN/xelab -top testbench -snapshot testbench_snapshot -L MAXTIME=$MAXTIME
-    $VIVADO_BIN/xsim testbench_snapshot -R
+    $VIVADO_BIN/xelab -top testbench -snapshot testbench_snapshot
+    $VIVADO_BIN/xsim testbench_snapshot -R -testplusarg "MAXTIME=$MAXTIME"
   fi
 done
 

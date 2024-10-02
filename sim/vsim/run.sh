@@ -73,13 +73,13 @@ for FILE in $BASEDIR/sim/vsim/input/*; do
   cp ${FILE%.*}.host host.dat
   if [ "$DUMP" = "1" ]
   then
-    $QUESTA_BIN/vsim -c testbench -do "run -all" -GMAXTIME=$MAXTIME -GREGFILE=${FILE%.*}.reg -GCSRFILE=${FILE%.*}.csr -GMEMFILE=${FILE%.*}.mem -GFILENAME=${FILE%.*}.vcd
+    $QUESTA_BIN/vsim -c testbench -do "run -all" +MAXTIME=$MAXTIME +REGFILE=${FILE%.*}.reg +CSRFILE=${FILE%.*}.csr +MEMFILE=${FILE%.*}.mem +FILENAME=${FILE%.*}.vcd
     cp ${FILE%.*}.reg $BASEDIR/sim/vsim/output/.
     cp ${FILE%.*}.csr $BASEDIR/sim/vsim/output/.
     cp ${FILE%.*}.mem $BASEDIR/sim/vsim/output/.
     cp ${FILE%.*}.vcd $BASEDIR/sim/vsim/output/.
   else
-    $QUESTA_BIN/vsim -c testbench -do "run -all" -GMAXTIME=$MAXTIME
+    $QUESTA_BIN/vsim -c testbench -do "run -all" +MAXTIME=$MAXTIME
   fi
 done
 
