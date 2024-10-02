@@ -19,7 +19,7 @@ module testbench ();
   logic sram_ub_n;
   logic sram_lb_n;
   logic [17:0] sram_addr;
-  wire  [15:0] sram_dq;
+  wire [15:0] sram_dq;
 
   logic [31 : 0] host[0:0] = '{default: '0};
 
@@ -39,7 +39,7 @@ module testbench ();
     string filename;
     if ($value$plusargs("FILENAME=%s", filename)) begin
       $dumpfile(filename);
-      $dumpvars(0, soc);
+      $dumpvars(0, testbench);
     end
   end
 
