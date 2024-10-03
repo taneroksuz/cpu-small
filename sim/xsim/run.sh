@@ -29,39 +29,41 @@ cd $BASEDIR/sim/xsim/work
 
 start=`date +%s`
 
-$VIVADO_BIN/xvlog --sv $BASEDIR/verilog/conf/configure.sv \
-                       $BASEDIR/verilog/rtl/constants.sv \
-                       $BASEDIR/verilog/rtl/functions.sv \
-                       $BASEDIR/verilog/rtl/wires.sv \
-                       $BASEDIR/verilog/rtl/alu.sv \
-                       $BASEDIR/verilog/rtl/agu.sv \
-                       $BASEDIR/verilog/rtl/bcu.sv \
-                       $BASEDIR/verilog/rtl/lsu.sv \
-                       $BASEDIR/verilog/rtl/csr_alu.sv \
-                       $BASEDIR/verilog/rtl/div.sv \
-                       $BASEDIR/verilog/rtl/mul.sv \
-                       $BASEDIR/verilog/rtl/predecoder.sv \
-                       $BASEDIR/verilog/rtl/postdecoder.sv \
-                       $BASEDIR/verilog/rtl/register.sv \
-                       $BASEDIR/verilog/rtl/csr.sv \
-                       $BASEDIR/verilog/rtl/compress.sv \
-                       $BASEDIR/verilog/rtl/buffer.sv \
-                       $BASEDIR/verilog/rtl/forwarding.sv \
-                       $BASEDIR/verilog/rtl/fetch_stage.sv \
-                       $BASEDIR/verilog/rtl/execute_stage.sv \
-                       $BASEDIR/verilog/rtl/arbiter.sv \
-                       $BASEDIR/verilog/rtl/ccd.sv \
-                       $BASEDIR/verilog/rtl/clint.sv \
-                       $BASEDIR/verilog/rtl/tim.sv \
-                       $BASEDIR/verilog/rtl/pmp.sv \
-                       $BASEDIR/verilog/rtl/cpu.sv \
-                       $BASEDIR/verilog/rtl/rom.sv \
-                       $BASEDIR/verilog/rtl/sram.sv \
-                       $BASEDIR/verilog/rtl/spi.sv \
-                       $BASEDIR/verilog/rtl/uart_rx.sv \
-                       $BASEDIR/verilog/rtl/uart_tx.sv \
-                       $BASEDIR/verilog/rtl/soc.sv \
-                       $BASEDIR/verilog/tb/testbench.sv
+$XVLOG --sv $BASEDIR/verilog/conf/configure.sv \
+            $BASEDIR/verilog/rtl/constants.sv \
+            $BASEDIR/verilog/rtl/functions.sv \
+            $BASEDIR/verilog/rtl/wires.sv \
+            $BASEDIR/verilog/rtl/alu.sv \
+            $BASEDIR/verilog/rtl/agu.sv \
+            $BASEDIR/verilog/rtl/bcu.sv \
+            $BASEDIR/verilog/rtl/lsu.sv \
+            $BASEDIR/verilog/rtl/csr_alu.sv \
+            $BASEDIR/verilog/rtl/div.sv \
+            $BASEDIR/verilog/rtl/mul.sv \
+            $BASEDIR/verilog/rtl/predecoder.sv \
+            $BASEDIR/verilog/rtl/postdecoder.sv \
+            $BASEDIR/verilog/rtl/register.sv \
+            $BASEDIR/verilog/rtl/csr.sv \
+            $BASEDIR/verilog/rtl/compress.sv \
+            $BASEDIR/verilog/rtl/buffer.sv \
+            $BASEDIR/verilog/rtl/forwarding.sv \
+            $BASEDIR/verilog/rtl/fetch_stage.sv \
+            $BASEDIR/verilog/rtl/execute_stage.sv \
+            $BASEDIR/verilog/rtl/arbiter.sv \
+            $BASEDIR/verilog/rtl/ccd.sv \
+            $BASEDIR/verilog/rtl/clint.sv \
+            $BASEDIR/verilog/rtl/tim.sv \
+            $BASEDIR/verilog/rtl/pmp.sv \
+            $BASEDIR/verilog/rtl/cpu.sv \
+            $BASEDIR/verilog/rtl/rom.sv \
+            $BASEDIR/verilog/rtl/sram.sv \
+            $BASEDIR/verilog/rtl/spi.sv \
+            $BASEDIR/verilog/rtl/uart_rx.sv \
+            $BASEDIR/verilog/rtl/uart_tx.sv \
+            $BASEDIR/verilog/rtl/soc.sv \
+            $BASEDIR/verilog/tb/testbench.sv
+
+$XELAB -top testbench -snapshot testbench_snapshot
 
 for FILE in $BASEDIR/sim/xsim/input/*; do
   ${RISCV}/bin/riscv32-unknown-elf-nm -A $FILE | grep -sw 'tohost' | sed -e 's/.*:\(.*\) D.*/\1/' > ${FILE%.*}.host
@@ -71,16 +73,14 @@ for FILE in $BASEDIR/sim/xsim/input/*; do
   cp ${FILE%.*}.host host.dat
   if [ "$DUMP" = "1" ]
   then
-    $VIVADO_BIN/xelab -top testbench -snapshot testbench_snapshot
-    $VIVADO_BIN/xsim testbench_snapshot -testplusarg "MAXTIME=$MAXTIME" -testplusarg "REGFILE=${FILE%.*}.reg" -testplusarg "CSRFILE=${FILE%.*}.csr" -testplusarg "MEMFILE=${FILE%.*}.mem" -testplusarg "FILENAME=${FILE%.*}.vcd" -tclbatch $BASEDIR/sim/xsim/run.tcl --wdb ${FILE%.*}.wdb
+    $XSIM testbench_snapshot -testplusarg "MAXTIME=$MAXTIME" -testplusarg "REGFILE=${FILE%.*}.reg" -testplusarg "CSRFILE=${FILE%.*}.csr" -testplusarg "MEMFILE=${FILE%.*}.mem" -testplusarg "FILENAME=${FILE%.*}.vcd" -tclbatch $BASEDIR/sim/xsim/run.tcl --wdb ${FILE%.*}.wdb
     cp ${FILE%.*}.reg $BASEDIR/sim/xsim/output/.
     cp ${FILE%.*}.csr $BASEDIR/sim/xsim/output/.
     cp ${FILE%.*}.mem $BASEDIR/sim/xsim/output/.
     cp ${FILE%.*}.vcd $BASEDIR/sim/xsim/output/.
     cp ${FILE%.*}.wdb $BASEDIR/sim/xsim/output/.
   else
-    $VIVADO_BIN/xelab -top testbench -snapshot testbench_snapshot
-    $VIVADO_BIN/xsim testbench_snapshot -R -testplusarg "MAXTIME=$MAXTIME"
+    $XSIM testbench_snapshot -R -testplusarg "MAXTIME=$MAXTIME"
   fi
 done
 

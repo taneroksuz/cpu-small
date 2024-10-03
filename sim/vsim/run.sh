@@ -29,41 +29,41 @@ cd $BASEDIR/sim/vsim/work
 
 start=`date +%s`
 
-$QUESTA_BIN/vlib .
+$VLIB .
 
-$QUESTA_BIN/vlog -sv -svinputport=relaxed $BASEDIR/verilog/conf/configure.sv \
-                                          $BASEDIR/verilog/rtl/constants.sv \
-                                          $BASEDIR/verilog/rtl/functions.sv \
-                                          $BASEDIR/verilog/rtl/wires.sv \
-                                          $BASEDIR/verilog/rtl/alu.sv \
-                                          $BASEDIR/verilog/rtl/agu.sv \
-                                          $BASEDIR/verilog/rtl/bcu.sv \
-                                          $BASEDIR/verilog/rtl/lsu.sv \
-                                          $BASEDIR/verilog/rtl/csr_alu.sv \
-                                          $BASEDIR/verilog/rtl/div.sv \
-                                          $BASEDIR/verilog/rtl/mul.sv \
-                                          $BASEDIR/verilog/rtl/predecoder.sv \
-                                          $BASEDIR/verilog/rtl/postdecoder.sv \
-                                          $BASEDIR/verilog/rtl/register.sv \
-                                          $BASEDIR/verilog/rtl/csr.sv \
-                                          $BASEDIR/verilog/rtl/compress.sv \
-                                          $BASEDIR/verilog/rtl/buffer.sv \
-                                          $BASEDIR/verilog/rtl/forwarding.sv \
-                                          $BASEDIR/verilog/rtl/fetch_stage.sv \
-                                          $BASEDIR/verilog/rtl/execute_stage.sv \
-                                          $BASEDIR/verilog/rtl/arbiter.sv \
-                                          $BASEDIR/verilog/rtl/ccd.sv \
-                                          $BASEDIR/verilog/rtl/clint.sv \
-                                          $BASEDIR/verilog/rtl/tim.sv \
-                                          $BASEDIR/verilog/rtl/pmp.sv \
-                                          $BASEDIR/verilog/rtl/cpu.sv \
-                                          $BASEDIR/verilog/rtl/rom.sv \
-                                          $BASEDIR/verilog/rtl/sram.sv \
-                                          $BASEDIR/verilog/rtl/spi.sv \
-                                          $BASEDIR/verilog/rtl/uart_rx.sv \
-                                          $BASEDIR/verilog/rtl/uart_tx.sv \
-                                          $BASEDIR/verilog/rtl/soc.sv \
-                                          $BASEDIR/verilog/tb/testbench.sv
+$VLOG -sv -svinputport=relaxed $BASEDIR/verilog/conf/configure.sv \
+                    $BASEDIR/verilog/rtl/constants.sv \
+                    $BASEDIR/verilog/rtl/functions.sv \
+                    $BASEDIR/verilog/rtl/wires.sv \
+                    $BASEDIR/verilog/rtl/alu.sv \
+                    $BASEDIR/verilog/rtl/agu.sv \
+                    $BASEDIR/verilog/rtl/bcu.sv \
+                    $BASEDIR/verilog/rtl/lsu.sv \
+                    $BASEDIR/verilog/rtl/csr_alu.sv \
+                    $BASEDIR/verilog/rtl/div.sv \
+                    $BASEDIR/verilog/rtl/mul.sv \
+                    $BASEDIR/verilog/rtl/predecoder.sv \
+                    $BASEDIR/verilog/rtl/postdecoder.sv \
+                    $BASEDIR/verilog/rtl/register.sv \
+                    $BASEDIR/verilog/rtl/csr.sv \
+                    $BASEDIR/verilog/rtl/compress.sv \
+                    $BASEDIR/verilog/rtl/buffer.sv \
+                    $BASEDIR/verilog/rtl/forwarding.sv \
+                    $BASEDIR/verilog/rtl/fetch_stage.sv \
+                    $BASEDIR/verilog/rtl/execute_stage.sv \
+                    $BASEDIR/verilog/rtl/arbiter.sv \
+                    $BASEDIR/verilog/rtl/ccd.sv \
+                    $BASEDIR/verilog/rtl/clint.sv \
+                    $BASEDIR/verilog/rtl/tim.sv \
+                    $BASEDIR/verilog/rtl/pmp.sv \
+                    $BASEDIR/verilog/rtl/cpu.sv \
+                    $BASEDIR/verilog/rtl/rom.sv \
+                    $BASEDIR/verilog/rtl/sram.sv \
+                    $BASEDIR/verilog/rtl/spi.sv \
+                    $BASEDIR/verilog/rtl/uart_rx.sv \
+                    $BASEDIR/verilog/rtl/uart_tx.sv \
+                    $BASEDIR/verilog/rtl/soc.sv \
+                    $BASEDIR/verilog/tb/testbench.sv
 
 for FILE in $BASEDIR/sim/vsim/input/*; do
   ${RISCV}/bin/riscv32-unknown-elf-nm -A $FILE | grep -sw 'tohost' | sed -e 's/.*:\(.*\) D.*/\1/' > ${FILE%.*}.host
@@ -73,14 +73,14 @@ for FILE in $BASEDIR/sim/vsim/input/*; do
   cp ${FILE%.*}.host host.dat
   if [ "$DUMP" = "1" ]
   then
-    $QUESTA_BIN/vsim -c testbench -do "add wave -recursive *; run -all" +MAXTIME=$MAXTIME +REGFILE=${FILE%.*}.reg +CSRFILE=${FILE%.*}.csr +MEMFILE=${FILE%.*}.mem +FILENAME=${FILE%.*}.vcd -wlf ${FILE%.*}.wlf
+    $VSIM -c testbench -do "add wave -recursive *; run -all" +MAXTIME=$MAXTIME +REGFILE=${FILE%.*}.reg +CSRFILE=${FILE%.*}.csr +MEMFILE=${FILE%.*}.mem +FILENAME=${FILE%.*}.vcd -wlf ${FILE%.*}.wlf
     cp ${FILE%.*}.reg $BASEDIR/sim/vsim/output/.
     cp ${FILE%.*}.csr $BASEDIR/sim/vsim/output/.
     cp ${FILE%.*}.mem $BASEDIR/sim/vsim/output/.
     cp ${FILE%.*}.vcd $BASEDIR/sim/vsim/output/.
     cp ${FILE%.*}.wlf $BASEDIR/sim/vsim/output/.
   else
-    $QUESTA_BIN/vsim -c testbench -do "run -all" +MAXTIME=$MAXTIME
+    $VSIM -c testbench -do "run -all" +MAXTIME=$MAXTIME
   fi
 done
 
