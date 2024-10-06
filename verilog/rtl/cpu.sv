@@ -88,6 +88,8 @@ module cpu (
   mem_out_type dpmp_out;
   rvfi_out_type rvfi_out;
 
+  logic [1:0] clear;
+
   assign fetch_in_a.f = fetch_out_y;
   assign fetch_in_a.e = execute_out_y;
   assign execute_in_a.f = fetch_out_y;
@@ -244,7 +246,8 @@ module cpu (
       .a(fetch_in_a),
       .d(fetch_in_d),
       .y(fetch_out_y),
-      .q(fetch_out_q)
+      .q(fetch_out_q),
+      .clear(clear)
   );
 
   execute_stage execute_stage_comp (
@@ -273,7 +276,8 @@ module cpu (
       .a(execute_in_a),
       .d(execute_in_d),
       .y(execute_out_y),
-      .q(execute_out_q)
+      .q(execute_out_q),
+      .clear(clear)
   );
 
   always_comb begin

@@ -27,7 +27,8 @@ module execute_stage (
     input execute_in_type a,
     input execute_in_type d,
     output execute_out_type y,
-    output execute_out_type q
+    output execute_out_type q,
+    output logic [1:0] clear
 );
   timeunit 1ns; timeprecision 1ps;
 
@@ -62,9 +63,8 @@ module execute_stage (
     end
 
     v.stall = 0;
-    v.clear = csr_out.trap | csr_out.mret | d.e.clear;
 
-    v.enable = ~(d.e.stall | v.clear);
+    v.enable = ~(d.e.stall | csr_out.trap | csr_out.mret | clear[0]);
 
     v.miss = 0;
 
@@ -214,13 +214,8 @@ module execute_stage (
 
     v.instr.op_b = v.instr.op;
 
-    if ((v.stall | v.clear) == 1) begin
+    if ((v.stall | csr_out.trap | csr_out.mret | clear[0]) == 1) begin
       v.instr.op = init_operation;
-    end
-
-    if (v.clear == 1) begin
-      v.stall = 0;
-      v.clear = 0;
     end
 
     if (v.instr.op.nop == 1) begin
@@ -280,11 +275,9 @@ module execute_stage (
 
     y.instr = v.instr;
     y.stall = v.stall;
-    y.clear = v.clear;
 
     q.instr = r.instr;
     q.stall = r.stall;
-    q.clear = r.clear;
 
   end
 
@@ -293,6 +286,14 @@ module execute_stage (
       r <= init_execute_reg;
     end else begin
       r <= rin;
+    end
+  end
+
+  always_ff @(posedge clock) begin
+    if (reset == 0) begin
+      clear <= 2'b11;
+    end else begin
+      clear <= {1'b0, clear[1]};
     end
   end
 

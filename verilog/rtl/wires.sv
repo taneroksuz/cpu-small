@@ -513,7 +513,6 @@ package wires;
     instruction_type instr;
     logic [0 : 0] done;
     logic [0 : 0] stall;
-    logic [0 : 0] clear;
   } fetch_out_type;
 
   typedef struct packed {
@@ -530,7 +529,6 @@ package wires;
     logic [1 : 0] state;
     logic [0 : 0] valid;
     logic [0 : 0] stall;
-    logic [0 : 0] clear;
   } fetch_reg_type;
 
   parameter fetch_reg_type init_fetch_reg = '{
@@ -546,14 +544,12 @@ package wires;
       done : 0,
       state : 0,
       valid : 0,
-      stall : 0,
-      clear : 0
+      stall : 0
   };
 
   typedef struct packed {
     instruction_type instr;
     logic [0 : 0] stall;
-    logic [0 : 0] clear;
   } execute_out_type;
 
   typedef struct packed {
@@ -563,7 +559,6 @@ package wires;
     logic [0 : 0] done;
     logic [0 : 0] enable;
     logic [0 : 0] stall;
-    logic [0 : 0] clear;
   } execute_reg_type;
 
   parameter execute_reg_type init_execute_reg = '{
@@ -572,8 +567,7 @@ package wires;
       miss : 0,
       done : 0,
       enable : 0,
-      stall : 0,
-      clear : 1
+      stall : 0
   };
 
   typedef struct packed {
